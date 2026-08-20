@@ -1,6 +1,7 @@
 import streamlit as st
 from pypdf import PdfReader
 from google import genai
+import json
 
 st.title("Financial Analysis Copilot")
 
@@ -31,15 +32,17 @@ if uploaded_file is not None:
         prompt = f"""
 You are a Senior Financial Analyst and Equity Research Analyst.
 
-Your first task is to understand the company and its business
-before analyzing its financial performance.
+Analyze the uploaded financial report.
 
-FIRST, determine:
+Your first task is to understand the company and its business.
+
+Determine:
 
 1. Company name
 2. Reporting period
 3. Industry / sector
 4. Business type
+5. Type of report
 
 Classify the company into the most appropriate category:
 
@@ -57,167 +60,155 @@ Classify the company into the most appropriate category:
 Then select the financial metrics that are most relevant
 to that company and sector.
 
-IMPORTANT:
-Do not force irrelevant metrics into the analysis.
+Examples:
 
-For Banks, NBFCs and Financial Services, consider:
-- Revenue / Total Income
-- Net Interest Income (NII)
-- Net Interest Margin (NIM)
-- Pre-Provision Operating Profit (PPOP)
-- Assets Under Management (AUM)
-- Gross NPA
-- Net NPA
+For Banks, NBFCs and Financial Services:
+- Total Income
+- NII
+- NIM
+- PPOP
+- AUM
+- GNPA
+- NNPA
 - Credit Cost
-- Profit After Tax (PAT)
-- Return on Assets (ROA)
-- Return on Equity (ROE)
+- PAT
+- ROA
+- ROE
 - Capital Adequacy Ratio
 
-For Manufacturing and Automobile companies, consider:
+For Manufacturing and Automobile:
 - Revenue
 - Revenue Growth
 - EBITDA
 - EBITDA Margin
 - EBIT
-- Profit After Tax (PAT)
+- PAT
 - Net Debt
-- Capital Expenditure (Capex)
+- Capex
 - Free Cash Flow
 - ROCE
 
-For IT and Technology companies, consider:
+For IT and Technology:
 - Revenue
 - Revenue Growth
 - EBIT
 - EBIT Margin
-- Profit After Tax
+- PAT
 - Deal Wins
 - Order Book
 - Utilization
 - Employee Count
 - Attrition
 
-For FMCG and Consumer companies, consider:
+For FMCG and Consumer:
 - Revenue
 - Revenue Growth
 - Volume Growth
 - EBITDA
 - EBITDA Margin
-- Profit After Tax
+- PAT
 - Gross Margin
 - Market Share
 - Distribution
 
-For Insurance companies, consider:
+For Insurance:
 - Gross Written Premium
-- Annualized Premium Equivalent (APE)
-- Value of New Business (VNB)
+- APE
+- VNB
 - VNB Margin
 - Claims Ratio
 - Solvency Ratio
-- Profit After Tax
+- PAT
 
-Use only metrics that are actually relevant and available
-in the uploaded report.
+Do not force irrelevant metrics into the analysis.
 
 IMPORTANT ACCURACY RULES:
+
 - Use only information found in the uploaded report.
 - Do not invent financial figures.
 - Do not guess missing information.
-- If a metric is not available, write "Not available".
-- Clearly distinguish between Consolidated and Standalone figures.
-- Use the latest financial period available in the report.
-- Compare with the previous year whenever the information is available.
-- Keep financial figures exactly as reported whenever possible.
-- Mention the unit used in the report, such as ₹ crore, ₹ million,
-  USD million, etc.
+- If a metric is not available, use "Not available".
+- Clearly distinguish Consolidated and Standalone figures.
+- Use the latest financial period available.
+- Compare with the previous year whenever available.
+- Keep financial figures as reported.
+- Mention the unit used in the report.
 
-Now provide the analysis using the following structure:
+VERY IMPORTANT:
 
-1. COMPANY OVERVIEW
+Return your answer ONLY as valid JSON.
 
-Provide:
-- Company name
-- Reporting period
-- Industry / sector
-- Business type
-- Type of report
+Do not use Markdown.
 
-2. KEY FINANCIAL METRICS
+Do not use ```json.
 
-Create a clear table containing the most relevant financial
-metrics for this particular company.
+Do not add any explanation before or after the JSON.
 
-For each metric provide:
-- Current period
-- Previous period
-- YoY growth
+Use exactly this structure:
 
-Do not include irrelevant metrics simply to fill the table.
+{{
+    "company_overview": {{
+        "company_name": "",
+        "reporting_period": "",
+        "industry": "",
+        "business_type": "",
+        "category": "",
+        "report_type": ""
+    }},
 
-Clearly identify whether the figures are:
-- Consolidated
-- Standalone
+    "key_metrics": [
+        {{
+            "metric": "",
+            "current_period": "",
+            "previous_period": "",
+            "yoy_growth": "",
+            "unit": "",
+            "basis": ""
+        }}
+    ],
 
-3. BUSINESS PERFORMANCE
+    "business_performance": [
+        ""
+    ],
 
-Identify the 3 to 5 most important business developments
-mentioned in the report.
+    "management_commentary": [
+        ""
+    ],
 
-Focus on:
-- Revenue drivers
-- Segment performance
-- New businesses
-- Product launches
-- Market expansion
-- Customer growth
-- Operational improvements
+    "risks": [
+        ""
+    ],
 
-4. MANAGEMENT COMMENTARY
+    "analyst_takeaway": {{
+        "improving": [
+            ""
+        ],
+        "weakening": [
+            ""
+        ],
+        "growth_drivers": [
+            ""
+        ],
+        "investor_watch": [
+            ""
+        ]
+    }}
+}}
 
-Summarize important management statements about:
+The "key_metrics" section should contain only the most relevant
+metrics for the company.
 
-- Growth
-- Future plans
-- Capital expenditure
-- New products or businesses
-- Expansion plans
-- Strategic priorities
-- Future outlook
+The "basis" field must say either:
+"Consolidated"
+or
+"Standalone"
+or
+"Not specified"
 
-Do not present your own assumptions as management commentary.
+If a value is unavailable, write:
+"Not available"
 
-5. KEY RISKS AND HEADWINDS
-
-Identify the 3 to 5 most important risks or challenges
-mentioned in the report.
-
-Consider:
-- Demand slowdown
-- Input cost pressure
-- Interest rate risk
-- Foreign exchange risk
-- Credit risk
-- Regulatory risk
-- Competitive pressure
-- Cybersecurity risk
-- Execution risk
-
-Only include risks that are relevant to the company.
-
-6. ANALYST TAKEAWAY
-
-Give a short analyst-style conclusion covering:
-
-- What is improving?
-- What is weakening?
-- What are the major growth drivers?
-- What should an investor watch?
-
-Keep this section balanced.
-
-Do not give a "Buy", "Sell" or "Hold" recommendation.
+Do not provide Buy, Sell or Hold recommendations.
 
 Financial report:
 
@@ -231,4 +222,17 @@ Financial report:
 
         st.subheader("Gemini Financial Analysis")
 
-        st.write(response.text)
+        raw_response = response.text
+
+        try:
+            analysis = json.loads(raw_response)
+
+            st.success("Financial analysis successfully structured.")
+
+            st.write(analysis)
+
+        except json.JSONDecodeError:
+
+            st.error("Gemini returned an invalid JSON response.")
+
+            st.write(raw_response)
