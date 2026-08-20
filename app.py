@@ -28,20 +28,65 @@ if uploaded_file is not None:
             api_key=st.secrets["GEMINI_API_KEY"]
         )
 
-        prompt = f"""
-You are a financial analyst.
+prompt = f"""
+You are a Senior Financial Analyst.
 
-Read the following financial report and provide a short summary
-of the company's financial performance.
+Analyze the uploaded financial report and create an Executive
+Financial Snapshot.
 
-Focus on:
-1. Revenue
-2. EBITDA
-3. Net Profit
-4. Revenue growth
-5. Profit growth
-6. Major business highlights
-7. Major risks
+IMPORTANT:
+- Use only information found in the uploaded report.
+- Do not invent or assume financial figures.
+- If a metric is not available, write "Not available".
+- Clearly distinguish between Consolidated and Standalone figures.
+- Use the latest financial period available in the report.
+- Compare with the previous year whenever the information is available.
+
+Provide the analysis in the following structure:
+
+1. COMPANY OVERVIEW
+- Company name
+- Reporting period
+- Type of report
+
+2. KEY FINANCIAL METRICS
+Create a table with:
+- Revenue / Total Income
+- EBITDA / Operating Profit / PPOP (use the most relevant metric for the company)
+- Profit Before Tax
+- Net Profit / PAT
+- EPS
+
+For each metric provide:
+- Current period
+- Previous period
+- YoY growth
+
+3. BUSINESS PERFORMANCE
+Identify the 3 to 5 most important business developments
+mentioned in the report.
+
+4. MANAGEMENT COMMENTARY
+Summarize important management statements about:
+- Growth
+- Future plans
+- Capital expenditure
+- New products or businesses
+- Future outlook
+
+5. KEY RISKS
+Identify the 3 to 5 most important risks or headwinds
+mentioned or clearly indicated in the report.
+
+6. ANALYST TAKEAWAY
+Give a short conclusion covering:
+- What is improving?
+- What is weakening?
+- What should an investor watch?
+
+Remember:
+This is financial analysis, so accuracy is more important than
+length.
 
 Financial report:
 
