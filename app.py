@@ -1,4 +1,5 @@
 import streamlit as st
+from pypdf import PdfReader
 
 st.title("Financial Analysis Copilot")
 
@@ -11,4 +12,17 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
     st.success("Financial report uploaded successfully!")
-    st.write("File name:", uploaded_file.name)
+
+    reader = PdfReader(uploaded_file)
+
+    text = ""
+
+    for page in reader.pages:
+        text += page.extract_text() or ""
+
+    st.write("Number of pages:", len(reader.pages))
+
+    st.write("PDF text extracted successfully.")
+
+    with st.expander("View extracted text"):
+        st.text(text[:5000])
