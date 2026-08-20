@@ -3,12 +3,21 @@ from pypdf import PdfReader
 from google import genai
 import json
 
+st.set_page_config(
+    page_title="Financial Analysis Copilot",
+    page_icon="📊",
+    layout="wide"
+)
+
 st.title("Financial Analysis Copilot")
 
-st.write("Upload a financial report to begin analysis.")
+st.write(
+    "Upload a corporate financial report and generate an AI-powered "
+    "financial analysis."
+)
 
 uploaded_file = st.file_uploader(
-    "Choose a financial report",
+    "Upload Financial Report (PDF)",
     type=["pdf"]
 )
 
@@ -220,19 +229,154 @@ Financial report:
             contents=prompt
         )
 
-        st.subheader("Gemini Financial Analysis")
-
         raw_response = response.text
 
         try:
+
             analysis = json.loads(raw_response)
 
             st.success("Financial analysis successfully structured.")
 
-            st.write(analysis)
+            overview = analysis["company_overview"]
+            metrics = analysis["key_metrics"]
+
+            st.header("Company Overview")
+
+            st.subheader(
+                overview["company_name"]
+            )
+
+            col1, col2, col3 = st.columns(3)
+
+            with col1:
+                st.write("**Industry / Sector**")
+                st.write(overview["industry"])
+
+            with col2:
+                st.write("**Business Type**")
+                st.write(overview["business_type"])
+
+            with col3:
+                st.write("**Reporting Period**")
+                st.write(overview["reporting_period"])
+
+            st.divider()
+
+            st.header("Key Financial Metrics")
+
+            # Find important metrics for the top dashboard cards
+
+            total_income = None
+            pat = None
+            aum = None
+
+            for metric in metrics:
+
+                metric_name = metric["metric"].lower()
+
+                if (
+                    total_income is None
+                    and "total income" in metric_name
+                ):
+                    total_income = metric
+
+                if (
+                    pat is None
+                    and (
+                        "profit after tax" in metric_name
+                        or metric_name == "pat"
+                    )
+                ):
+                    pat = metric
+
+                if (
+                    aum is None
+                    and "assets under management" in metric_name
+                ):
+                    aum = metric
+
+            card1, card2, card3 = st.columns(3)
+
+            with card1:
+
+                if total_income:
+
+                    st.metric(
+                        "Total Income",
+                        f'{total_income["current_period"]} {total_income["unit"]}',
+                        total_income["yoy_growth"]
+                    )
+
+                else:
+
+                    st.metric(
+                        "Total Income",
+                        "Not available"
+                    )
+
+            with card2:
+
+                if pat:
+
+                    st.metric(
+                        "Profit After Tax",
+                        f'{pat["current_period"]} {pat["unit"]}',
+                        pat["yoy_growth"]
+                    )
+
+                else:
+
+                    st.metric(
+                        "Profit After Tax",
+                        "Not available"
+                    )
+
+            with card3:
+
+                if aum:
+
+                    st.metric(
+                        "Assets Under Management",
+                        f'{aum["current_period"]} {aum["unit"]}',
+                        aum["yoy_growth"]
+                    )
+
+                else:
+
+                    st.metric(
+                        "Assets Under Management",
+                        "Not available"
+                    )
+
+            st.divider()
+
+            st.subheader("Detailed Financial Metrics")
+
+            table_data = []
+
+            for metric in metrics:
+
+                table_data.append(
+                    {
+                        "Metric": metric["metric"],
+                        "Current Period": metric["current_period"],
+                        "Previous Period": metric["previous_period"],
+                        "YoY Growth": metric["yoy_growth"],
+                        "Unit": metric["unit"],
+                        "Basis": metric["basis"]
+                    }
+                )
+
+            st.dataframe(
+                table_data,
+                use_container_width=True,
+                hide_index=True
+            )
 
         except json.JSONDecodeError:
 
-            st.error("Gemini returned an invalid JSON response.")
+            st.error(
+                "Gemini returned an invalid JSON response."
+            )
 
             st.write(raw_response)
