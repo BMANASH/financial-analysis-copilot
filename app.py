@@ -28,7 +28,7 @@ if uploaded_file is not None:
             api_key=st.secrets["GEMINI_API_KEY"]
         )
 
-prompt = f"""
+        prompt = f"""
 You are a Senior Financial Analyst.
 
 Analyze the uploaded financial report and create an Executive
