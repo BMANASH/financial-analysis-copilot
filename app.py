@@ -246,14 +246,6 @@ st.markdown("""
     font-size: 14px;
     line-height: 1.5;
 }
-.deep-dive-container {
-    background: #121722;
-    border: 1px solid #253346;
-    border-radius: 16px;
-    padding: 22px;
-    margin-top: 15px;
-    margin-bottom: 20px;
-}
 .deep-card {
     background: #161c28;
     border: 1px solid #2e3d54;
@@ -285,7 +277,6 @@ defaults = {
     "uploaded_name": None,
     "analysis": None,
     "deep_dive": None,
-    "deep_dive_status": None,  # None, "active", "dismissed"
     "selected_model": None,
     "chat_history": []
 }
@@ -484,7 +475,6 @@ with st.sidebar:
                     st.session_state.uploaded_name = uploaded_file.name
                     st.session_state.analysis = None
                     st.session_state.deep_dive = None
-                    st.session_state.deep_dive_status = None
                     st.session_state.chat_history = []
                     st.session_state.selected_model = None
                     st.success("Financial report ready for analysis.")
@@ -620,7 +610,6 @@ Return ONLY valid JSON with this exact structure:
             else:
                 st.session_state.analysis = data
                 st.session_state.deep_dive = None
-                st.session_state.deep_dive_status = None
                 st.success("Financial analysis generated successfully.")
                 st.rerun()
 
@@ -870,22 +859,21 @@ if data:
                 st.markdown(card_html, unsafe_allow_html=True)
 
     # ========================================================
-    # STEP 21: USER-CONTROLLED DEEP-DIVE (CLEAN 2-BUTTON TRIGGER)
+    # STEP 21: MCQ-TYPE DEEP-DIVE SELECTION
     # ========================================================
     st.markdown("---")
     st.markdown('<div class="section-title">🔬 Deep-Dive Financial Analysis</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-description">Would you like Gemini to conduct a specialized deep-dive analysis on profitability margins, balance sheet health, debt, and operational efficiency?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Would you like to view an in-depth financial investigation covering profitability margins, debt & balance sheet safety, and operating efficiency?</div>', unsafe_allow_html=True)
 
-    col_btn1, col_btn2, col_space = st.columns([1.5, 1.5, 3])
-    with col_btn1:
-        if st.button("🔬 Yes, Show In-Depth Analysis", type="primary", use_container_width=True):
-            st.session_state.deep_dive_status = "active"
+    mcq_choice = st.radio(
+        "Select the given option:",
+        options=["Yes", "No"],
+        index=None,
+        horizontal=True,
+        key="deep_dive_mcq"
+    )
 
-    with col_btn2:
-        if st.button("✕ No, Keep It Summary Only", use_container_width=True):
-            st.session_state.deep_dive_status = "dismissed"
-
-    if st.session_state.deep_dive_status == "active":
+    if mcq_choice == "Yes":
         if st.session_state.deep_dive is None:
             deep_prompt = """
 You are a senior financial analyst providing a specialized deep-dive assessment of the uploaded annual report in plain, everyday English.
@@ -968,11 +956,11 @@ RULES:
                     st.markdown(f"• {pt}")
                 st.markdown("</div>", unsafe_allow_html=True)
 
-    elif st.session_state.deep_dive_status == "dismissed":
+    elif mcq_choice == "No":
         st.info("💡 Feel free to explore the tabs above or ask any question below if you have any doubts!")
 
 # ============================================================
-# STEP 20: ENHANCED ASK GEMINI EXPERIENCE (CHAT + PROMPT CHIPS)
+# ASK GEMINI EXPERIENCE
 # ============================================================
 
 st.divider()
