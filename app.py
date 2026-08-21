@@ -193,24 +193,56 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# FAST & RELIABLE MODEL FALLBACK
+# DYNAMIC MODEL DISCOVERY & FALLBACK
 # ============================================================
 
-CANDIDATE_MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro"
-]
+def get_available_models():
+    try:
+        available = []
+        for model in client.models.list():
+            name = getattr(model, "name", "")
+            if not name:
+                continue
+            clean_name = name.replace("models/", "")
+            supported_actions = getattr(model, "supported_actions", []) or []
+            
+            # Keep only models that can generate content
+            if "generateContent" in supported_actions and "gemini" in clean_name.lower():
+                available.append(clean_name)
+        return available
+    except Exception:
+        return []
+
+def model_score(model_name):
+    name = model_name.lower()
+    score = 0
+    if "flash" in name:
+        score += 100
+    if "latest" in name:
+        score += 50
+    if "pro" in name:
+        score += 30
+    return score
+
+def get_ranked_models():
+    live_models = get_available_models()
+    
+    # Priority aliases combined with whatever Google returns live
+    candidate_pool = ["gemini-flash-latest", "gemini-pro-latest"] + live_models
+    
+    unique_models = list(dict.fromkeys(candidate_pool))
+    unique_models.sort(key=model_score, reverse=True)
+    return unique_models
 
 def generate_with_fallback(contents, json_mode=False):
-    ordered_models = []
+    available_models = get_ranked_models()
     selected = st.session_state.selected_model
 
-    if selected:
+    ordered_models = []
+    if selected and selected in available_models:
         ordered_models.append(selected)
 
-    for m in CANDIDATE_MODELS:
+    for m in available_models:
         if m not in ordered_models:
             ordered_models.append(m)
 
@@ -470,7 +502,7 @@ Return ONLY valid JSON with this exact structure:
 }
 """
 
-    with st.spinner("Gemini is analysing the report in simple terminology..."):
+    with st.spinner("Gemini is reading the report and generating your dashboard in simple terms..."):
         try:
             response = generate_with_fallback(
                 contents=[analysis_prompt, st.session_state.gemini_file],
