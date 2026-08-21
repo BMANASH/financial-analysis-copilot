@@ -179,7 +179,7 @@ st.markdown("""
 }
 .why-content {
     color: #cbd5e1;
-    font-size: 13px;
+    font-size: 13.5px;
     line-height: 1.5;
 }
 .risk-card {
@@ -210,7 +210,7 @@ st.markdown("""
     padding: 14px 16px;
     margin-bottom: 10px;
     color: #d1fae5;
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.5;
 }
 .takeaway-weakening {
@@ -221,7 +221,7 @@ st.markdown("""
     padding: 14px 16px;
     margin-bottom: 10px;
     color: #fee2e2;
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.5;
 }
 .takeaway-driver {
@@ -232,7 +232,7 @@ st.markdown("""
     padding: 14px 16px;
     margin-bottom: 10px;
     color: #dbeafe;
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.5;
 }
 .takeaway-watch {
@@ -243,7 +243,7 @@ st.markdown("""
     padding: 14px 16px;
     margin-bottom: 10px;
     color: #fef3c7;
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.5;
 }
 .footer {
@@ -494,71 +494,57 @@ if not st.session_state.gemini_file:
 # ============================================================
 
 st.markdown('<div class="section-title">Generate Financial Analysis</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Gemini will read the uploaded report and create a simple, easy-to-understand financial dashboard.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Gemini will read the uploaded report and create a simple, clear financial dashboard.</div>', unsafe_allow_html=True)
 
 generate_button = st.button("Generate Financial Analysis", type="primary")
 
 if generate_button:
     analysis_prompt = """
-You are an expert financial analyst who explains company reports to everyday investors and finance students.
+You are a clear, practical financial analyst explaining an annual report to a regular investor or student.
 
-Analyze ONLY the uploaded financial report. The PDF can belong to ANY company.
-
-First identify the actual:
-- Company name
-- Industry / sector
-- Business type (explain in simple terms what the business actually does)
-- Reporting period
-- Report type
-
-Do NOT assume the company name.
+Analyze ONLY the uploaded PDF. It can belong to ANY company.
+Identify the company name, industry, reporting period, report type, and describe what the business does in 1-2 everyday sentences.
 
 ============================================================
-CRITICAL LANGUAGE REQUIREMENT: "SIMPLE TERMS IN BRACKETS"
+CRITICAL LANGUAGE RULES (MUST FOLLOW STRICTLY)
 ============================================================
-1. Use clear, simple, professional English throughout. Avoid dense textbook or academic jargon.
-2. Whenever you use a financial, accounting, or technical business term, ALWAYS add a short, simple explanation inside brackets right beside it.
-   Examples:
-   - "Consolidated Profit After Tax (PAT - Net Profit after all expenses and taxes)"
-   - "Assets Under Management (AUM - Total client money managed by the firm)"
-   - "Operating Leverage (Profit growing faster than expenses as revenue expands)"
-   - "Credit Loss Provisions (Money set aside in case borrowers fail to repay loans)"
-   - "Treasury Yield Volatility (Ups and downs in interest rates earned on government securities)"
-   - "Net Interest Margin (NIM - Profit margin earned on loans after paying interest on deposits)"
-   - "Capital Adequacy Ratio (CAR - Financial cushion to absorb potential loan losses)"
+1. WRITE IN SIMPLE, EVERYDAY CONVERSATIONAL ENGLISH.
+   - Do NOT write dense academic phrases like "macroeconomic volatility", "interest rate sensitivity", "mark-to-market valuations", "compressing net interest margins", "capital adequacy ratios".
+   - Instead, explain what actually happens in plain words.
+   
+2. EXPLANATION PATTERNS:
+   - Instead of "Higher funding costs compress net interest margins":
+     Write: "If borrowing costs rise, the company pays more for its own loans, leaving less profit from the loans it gives to customers."
+   - Instead of "Surging yields impacting mark-to-market gains":
+     Write: "Rising interest rates temporarily reduced the paper value of the government bonds and investments the company holds."
+   - Instead of "Operating cost escalation from business incubation":
+     Write: "Starting new businesses like insurance and mutual funds requires heavy upfront spending on tech and staff before profits start rolling in."
+   - Instead of "AUM (Assets Under Management)":
+     Write: "Total Client Money Managed (AUM)" or "Total Loan Book"
+
+3. METRIC NAMES IN KEY_METRICS:
+   - Keep the "metric" field short and clean (e.g. "Total Income / Revenue", "Net Profit (PAT)", "Total Client Investments Managed (AUM)", "Total Loan Book").
+   - Do NOT put long 4-line sentences inside the "metric" name field.
+
+4. ACCURACY:
+   - Use ONLY facts and figures from the PDF. Never invent numbers.
+   - Do NOT give Buy/Sell/Hold recommendations.
 
 ============================================================
-ANALYSIS RULES
+OUTPUT FORMAT (JSON ONLY)
 ============================================================
-1. Use ONLY facts and numbers found in the uploaded PDF. Never make up figures.
-2. If information is unavailable, write: "Not available in the report."
-3. Do not give a direct Buy, Sell or Hold recommendation.
-4. For every insight, explain what happened and why it matters in practical business language.
-
-============================================================
-SECTIONS TO POPULATE
-============================================================
-- KEY METRICS: 10–18 useful financial and operating metrics with metric name containing the bracketed explanation (e.g. "Profit After Tax (Net Profit)").
-- BUSINESS PERFORMANCE: 5–8 major developments explaining what happened and why it matters.
-- MANAGEMENT COMMENTARY: 4–6 strategic plans or leadership comments in simple terms.
-- RISKS: 4–6 primary business or financial risks, explaining what the risk is and why it matters to an investor.
-- ANALYST TAKEAWAY: 4 lists (improving, weakening, growth_drivers, investor_watch).
-
-============================================================
-OUTPUT FORMAT
-============================================================
-Return ONLY valid JSON with this exact structure:
+Return ONLY valid JSON matching this exact structure:
 {
   "company_overview": {
     "company_name": "",
     "industry": "",
-    "business_type": "",
+    "business_type": "1-2 plain-English sentences on how this company makes money",
     "reporting_period": "",
     "report_type": ""
   },
   "key_metrics": [
     {
-      "metric": "",
+      "metric": "Clean short name e.g. Total Revenue, Net Profit (PAT)",
       "current_period": "",
       "previous_period": "",
       "yoy_growth": "",
@@ -568,34 +554,34 @@ Return ONLY valid JSON with this exact structure:
   ],
   "business_performance": [
     {
-      "title": "",
-      "summary": "",
-      "why_it_matters": ""
+      "title": "Plain-English title",
+      "summary": "1-2 simple sentences on what happened",
+      "why_it_matters": "1 simple sentence on why this matters to the business"
     }
   ],
   "management_commentary": [
     {
-      "title": "",
-      "summary": ""
+      "title": "Simple topic title",
+      "summary": "What the leadership is planning or doing, in plain English"
     }
   ],
   "risks": [
     {
-      "title": "",
-      "what_is_the_risk": "",
-      "why_it_matters": ""
+      "title": "Clear risk name",
+      "what_is_the_risk": "Simple explanation of the danger or problem",
+      "why_it_matters": "How this could hurt profits or the business in everyday terms"
     }
   ],
   "analyst_takeaway": {
-    "improving": [],
-    "weakening": [],
-    "growth_drivers": [],
-    "investor_watch": []
+    "improving": ["Plain-English positive point 1", "Plain-English positive point 2"],
+    "weakening": ["Plain-English concern or drop 1", "Plain-English concern or drop 2"],
+    "growth_drivers": ["What could drive future revenue in plain terms"],
+    "investor_watch": ["What a regular person should keep an eye on next"]
   }
 }
 """
 
-    with st.spinner("Gemini is reading the report and generating your enhanced dashboard..."):
+    with st.spinner("Gemini is analysing the report in simple, easy-to-read English..."):
         try:
             response = generate_with_fallback(
                 contents=[analysis_prompt, st.session_state.gemini_file],
@@ -615,7 +601,7 @@ Return ONLY valid JSON with this exact structure:
             st.code(str(error))
 
 # ============================================================
-# DISPLAY ANALYSIS DASHBOARD (STEP 19 ENHANCEMENTS)
+# DISPLAY ANALYSIS DASHBOARD
 # ============================================================
 
 data = st.session_state.analysis
@@ -630,17 +616,17 @@ if data:
 
     # Company Overview
     st.markdown('<div class="section-title">Company Overview</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-description">A quick snapshot of the company and the report analysed.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">A quick snapshot of the company and what it does.</div>', unsafe_allow_html=True)
 
     overview_items = [
         ("Company", company.get("company_name", "Not available")),
         ("Industry", company.get("industry", "Not available")),
-        ("Business Type", company.get("business_type", "Not available")),
+        ("What They Do", company.get("business_type", "Not available")),
         ("Reporting Period", company.get("reporting_period", "Not available")),
         ("Report Type", company.get("report_type", "Not available"))
     ]
 
-    overview_columns = st.columns(5)
+    overview_columns = st.columns([1.2, 1.2, 2.2, 1, 1])
     for column, item in zip(overview_columns, overview_items):
         with column:
             column_html = f"""<div class="company-card"><div class="company-label">{item[0]}</div><div class="company-value">{item[1]}</div></div>"""
@@ -648,10 +634,10 @@ if data:
 
     # Key Financial Metrics Cards
     st.markdown('<div class="section-title">Key Financial Metrics</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-description">The most important headline numbers extracted from the report.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">The main headline numbers extracted from the financial report.</div>', unsafe_allow_html=True)
 
     headline_metrics = []
-    priority_words = ["total income", "revenue", "profit after tax", "pat", "net profit", "ebitda", "assets under management", "aum"]
+    priority_words = ["total income", "revenue", "profit after tax", "pat", "net profit", "ebitda", "assets under management", "aum", "total client"]
 
     for metric in metrics:
         metric_name = str(metric.get("metric", "")).lower()
@@ -676,7 +662,6 @@ if data:
                 basis = metric.get("basis", "")
                 value_display = f"{current} {unit}".strip()
 
-                # Build delta badge
                 badge_html = ""
                 if growth and growth.lower() not in ["n/a", "not available", "not applicable", ""]:
                     if growth.startswith("-") or "decline" in growth.lower():
@@ -685,7 +670,7 @@ if data:
                         clean_growth = growth if growth.startswith("+") else f"+{growth}"
                         badge_html = f"""<div class="kpi-badge-pos">▲ {clean_growth} YoY</div>"""
                 else:
-                    badge_html = """<div class="kpi-badge-neutral">Historical Baseline</div>"""
+                    badge_html = """<div class="kpi-badge-neutral">Current Level</div>"""
 
                 basis_html = f"""<div class="kpi-basis">Basis: {basis}</div>""" if basis else ""
 
@@ -703,12 +688,12 @@ if data:
 
     # Tabs
     tab_overview, tab_metrics, tab_business, tab_mgmt, tab_risks, tab_investor = st.tabs([
-        "Overview", "Financial Metrics", "Business Performance", "Management", "Risks", "Investor View"
+        "Overview", "Financial Metrics Table", "Business Updates", "Management Plans", "Risks (Plain English)", "Investor Takeaway"
     ])
 
     with tab_overview:
         st.subheader("Financial Snapshot")
-        st.write("Main developments extracted from the financial report:")
+        st.write("The main business developments from this report:")
         if performance:
             for item in performance[:5]:
                 title = item.get("title", "Business Development")
@@ -728,13 +713,13 @@ if data:
                 st.markdown(card_html, unsafe_allow_html=True)
 
     with tab_metrics:
-        st.subheader("Detailed Financial & Operating Metrics")
-        st.write("Search and filter lines recorded directly from the financial statements:")
+        st.subheader("All Financial & Operating Numbers")
+        st.write("Search and filter the numbers reported in the financial statements:")
 
         if metrics:
             col_search, col_filter = st.columns([2, 1])
             with col_search:
-                search_query = st.text_input("🔍 Search metric or explanation...", placeholder="e.g. Revenue, PAT, AUM, Borrowings", key="metric_search").lower()
+                search_query = st.text_input("🔍 Search line item...", placeholder="e.g. Revenue, Profit, Loan, Expenses", key="metric_search").lower()
             with col_filter:
                 all_bases = list(set([m.get("basis", "").strip() for m in metrics if m.get("basis", "").strip()]))
                 basis_filter = st.selectbox("Filter by Basis", options=["All"] + all_bases, key="basis_filter")
@@ -749,7 +734,7 @@ if data:
 
                 if match_search and match_basis:
                     filtered_rows.append({
-                        "Metric (Explanation)": metric_name,
+                        "Metric Name": metric_name,
                         "Current Period": m.get("current_period", ""),
                         "Previous Period": m.get("previous_period", ""),
                         "YoY Growth": m.get("yoy_growth", ""),
@@ -760,16 +745,16 @@ if data:
             if filtered_rows:
                 st.dataframe(filtered_rows, use_container_width=True, hide_index=True, height=450)
             else:
-                st.info("No metrics matching your search criteria.")
+                st.info("No metrics matching your search.")
         else:
-            st.info("No detailed financial metrics found.")
+            st.info("No financial metrics found.")
 
     with tab_business:
-        st.subheader("Business Performance")
-        st.write("Key operational and business developments:")
+        st.subheader("Business Updates")
+        st.write("How different parts of the business performed:")
         if performance:
             for idx, item in enumerate(performance, start=1):
-                title = item.get("title", f"Development {idx}")
+                title = item.get("title", f"Update {idx}")
                 summary = item.get("summary", "")
                 why = item.get("why_it_matters", "")
 
@@ -784,8 +769,8 @@ if data:
                         """, unsafe_allow_html=True)
 
     with tab_mgmt:
-        st.subheader("Management Commentary")
-        st.write("Strategic updates and management perspective:")
+        st.subheader("Management Strategy & Outlook")
+        st.write("What company leadership says about future plans and technology:")
         if management:
             for item in management:
                 title = item.get("title", "Management View")
@@ -796,8 +781,8 @@ if data:
             st.info("No management commentary identified.")
 
     with tab_risks:
-        st.subheader("Risk & Headwind Assessment")
-        st.write("Identified risk factors and challenges:")
+        st.subheader("Potential Risks & Challenges")
+        st.write("Key risks explained in plain English:")
         if risks:
             for r in risks:
                 title = r.get("title", "Risk")
@@ -809,7 +794,7 @@ if data:
                     <div class="risk-title">⚠️ {title}</div>
                     <div class="insight-text">{desc}</div>
                     <div class="risk-box">
-                        <div style="color: #f87171; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Why it matters</div>
+                        <div style="color: #f87171; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">What this means for investors</div>
                         <div class="why-content">{why}</div>
                     </div>
                 </div>
@@ -818,7 +803,7 @@ if data:
 
     with tab_investor:
         st.subheader("Analyst Takeaway")
-        st.write("Key considerations for financial and business analysis:")
+        st.write("Simplified summary for investors and analysts:")
 
         improving = takeaway.get("improving", [])
         weakening = takeaway.get("weakening", [])
@@ -862,11 +847,11 @@ if data:
 
 st.divider()
 st.markdown('<div class="section-title">Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Ask Gemini any question grounded strictly in the uploaded report.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Ask any question in plain English. Gemini answers strictly using the uploaded PDF.</div>', unsafe_allow_html=True)
 
 question = st.text_area(
     "Your question",
-    placeholder="Examples:\n• What are the biggest growth drivers?\n• Why did profits change YoY?\n• What are the primary credit or market risks?",
+    placeholder="Examples:\n• Why did profits go down this year?\n• How is the company planning to grow?\n• What are the main risks if I invest?",
     height=100
 )
 
@@ -877,22 +862,23 @@ if ask_button:
         st.warning("Please enter a question first.")
     else:
         question_prompt = f"""
-You are a friendly, highly knowledgeable financial mentor explaining things to an everyday investor or finance student.
-The user uploaded a financial report. Answer using ONLY information contained in that report.
+You are a helpful, clear financial guide talking to a regular investor or finance student.
+Answer the question using ONLY facts from the uploaded financial report.
 
 USER QUESTION:
 {question}
 
 RULES:
-1. Answer directly, clearly, and factually using only the uploaded PDF.
-2. Use plain, simple English. Avoid dense financial jargon.
-3. ALWAYS provide a short, simple explanation in brackets whenever you mention technical terms (e.g., "EBITDA (operating cash profit before interest and taxes)", "AUM (total client money managed)", "Stage 3 Loans (loans where payments are delayed by over 90 days)").
-4. Never invent figures. If information is not in the document, state that clearly.
-5. If asked about future growth, explain opportunities and risks cited in the report.
-6. Provide analytical assessment without giving direct Buy/Sell/Hold recommendations.
-7. Format clearly using concise Markdown sections (### Direct Answer, ### Key Points, ### What This Means, ### What to Watch).
+1. Answer directly and in simple, clear English.
+2. Avoid textbook jargon. If a technical term must be used, explain what it means in plain words immediately.
+3. Use concrete numbers from the report where helpful, and explain what those numbers mean in real life.
+4. Do NOT give direct Buy/Sell/Hold recommendations.
+5. Structure your answer cleanly with Markdown headings:
+   ### Direct Answer
+   ### Key Takeaways
+   ### What This Means For You
 """
-        with st.spinner("Gemini is analysing the report and preparing your answer in simple terms..."):
+        with st.spinner("Gemini is reading the report and preparing your answer in simple English..."):
             try:
                 response = generate_with_fallback(
                     contents=[question_prompt, st.session_state.gemini_file],
