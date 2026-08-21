@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# CUSTOM CSS (FLUSH-LEFT STRINGS TO PREVENT CODE-BLOCK PARSING)
+# CUSTOM CSS
 # ============================================================
 
 st.markdown("""
@@ -193,61 +193,27 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# MODEL DISCOVERY & FALLBACK
+# FAST & RELIABLE MODEL FALLBACK
 # ============================================================
 
-def get_available_models():
-    try:
-        available = []
-        for model in client.models.list():
-            name = getattr(model, "name", "")
-            if not name:
-                continue
-            clean_name = name.replace("models/", "")
-            supported_actions = getattr(model, "supported_actions", []) or []
-            
-            if "generateContent" in supported_actions and "gemini" in clean_name.lower():
-                available.append(clean_name)
-        return available
-    except Exception:
-        return []
-
-def model_score(model_name):
-    name = model_name.lower()
-    score = 0
-    if "flash" in name:
-        score += 100
-    if "pro" in name:
-        score += 40
-    if "2.5" in name:
-        score += 35
-    elif "2.0" in name:
-        score += 30
-    elif "1.5" in name:
-        score += 25
-    return score
-
-def get_ranked_models():
-    models = get_available_models()
-    if not models:
-        # Fallback safe defaults if listing is restricted
-        return ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
-    
-    models = list(dict.fromkeys(models))
-    models.sort(key=model_score, reverse=True)
-    return models
+# Priority order: try the fastest, latest models directly first
+CANDIDATE_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro"
+]
 
 def generate_with_fallback(contents, json_mode=False):
-    available_models = get_ranked_models()
-    selected = st.session_state.selected_model
     ordered_models = []
+    selected = st.session_state.selected_model
 
-    if selected and selected in available_models:
+    if selected:
         ordered_models.append(selected)
 
-    for model in available_models:
-        if model not in ordered_models:
-            ordered_models.append(model)
+    for m in CANDIDATE_MODELS:
+        if m not in ordered_models:
+            ordered_models.append(m)
 
     errors = []
     for model in ordered_models:
@@ -270,12 +236,13 @@ def generate_with_fallback(contents, json_mode=False):
 
             st.session_state.selected_model = model
             return response
+
         except Exception as error:
             errors.append(f"{model}: {str(error)}")
             continue
 
-    error_text = "\n\n".join(errors[-5:])
-    raise Exception(f"All available Gemini models failed.\n\n{error_text}")
+    error_text = "\n\n".join(errors)
+    raise Exception(f"All available models failed.\n\n{error_text}")
 
 # ============================================================
 # SAFE JSON PARSER
@@ -419,7 +386,7 @@ First identify the actual:
 - Reporting period
 - Report type
 
-Do NOT assume the company is Jio Financial Services, Reliance, HDFC, SBI, or any other company.
+Do NOT assume the company name.
 
 RULES:
 1. Use ONLY information found in the uploaded PDF. Never invent financial numbers.
@@ -428,7 +395,7 @@ RULES:
 4. Explain important numbers in practical business language.
 5. Do not give a Buy, Sell or Hold recommendation.
 
-KEY METRICS: Select 10–18 of the most useful metrics relevant to the industry.
+KEY METRICS: Select 10–18 of the most useful metrics relevant to the company.
 BUSINESS PERFORMANCE: Identify 5–8 major developments with short explanations and why it matters.
 MANAGEMENT: Identify 4–6 important management comments or strategic themes.
 RISKS: Identify 4–6 important risks with simple explanations and why they matter.
@@ -483,7 +450,7 @@ Return ONLY valid JSON with this exact structure:
 }
 """
 
-    with st.spinner("Gemini is analysing the financial report..."):
+    with st.spinner("Gemini is reading the report and generating your dashboard (this usually takes 30–45 seconds)..."):
         try:
             response = generate_with_fallback(
                 contents=[analysis_prompt, st.session_state.gemini_file],
@@ -492,7 +459,7 @@ Return ONLY valid JSON with this exact structure:
             data = clean_json_response(response.text)
 
             if not data or "company_overview" not in data:
-                st.error("Gemini returned an unparseable response. Please click 'Generate Financial Analysis' again.")
+                st.error("Gemini returned an incomplete response. Please click 'Generate Financial Analysis' again.")
             else:
                 st.session_state.analysis = data
                 st.success("Financial analysis generated successfully.")
@@ -723,7 +690,7 @@ RULES:
 5. Provide analytical assessment without giving direct Buy/Sell/Hold recommendations.
 6. Format clearly using concise Markdown sections (e.g., Direct Answer, Key Points, What to Watch).
 """
-        with st.spinner("Gemini is analysing the report and preparing your answer..."):
+        with st.spinner("Gemini is reading the report and preparing your answer..."):
             try:
                 response = generate_with_fallback(
                     contents=[question_prompt, st.session_state.gemini_file],
