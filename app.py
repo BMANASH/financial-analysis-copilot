@@ -21,125 +21,247 @@ st.set_page_config(
 
 
 # ============================================================
-# CUSTOM STYLING
+# CUSTOM CSS
 # ============================================================
 
 st.markdown(
     """
     <style>
 
-    .main {
-        background-color: #0e1117;
+    /* ---------- MAIN APP ---------- */
+
+    .stApp {
+        background: #0e1117;
     }
 
     .block-container {
+        max-width: 1450px;
         padding-top: 2rem;
-        padding-bottom: 3rem;
-        max-width: 1400px;
+        padding-bottom: 4rem;
     }
 
+
+    /* ---------- HERO ---------- */
+
     .hero {
-        padding: 28px 32px;
-        border-radius: 18px;
         background: linear-gradient(
             135deg,
-            #151a24 0%,
-            #1d2635 100%
+            #18202d 0%,
+            #111722 100%
         );
+
         border: 1px solid #2d3748;
-        margin-bottom: 25px;
+        border-radius: 18px;
+
+        padding: 30px 34px;
+
+        margin-bottom: 30px;
     }
 
     .hero-title {
-        font-size: 38px;
-        font-weight: 700;
+        font-size: 40px;
+        font-weight: 750;
+        color: #ffffff;
+        line-height: 1.15;
         margin-bottom: 8px;
     }
 
     .hero-subtitle {
-        color: #aab4c3;
         font-size: 17px;
+        color: #aeb8c7;
+        line-height: 1.5;
     }
+
+
+    /* ---------- SECTION HEADINGS ---------- */
 
     .section-title {
-        font-size: 27px;
-        font-weight: 650;
-        margin-top: 28px;
-        margin-bottom: 16px;
+        font-size: 28px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-top: 30px;
+        margin-bottom: 6px;
     }
 
+    .section-description {
+        color: #9ca7b6;
+        font-size: 15px;
+        margin-bottom: 20px;
+    }
+
+
+    /* ---------- COMPANY CARDS ---------- */
+
     .company-card {
-        padding: 20px;
-        border-radius: 14px;
         background: #151a24;
-        border: 1px solid #2d3748;
-        height: 100%;
+        border: 1px solid #2c3543;
+        border-radius: 14px;
+
+        padding: 18px;
+
+        min-height: 115px;
+
+        margin-bottom: 10px;
     }
 
     .company-label {
-        font-size: 13px;
         color: #8f9aaa;
+        font-size: 12px;
+
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 5px;
+        letter-spacing: 0.7px;
+
+        margin-bottom: 7px;
     }
 
     .company-value {
-        font-size: 18px;
+        color: #ffffff;
+        font-size: 17px;
         font-weight: 600;
+        line-height: 1.4;
     }
 
+
+    /* ---------- INSIGHT CARDS ---------- */
+
     .insight-card {
-        padding: 20px;
-        border-radius: 14px;
         background: #151a24;
         border: 1px solid #2d3748;
-        margin-bottom: 12px;
+        border-radius: 14px;
+
+        padding: 20px;
+
+        margin-bottom: 14px;
     }
 
     .insight-title {
+        color: #ffffff;
         font-size: 17px;
         font-weight: 650;
+
         margin-bottom: 8px;
     }
 
     .insight-text {
         color: #b8c1ce;
-        line-height: 1.65;
         font-size: 15px;
+        line-height: 1.65;
     }
 
+    .why-label {
+        color: #8f9aaa;
+        font-size: 12px;
+
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+
+
+    /* ---------- RISK CARDS ---------- */
+
     .risk-card {
-        padding: 20px;
+        background: #18171b;
+        border: 1px solid #49383b;
         border-radius: 14px;
-        background: #17171b;
-        border: 1px solid #3a3030;
+
+        padding: 20px;
+
         margin-bottom: 14px;
     }
 
     .risk-title {
+        color: #ffffff;
         font-size: 17px;
         font-weight: 650;
-        margin-bottom: 8px;
+
+        margin-bottom: 12px;
+    }
+
+    .risk-label {
+        color: #a88f94;
+        font-size: 12px;
+
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        margin-top: 10px;
+        margin-bottom: 5px;
     }
 
     .risk-text {
-        color: #b8c1ce;
+        color: #c1c5cc;
+        font-size: 15px;
         line-height: 1.6;
     }
 
-    .watch-card {
-        padding: 18px;
-        border-radius: 14px;
+
+    /* ---------- TAKEAWAY CARDS ---------- */
+
+    .takeaway-card {
         background: #151a24;
         border: 1px solid #2d3748;
+        border-radius: 14px;
+
+        padding: 17px 18px;
+
         margin-bottom: 10px;
+
+        color: #c3cbd6;
         line-height: 1.55;
+        font-size: 14px;
     }
+
+
+    /* ---------- SMALL TEXT ---------- */
 
     .small-note {
         color: #8f9aaa;
         font-size: 13px;
+    }
+
+
+    /* ---------- STATUS ---------- */
+
+    .status-card {
+        background: #131923;
+        border: 1px solid #273244;
+        border-radius: 12px;
+
+        padding: 14px 18px;
+
+        margin-top: 10px;
+        margin-bottom: 20px;
+
+        color: #aeb8c7;
+        font-size: 14px;
+    }
+
+
+    /* ---------- ASK GEMINI ---------- */
+
+    .question-box {
+        background: #151a24;
+        border: 1px solid #2d3748;
+        border-radius: 16px;
+
+        padding: 22px;
+
+        margin-top: 10px;
+        margin-bottom: 15px;
+    }
+
+
+    /* ---------- FOOTER ---------- */
+
+    .footer {
+        color: #707b8c;
+        font-size: 12px;
+        text-align: center;
+
+        padding-top: 15px;
     }
 
     </style>
@@ -152,20 +274,18 @@ st.markdown(
 # SESSION STATE
 # ============================================================
 
-if "gemini_file" not in st.session_state:
-    st.session_state.gemini_file = None
+defaults = {
+    "gemini_file": None,
+    "uploaded_name": None,
+    "analysis": None,
+    "selected_model": None,
+    "chat_history": []
+}
 
-if "uploaded_name" not in st.session_state:
-    st.session_state.uploaded_name = None
+for key, value in defaults.items():
 
-if "analysis" not in st.session_state:
-    st.session_state.analysis = None
-
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
-if "selected_model" not in st.session_state:
-    st.session_state.selected_model = None
+    if key not in st.session_state:
+        st.session_state[key] = value
 
 
 # ============================================================
@@ -174,15 +294,18 @@ if "selected_model" not in st.session_state:
 
 try:
     API_KEY = st.secrets["GEMINI_API_KEY"]
+
 except Exception:
     API_KEY = None
 
 
 if not API_KEY:
+
     st.error(
         "Gemini API key was not found. "
         "Please add GEMINI_API_KEY to Streamlit Secrets."
     )
+
     st.stop()
 
 
@@ -192,34 +315,40 @@ if not API_KEY:
 
 @st.cache_resource
 def create_client(api_key):
-    return genai.Client(api_key=api_key)
+
+    return genai.Client(
+        api_key=api_key
+    )
 
 
 client = create_client(API_KEY)
 
 
 # ============================================================
-# AUTOMATIC MODEL DETECTION
+# MODEL DISCOVERY
 # ============================================================
 
 def get_available_models():
-    """
-    Find Gemini models that support generateContent.
-
-    We do not permanently depend on one model version.
-    """
 
     try:
-        models = []
+
+        available = []
 
         for model in client.models.list():
 
-            name = getattr(model, "name", "")
+            name = getattr(
+                model,
+                "name",
+                ""
+            )
 
             if not name:
                 continue
 
-            clean_name = name.replace("models/", "")
+            clean_name = name.replace(
+                "models/",
+                ""
+            )
 
             supported_actions = getattr(
                 model,
@@ -227,162 +356,127 @@ def get_available_models():
                 []
             ) or []
 
-            if "generateContent" in supported_actions:
-                if "gemini" in clean_name.lower():
-                    models.append(clean_name)
+            # Only use models that can generate content
+            if (
+                "generateContent"
+                in supported_actions
+                and "gemini"
+                in clean_name.lower()
+            ):
 
-        return models
+                available.append(
+                    clean_name
+                )
+
+        return available
 
     except Exception:
+
         return []
 
 
-def choose_best_model():
-    """
-    Select the best currently available Gemini model.
-
-    Preference:
-    1. Newer Flash models
-    2. Other Flash models
-    3. Other Gemini models
-    """
-
-    available = get_available_models()
-
-    if not available:
-        return None
-
-    preferred_keywords = [
-        "gemini-3.7-flash",
-        "gemini-3.6-flash",
-        "gemini-3.5-flash",
-        "gemini-3-flash",
-        "gemini-2.5-flash",
-        "gemini-2.0-flash",
-        "flash"
-    ]
-
-    for keyword in preferred_keywords:
-
-        for model in available:
-
-            if keyword in model.lower():
-
-                return model
-
-    return available[0]
-
-
-def get_model():
-    """
-    Get a usable Gemini model.
-    """
-
-    if st.session_state.selected_model:
-        return st.session_state.selected_model
-
-    model = choose_best_model()
-
-    if model:
-        st.session_state.selected_model = model
-
-    return model
-
-
 # ============================================================
-# SAFE JSON EXTRACTION
+# MODEL RANKING
 # ============================================================
 
-def clean_json_response(text):
-    """
-    Gemini normally returns JSON, but this function also handles
-    cases where Gemini puts JSON inside ```json ... ``` blocks.
-    """
+def model_score(model_name):
 
-    if not text:
-        return {}
+    name = model_name.lower()
 
-    text = text.strip()
+    score = 0
 
-    # Remove markdown code fences
-    text = re.sub(
-        r"^```json\s*",
-        "",
-        text,
-        flags=re.IGNORECASE
+    # Prefer Flash models because they are generally
+    # faster and more suitable for this application.
+    if "flash" in name:
+        score += 100
+
+    if "pro" in name:
+        score += 40
+
+    # Prefer newer-looking model generations.
+    if "3.7" in name:
+        score += 37
+
+    elif "3.6" in name:
+        score += 36
+
+    elif "3.5" in name:
+        score += 35
+
+    elif "3.0" in name:
+        score += 30
+
+    elif "2.5" in name:
+        score += 25
+
+    elif "2.0" in name:
+        score += 20
+
+    return score
+
+
+def get_ranked_models():
+
+    models = get_available_models()
+
+    if not models:
+        return []
+
+    # Remove duplicates
+    models = list(
+        dict.fromkeys(models)
     )
 
-    text = re.sub(
-        r"^```\s*",
-        "",
-        text
+    # Rank the models
+    models.sort(
+        key=model_score,
+        reverse=True
     )
 
-    text = re.sub(
-        r"\s*```$",
-        "",
-        text
-    )
-
-    text = text.strip()
-
-    try:
-        return json.loads(text)
-
-    except Exception:
-
-        # Try to find the first JSON object
-        start = text.find("{")
-        end = text.rfind("}")
-
-        if start != -1 and end != -1 and end > start:
-
-            possible_json = text[start:end + 1]
-
-            try:
-                return json.loads(possible_json)
-            except Exception:
-                pass
-
-    return {}
+    return models
 
 
 # ============================================================
-# GEMINI CALL WITH AUTOMATIC MODEL FALLBACK
+# GEMINI GENERATION WITH AUTOMATIC FALLBACK
 # ============================================================
 
-def generate_with_fallback(contents, json_mode=False):
-    """
-    Try the selected model first.
+def generate_with_fallback(
+    contents,
+    json_mode=False
+):
 
-    If it fails, automatically try other available Gemini models.
-    """
+    available_models = get_ranked_models()
 
-    available_models = get_available_models()
-
-    selected = get_model()
+    selected = st.session_state.selected_model
 
     ordered_models = []
 
+    # Try the previously successful model first
     if selected:
-        ordered_models.append(selected)
 
+        if selected in available_models:
+
+            ordered_models.append(
+                selected
+            )
+
+    # Then try every currently available model
     for model in available_models:
 
         if model not in ordered_models:
-            ordered_models.append(model)
+
+            ordered_models.append(
+                model
+            )
 
     if not ordered_models:
 
-        # Last-resort model names.
-        ordered_models = [
-            "gemini-3.7-flash",
-            "gemini-3.6-flash",
-            "gemini-2.5-flash",
-            "gemini-2.0-flash"
-        ]
+        raise Exception(
+            "No Gemini model available for this API key. "
+            "Please check the Gemini API access and billing/quota settings."
+        )
 
-    last_error = None
+    errors = []
 
     for model in ordered_models:
 
@@ -391,7 +485,8 @@ def generate_with_fallback(contents, json_mode=False):
             if json_mode:
 
                 config = types.GenerateContentConfig(
-                    response_mime_type="application/json"
+                    response_mime_type="application/json",
+                    temperature=0.2
                 )
 
                 response = client.models.generate_content(
@@ -402,134 +497,294 @@ def generate_with_fallback(contents, json_mode=False):
 
             else:
 
-                response = client.models.generate_content(
-                    model=model,
-                    contents=contents
+                config = types.GenerateContentConfig(
+                    temperature=0.3
                 )
 
+                response = client.models.generate_content(
+                    model=model,
+                    contents=contents,
+                    config=config
+                )
+
+            # Save successful model
             st.session_state.selected_model = model
 
             return response
 
         except Exception as error:
 
-            last_error = error
+            errors.append(
+                f"{model}: {str(error)}"
+            )
+
             continue
 
+
+    error_text = "\n\n".join(
+        errors[-5:]
+    )
+
     raise Exception(
-        f"Gemini could not find a working model. "
-        f"Last error: {last_error}"
+        "All currently available Gemini models failed.\n\n"
+        + error_text
     )
 
 
 # ============================================================
-# PDF UPLOAD
+# SAFE JSON PARSER
 # ============================================================
 
-st.sidebar.title("Financial Analysis Copilot")
+def clean_json_response(text):
 
-st.sidebar.write(
-    "Upload an annual report or financial PDF "
-    "and let Gemini analyse it."
-)
+    if not text:
 
-uploaded_file = st.sidebar.file_uploader(
-    "Upload Financial Report",
-    type=["pdf"]
-)
+        return {}
+
+    text = text.strip()
+
+    # Remove markdown fences
+    text = re.sub(
+        r"^```(?:json)?\s*",
+        "",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    text = re.sub(
+        r"\s*```$",
+        "",
+        text
+    )
+
+    text = text.strip()
+
+    # Direct JSON
+    try:
+
+        return json.loads(text)
+
+    except Exception:
+
+        pass
 
 
-if uploaded_file:
+    # Search for JSON object
+    start = text.find("{")
+    end = text.rfind("}")
 
     if (
-        st.session_state.uploaded_name
-        != uploaded_file.name
+        start != -1
+        and end != -1
+        and end > start
     ):
 
-        with st.spinner(
-            "Uploading financial report to Gemini..."
-        ):
+        candidate = text[
+            start:end + 1
+        ]
 
-            try:
+        try:
 
-                # Create temporary PDF file
-                with tempfile.NamedTemporaryFile(
-                    delete=False,
-                    suffix=".pdf"
-                ) as temp_file:
+            return json.loads(
+                candidate
+            )
 
-                    temp_file.write(
-                        uploaded_file.getbuffer()
-                    )
+        except Exception:
 
-                    temp_path = temp_file.name
+            pass
 
-                # Upload PDF to Gemini
-                gemini_file = client.files.upload(
-                    file=temp_path
-                )
 
-                # Wait for processing if necessary
-                for _ in range(20):
-
-                    state = getattr(
-                        gemini_file,
-                        "state",
-                        None
-                    )
-
-                    state_name = getattr(
-                        state,
-                        "name",
-                        ""
-                    )
-
-                    if not state_name:
-                        break
-
-                    if state_name == "ACTIVE":
-                        break
-
-                    if state_name == "FAILED":
-                        raise Exception(
-                            "Gemini failed to process the PDF."
-                        )
-
-                    time.sleep(1)
-
-                    gemini_file = client.files.get(
-                        name=gemini_file.name
-                    )
-
-                st.session_state.gemini_file = gemini_file
-                st.session_state.uploaded_name = uploaded_file.name
-                st.session_state.analysis = None
-                st.session_state.chat_history = []
-
-                # Delete local temporary file
-                try:
-                    os.remove(temp_path)
-                except Exception:
-                    pass
-
-                st.success(
-                    "Financial report uploaded successfully."
-                )
-
-            except Exception as error:
-
-                st.error(
-                    f"Could not upload the PDF: {error}"
-                )
+    return {}
 
 
 # ============================================================
-# HERO SECTION
+# PDF UPLOAD TO GEMINI
+# ============================================================
+
+def upload_pdf_to_gemini(uploaded_file):
+
+    temp_path = None
+
+    try:
+
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".pdf"
+        ) as temp_file:
+
+            temp_file.write(
+                uploaded_file.getbuffer()
+            )
+
+            temp_path = temp_file.name
+
+
+        gemini_file = client.files.upload(
+            file=temp_path
+        )
+
+
+        # Wait for Gemini to finish processing
+        for _ in range(60):
+
+            state = getattr(
+                gemini_file,
+                "state",
+                None
+            )
+
+            state_name = getattr(
+                state,
+                "name",
+                ""
+            )
+
+            if state_name == "ACTIVE":
+
+                return gemini_file
+
+
+            if state_name == "FAILED":
+
+                raise Exception(
+                    "Gemini failed while processing the PDF."
+                )
+
+
+            time.sleep(1)
+
+            gemini_file = client.files.get(
+                name=gemini_file.name
+            )
+
+
+        raise Exception(
+            "PDF processing took too long. "
+            "Please try uploading the report again."
+        )
+
+
+    finally:
+
+        if temp_path:
+
+            try:
+                os.remove(temp_path)
+
+            except Exception:
+                pass
+
+
+# ============================================================
+# SIDEBAR
+# ============================================================
+
+with st.sidebar:
+
+    st.title(
+        "Financial Analysis Copilot"
+    )
+
+    st.write(
+        "Upload an annual report or financial PDF "
+        "and let Gemini analyse it."
+    )
+
+    st.markdown("---")
+
+    uploaded_file = st.file_uploader(
+        "Upload Financial Report",
+        type=["pdf"],
+        help="Upload an annual report or financial statement PDF."
+    )
+
+
+    # --------------------------------------------------------
+    # NEW FILE
+    # --------------------------------------------------------
+
+    if uploaded_file:
+
+        is_new_file = (
+            st.session_state.uploaded_name
+            != uploaded_file.name
+        )
+
+
+        if is_new_file:
+
+            with st.spinner(
+                "Uploading financial report..."
+            ):
+
+                try:
+
+                    gemini_file = upload_pdf_to_gemini(
+                        uploaded_file
+                    )
+
+                    st.session_state.gemini_file = (
+                        gemini_file
+                    )
+
+                    st.session_state.uploaded_name = (
+                        uploaded_file.name
+                    )
+
+                    st.session_state.analysis = None
+
+                    st.session_state.chat_history = []
+
+                    st.session_state.selected_model = None
+
+                    st.success(
+                        "Financial report uploaded successfully."
+                    )
+
+                except Exception as error:
+
+                    st.error(
+                        f"Could not upload the PDF:\n\n{error}"
+                    )
+
+        else:
+
+            st.success(
+                "Financial report ready."
+            )
+
+
+    # --------------------------------------------------------
+    # FILE STATUS
+    # --------------------------------------------------------
+
+    if st.session_state.gemini_file:
+
+        st.markdown("---")
+
+        st.caption(
+            "Uploaded report"
+        )
+
+        st.write(
+            st.session_state.uploaded_name
+        )
+
+        if st.session_state.selected_model:
+
+            st.caption(
+                f"Gemini model: {st.session_state.selected_model}"
+            )
+
+
+# ============================================================
+# HERO
 # ============================================================
 
 st.markdown(
     """
     <div class="hero">
+
         <div class="hero-title">
             Financial Analysis Copilot
         </div>
@@ -537,6 +792,7 @@ st.markdown(
         <div class="hero-subtitle">
             AI-powered financial analysis from annual reports
         </div>
+
     </div>
     """,
     unsafe_allow_html=True
@@ -544,7 +800,7 @@ st.markdown(
 
 
 # ============================================================
-# NO PDF MESSAGE
+# NO PDF
 # ============================================================
 
 if not st.session_state.gemini_file:
@@ -557,7 +813,7 @@ if not st.session_state.gemini_file:
 
 
 # ============================================================
-# GENERATE ANALYSIS
+# GENERATE ANALYSIS SECTION
 # ============================================================
 
 st.markdown(
@@ -565,53 +821,174 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.write(
-    "Gemini will read the uploaded report and create a "
-    "structured financial dashboard."
+st.markdown(
+    '<div class="section-description">'
+    'Gemini will read the uploaded report and create a '
+    'structured financial dashboard.'
+    '</div>',
+    unsafe_allow_html=True
 )
 
 
-if st.button(
+generate_button = st.button(
     "Generate Financial Analysis",
-    type="primary"
-):
+    type="primary",
+    use_container_width=False
+)
 
-    model = get_model()
 
-    if not model:
+if generate_button:
 
-        st.error(
-            "No usable Gemini model was found for this API key."
-        )
+    analysis_prompt = """
 
-    else:
-
-        analysis_prompt = """
 You are a professional financial analyst.
 
 Analyze ONLY the uploaded financial report.
 
-The uploaded PDF may belong to ANY company.
-Do NOT assume the company is Jio Financial Services.
-Identify the actual company name, reporting period,
-industry and business type from the document.
+The PDF can belong to ANY company.
 
-Your task is to create a structured financial analysis.
+First identify the actual:
+- Company name
+- Industry / sector
+- Business type
+- Reporting period
+- Report type
 
-IMPORTANT:
+Do NOT assume the company is Jio Financial Services,
+Reliance, HDFC, SBI, or any other company.
 
-1. Use ONLY information available in the uploaded PDF.
-2. Do not invent financial numbers.
-3. Do not assume missing information.
-4. If a figure is not available, say "Not available".
-5. Keep explanations professional but easy to understand.
-6. Avoid unnecessary technical financial jargon.
-7. Explain what important numbers mean in practical business terms.
-8. Keep the analysis concise enough for a dashboard.
-9. Do not return HTML.
-10. Return ONLY valid JSON.
+============================================================
+IMPORTANT ANALYSIS RULES
+============================================================
 
-Return exactly this structure:
+1. Use ONLY information found in the uploaded PDF.
+
+2. Never invent financial numbers.
+
+3. Never create numbers that are not present in the report.
+
+4. If information is unavailable, write:
+   "Not available in the report."
+
+5. Keep the language professional but simple.
+
+6. Avoid unnecessary financial jargon.
+
+7. Explain important numbers in practical business language.
+
+8. Focus on useful information rather than copying the report.
+
+9. Do not reproduce large portions of the annual report.
+
+10. Do not give a Buy, Sell or Hold recommendation.
+
+11. For investor-related information, explain what an investor
+    should understand or monitor.
+
+12. The analysis should work for ANY company.
+
+============================================================
+KEY METRICS
+============================================================
+
+Select approximately 10–18 of the most useful financial
+and operating metrics.
+
+Where available, include:
+
+- Revenue / total income
+- Operating income
+- Profit
+- PAT
+- EBITDA / operating profit
+- EPS
+- Assets
+- Net worth
+- Debt
+- Cash
+- AUM
+- Loan book
+- Customer growth
+- Operating expenses
+- Cash flow
+- Margins
+- ROE
+- ROA
+- Other important company-specific metrics
+
+Only include metrics that are actually relevant to the company.
+
+============================================================
+BUSINESS PERFORMANCE
+============================================================
+
+Identify 5–8 major developments.
+
+For each development explain:
+
+- What happened
+- Why it matters
+
+Use short explanations.
+
+============================================================
+MANAGEMENT
+============================================================
+
+Identify 4–6 important management comments or strategic themes.
+
+Focus on:
+
+- Future plans
+- Strategy
+- Growth
+- Capital allocation
+- New businesses
+- Technology
+- Market expansion
+- Management outlook
+
+============================================================
+RISKS
+============================================================
+
+Identify 4–6 important risks.
+
+For every risk explain:
+
+- What is the risk?
+- Why does it matter?
+
+Keep the explanation simple.
+
+============================================================
+ANALYST TAKEAWAY
+============================================================
+
+Create four sections:
+
+1. What is improving?
+2. What is weakening?
+3. Main growth drivers
+4. What should an investor watch?
+
+Each point should be short and useful.
+
+============================================================
+OUTPUT FORMAT
+============================================================
+
+Return ONLY valid JSON.
+
+Do NOT return:
+
+- HTML
+- Markdown
+- Code fences
+- Tables
+- Explanations outside the JSON
+
+Use exactly this structure:
 
 {
   "company_overview": {
@@ -664,70 +1041,64 @@ Return exactly this structure:
   }
 }
 
-For key_metrics:
-Include the most important financial and operating metrics.
-Prefer around 10 to 18 useful metrics rather than dozens.
+Remember:
 
-For business_performance:
-Give 5 to 8 major developments.
-
-For management_commentary:
-Give 4 to 6 important management points.
-
-For risks:
-Give 4 to 6 major risks.
-
-For analyst_takeaway:
-Use short, professional sentences.
-The language should be understandable to a student or general investor.
-
-Do NOT provide an investment recommendation such as
-"Buy", "Sell", or "Hold".
-Instead explain what an investor should monitor.
+The final answer must be valid JSON only.
 """
 
-        with st.spinner(
-            "Gemini is analysing the financial report..."
-        ):
 
-            try:
+    with st.spinner(
+        "Gemini is analysing the financial report..."
+    ):
 
-                response = generate_with_fallback(
-                    contents=[
-                        analysis_prompt,
-                        st.session_state.gemini_file
-                    ],
-                    json_mode=True
-                )
+        try:
 
-                data = clean_json_response(
-                    response.text
-                )
+            response = generate_with_fallback(
+                contents=[
+                    analysis_prompt,
+                    st.session_state.gemini_file
+                ],
+                json_mode=True
+            )
 
-                if not data:
 
-                    st.error(
-                        "Gemini returned an unexpected response. "
-                        "Please try generating the analysis again."
-                    )
+            data = clean_json_response(
+                response.text
+            )
 
-                else:
 
-                    st.session_state.analysis = data
-
-                    st.success(
-                        "Financial analysis generated successfully."
-                    )
-
-            except Exception as error:
+            if not data:
 
                 st.error(
-                    f"Gemini could not complete the analysis: {error}"
+                    "Gemini returned an invalid analysis. "
+                    "Please click 'Generate Financial Analysis' again."
                 )
+
+            else:
+
+                st.session_state.analysis = data
+
+                st.success(
+                    "Financial analysis generated successfully."
+                )
+
+                # Rerun so the dashboard appears immediately
+                st.rerun()
+
+
+        except Exception as error:
+
+            st.error(
+                "Gemini could not complete the analysis."
+            )
+
+            st.code(
+                str(error)
+            )
 
 
 # ============================================================
-# DASHBOARD DISPLAY
+# GET ANALYSIS
 # ============================================================
 
 data = st.session_state.analysis
@@ -775,7 +1146,13 @@ if data:
         unsafe_allow_html=True
     )
 
-    overview_columns = st.columns(5)
+    st.markdown(
+        '<div class="section-description">'
+        'A quick snapshot of the company and the report analysed.'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
 
     overview_items = [
         (
@@ -785,6 +1162,7 @@ if data:
                 "Not available"
             )
         ),
+
         (
             "Industry",
             company.get(
@@ -792,6 +1170,7 @@ if data:
                 "Not available"
             )
         ),
+
         (
             "Business Type",
             company.get(
@@ -799,6 +1178,7 @@ if data:
                 "Not available"
             )
         ),
+
         (
             "Reporting Period",
             company.get(
@@ -806,6 +1186,7 @@ if data:
                 "Not available"
             )
         ),
+
         (
             "Report Type",
             company.get(
@@ -814,6 +1195,10 @@ if data:
             )
         )
     ]
+
+
+    overview_columns = st.columns(5)
+
 
     for column, item in zip(
         overview_columns,
@@ -825,6 +1210,7 @@ if data:
             st.markdown(
                 f"""
                 <div class="company-card">
+
                     <div class="company-label">
                         {item[0]}
                     </div>
@@ -832,6 +1218,7 @@ if data:
                     <div class="company-value">
                         {item[1]}
                     </div>
+
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -839,7 +1226,7 @@ if data:
 
 
     # ========================================================
-    # KEY METRICS
+    # KEY FINANCIAL METRICS
     # ========================================================
 
     st.markdown(
@@ -847,110 +1234,150 @@ if data:
         unsafe_allow_html=True
     )
 
-    # Pick important headline metrics
+    st.markdown(
+        '<div class="section-description">'
+        'The most important numbers extracted from the report.'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+
+    # Find headline metrics
     headline_metrics = []
 
-    preferred_metric_words = [
+    priority_words = [
         "total income",
         "revenue",
         "profit after tax",
         "pat",
         "net profit",
+        "ebitda",
         "assets under management",
         "aum"
     ]
 
+
     for metric in metrics:
 
-        name = str(
-            metric.get("metric", "")
+        metric_name = str(
+            metric.get(
+                "metric",
+                ""
+            )
         ).lower()
 
+
         if any(
-            word in name
-            for word in preferred_metric_words
+            word in metric_name
+            for word in priority_words
         ):
 
             if metric not in headline_metrics:
-                headline_metrics.append(metric)
 
-    # Keep headline cards manageable
-    headline_metrics = headline_metrics[:4]
-
-    if not headline_metrics:
-        headline_metrics = metrics[:4]
-
-
-    metric_columns = st.columns(
-        len(headline_metrics)
-        if headline_metrics
-        else 1
-    )
-
-    for column, metric in zip(
-        metric_columns,
-        headline_metrics
-    ):
-
-        with column:
-
-            metric_name = metric.get(
-                "metric",
-                "Metric"
-            )
-
-            value = metric.get(
-                "current_period",
-                "N/A"
-            )
-
-            unit = metric.get(
-                "unit",
-                ""
-            )
-
-            growth = metric.get(
-                "yoy_growth",
-                ""
-            )
-
-            basis = metric.get(
-                "basis",
-                ""
-            )
-
-            if growth and growth not in [
-                "N/A",
-                "Not applicable",
-                "Not available"
-            ]:
-
-                delta = str(growth)
-
-            else:
-
-                delta = None
-
-
-            st.metric(
-                label=metric_name,
-                value=f"{value} {unit}".strip(),
-                delta=delta,
-                border=True
-            )
-
-            if basis:
-
-                st.caption(
-                    f"Basis: {basis}"
+                headline_metrics.append(
+                    metric
                 )
 
 
+    # Add other metrics if needed
+    for metric in metrics:
+
+        if metric not in headline_metrics:
+
+            headline_metrics.append(
+                metric
+            )
+
+
+    headline_metrics = headline_metrics[:4]
+
+
+    if headline_metrics:
+
+        metric_columns = st.columns(
+            len(headline_metrics)
+        )
+
+
+        for column, metric in zip(
+            metric_columns,
+            headline_metrics
+        ):
+
+            with column:
+
+                metric_name = metric.get(
+                    "metric",
+                    "Metric"
+                )
+
+                current = metric.get(
+                    "current_period",
+                    "N/A"
+                )
+
+                unit = metric.get(
+                    "unit",
+                    ""
+                )
+
+                growth = metric.get(
+                    "yoy_growth",
+                    ""
+                )
+
+                basis = metric.get(
+                    "basis",
+                    ""
+                )
+
+
+                value_text = (
+                    f"{current} {unit}"
+                ).strip()
+
+
+                valid_growth = (
+                    growth
+                    and str(growth).lower()
+                    not in [
+                        "n/a",
+                        "not available",
+                        "not applicable"
+                    ]
+                )
+
+
+                if valid_growth:
+
+                    st.metric(
+                        label=metric_name,
+                        value=value_text,
+                        delta=str(growth),
+                        border=True
+                    )
+
+                else:
+
+                    st.metric(
+                        label=metric_name,
+                        value=value_text,
+                        border=True
+                    )
+
+
+                if basis:
+
+                    st.caption(
+                        f"Basis: {basis}"
+                    )
+
+
     # ========================================================
-    # TABS
+    # MAIN DASHBOARD TABS
     # ========================================================
 
-    overview_tab, metrics_tab, business_tab, management_tab, risks_tab, investor_tab = st.tabs(
+    tabs = st.tabs(
         [
             "Overview",
             "Financial Metrics",
@@ -962,22 +1389,33 @@ if data:
     )
 
 
+    overview_tab = tabs[0]
+    metrics_tab = tabs[1]
+    business_tab = tabs[2]
+    management_tab = tabs[3]
+    risks_tab = tabs[4]
+    investor_tab = tabs[5]
+
+
     # ========================================================
-    # OVERVIEW TAB
+    # OVERVIEW
     # ========================================================
 
     with overview_tab:
 
-        st.subheader("Financial Snapshot")
+        st.subheader(
+            "Financial Snapshot"
+        )
 
         st.write(
-            "The dashboard below summarizes the most important "
-            "financial and operating information found in the report."
+            "Here are the main developments that stand out "
+            "from the financial report."
         )
+
 
         if performance:
 
-            for item in performance[:4]:
+            for item in performance[:5]:
 
                 title = item.get(
                     "title",
@@ -994,6 +1432,7 @@ if data:
                     ""
                 )
 
+
                 st.markdown(
                     f"""
                     <div class="insight-card">
@@ -1006,9 +1445,7 @@ if data:
                             {summary}
                         </div>
 
-                        <br>
-
-                        <div class="small-note">
+                        <div class="why-label">
                             Why it matters
                         </div>
 
@@ -1023,7 +1460,7 @@ if data:
 
 
     # ========================================================
-    # FINANCIAL METRICS TAB
+    # FINANCIAL METRICS
     # ========================================================
 
     with metrics_tab:
@@ -1031,6 +1468,12 @@ if data:
         st.subheader(
             "Detailed Financial & Operating Metrics"
         )
+
+        st.write(
+            "Compare the current period with the previous "
+            "period using the figures available in the report."
+        )
+
 
         if metrics:
 
@@ -1044,22 +1487,27 @@ if data:
                             "metric",
                             ""
                         ),
+
                         "Current Period": metric.get(
                             "current_period",
                             ""
                         ),
+
                         "Previous Period": metric.get(
                             "previous_period",
                             ""
                         ),
+
                         "YoY Growth": metric.get(
                             "yoy_growth",
                             ""
                         ),
+
                         "Unit": metric.get(
                             "unit",
                             ""
                         ),
+
                         "Basis": metric.get(
                             "basis",
                             ""
@@ -1067,21 +1515,23 @@ if data:
                     }
                 )
 
+
             st.dataframe(
                 table_rows,
                 use_container_width=True,
-                hide_index=True
+                hide_index=True,
+                height=560
             )
 
         else:
 
             st.info(
-                "No detailed metrics were returned."
+                "No detailed financial metrics were found."
             )
 
 
     # ========================================================
-    # BUSINESS PERFORMANCE TAB
+    # BUSINESS PERFORMANCE
     # ========================================================
 
     with business_tab:
@@ -1089,6 +1539,11 @@ if data:
         st.subheader(
             "Business Performance"
         )
+
+        st.write(
+            "Major business developments identified in the report."
+        )
+
 
         if performance:
 
@@ -1112,24 +1567,29 @@ if data:
                     ""
                 )
 
+
                 with st.expander(
                     f"{index}. {title}",
                     expanded=index <= 2
                 ):
 
-                    st.write(summary)
+                    st.write(
+                        summary
+                    )
 
                     if why:
 
                         st.markdown(
-                            "**Why it matters:**"
+                            "**Why it matters**"
                         )
 
-                        st.write(why)
+                        st.write(
+                            why
+                        )
 
 
     # ========================================================
-    # MANAGEMENT TAB
+    # MANAGEMENT
     # ========================================================
 
     with management_tab:
@@ -1137,6 +1597,12 @@ if data:
         st.subheader(
             "Management Commentary"
         )
+
+        st.write(
+            "Important strategic and management themes "
+            "identified in the annual report."
+        )
+
 
         if management:
 
@@ -1152,12 +1618,15 @@ if data:
                     ""
                 )
 
+
                 with st.expander(
                     title,
                     expanded=False
                 ):
 
-                    st.write(summary)
+                    st.write(
+                        summary
+                    )
 
         else:
 
@@ -1167,7 +1636,7 @@ if data:
 
 
     # ========================================================
-    # RISKS TAB
+    # RISKS
     # ========================================================
 
     with risks_tab:
@@ -1175,6 +1644,12 @@ if data:
         st.subheader(
             "Risk & Headwind Assessment"
         )
+
+        st.write(
+            "Key risks identified from the company's "
+            "financial and business information."
+        )
+
 
         if risks:
 
@@ -1185,7 +1660,7 @@ if data:
                     "Risk"
                 )
 
-                risk_description = risk.get(
+                description = risk.get(
                     "what_is_the_risk",
                     ""
                 )
@@ -1195,6 +1670,7 @@ if data:
                     ""
                 )
 
+
                 st.markdown(
                     f"""
                     <div class="risk-card">
@@ -1203,17 +1679,15 @@ if data:
                             {title}
                         </div>
 
-                        <div class="small-note">
+                        <div class="risk-label">
                             What is the risk?
                         </div>
 
                         <div class="risk-text">
-                            {risk_description}
+                            {description}
                         </div>
 
-                        <br>
-
-                        <div class="small-note">
+                        <div class="risk-label">
                             Why it matters
                         </div>
 
@@ -1228,7 +1702,7 @@ if data:
 
 
     # ========================================================
-    # INVESTOR VIEW TAB
+    # INVESTOR VIEW
     # ========================================================
 
     with investor_tab:
@@ -1236,6 +1710,12 @@ if data:
         st.subheader(
             "Analyst Takeaway"
         )
+
+        st.write(
+            "A simplified view of what is improving, "
+            "what is weakening and what deserves attention."
+        )
+
 
         improving = takeaway.get(
             "improving",
@@ -1261,23 +1741,39 @@ if data:
         col1, col2 = st.columns(2)
 
 
+        # ----------------------------------------------------
+        # IMPROVING
+        # ----------------------------------------------------
+
         with col1:
 
             st.markdown(
                 "### What is improving?"
             )
 
-            for item in improving:
+            if improving:
 
-                st.markdown(
-                    f"""
-                    <div class="watch-card">
-                        {item}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
+                for item in improving:
+
+                    st.markdown(
+                        f"""
+                        <div class="takeaway-card">
+                            {item}
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+            else:
+
+                st.info(
+                    "No specific improvement points identified."
                 )
 
+
+        # ----------------------------------------------------
+        # WEAKENING
+        # ----------------------------------------------------
 
         with col2:
 
@@ -1285,11 +1781,42 @@ if data:
                 "### What is weakening?"
             )
 
-            for item in weakening:
+            if weakening:
+
+                for item in weakening:
+
+                    st.markdown(
+                        f"""
+                        <div class="takeaway-card">
+                            {item}
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+            else:
+
+                st.info(
+                    "No specific weakening points identified."
+                )
+
+
+        # ----------------------------------------------------
+        # GROWTH DRIVERS
+        # ----------------------------------------------------
+
+        st.markdown(
+            "### Main Growth Drivers"
+        )
+
+
+        if growth_drivers:
+
+            for item in growth_drivers:
 
                 st.markdown(
                     f"""
-                    <div class="watch-card">
+                    <div class="takeaway-card">
                         {item}
                     </div>
                     """,
@@ -1297,66 +1824,72 @@ if data:
                 )
 
 
-        st.markdown(
-            "### Main Growth Drivers"
-        )
-
-        for item in growth_drivers:
-
-            st.markdown(
-                f"""
-                <div class="watch-card">
-                    {item}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
+        # ----------------------------------------------------
+        # INVESTOR WATCH
+        # ----------------------------------------------------
 
         st.markdown(
             "### What Should an Investor Watch?"
         )
 
-        for item in investor_watch:
 
-            st.markdown(
-                f"""
-                <div class="watch-card">
-                    {item}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+        if investor_watch:
+
+            for item in investor_watch:
+
+                st.markdown(
+                    f"""
+                    <div class="takeaway-card">
+                        {item}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
 
 # ============================================================
-# ASK QUESTIONS
+# ASK QUESTIONS ABOUT THE REPORT
 # ============================================================
 
 st.divider()
+
 
 st.markdown(
     '<div class="section-title">Ask Questions About This Financial Report</div>',
     unsafe_allow_html=True
 )
 
-st.write(
-    "Ask Gemini any question related to the uploaded financial report."
+st.markdown(
+    '<div class="section-description">'
+    'Ask Gemini any reasonable question about the uploaded report. '
+    'You are not limited to a fixed list of questions.'
+    '</div>',
+    unsafe_allow_html=True
 )
 
-question = st.text_input(
+
+question = st.text_area(
     "Your question",
     placeholder=(
-        "Example: What are the biggest risks to the company's "
-        "future growth?"
-    )
+        "Examples:\n"
+        "• What are the biggest risks to the company's future growth?\n"
+        "• Why did profit change compared with last year?\n"
+        "• What are the main growth drivers?\n"
+        "• Is the company's financial position improving?\n"
+        "• What should a long-term investor monitor?"
+    ),
+    height=120
 )
 
 
-if st.button(
+ask_button = st.button(
     "Ask Gemini",
+    type="primary",
     key="ask_question"
-):
+)
+
+
+if ask_button:
 
     if not question.strip():
 
@@ -1367,52 +1900,112 @@ if st.button(
     else:
 
         question_prompt = f"""
+
 You are a professional financial analyst.
 
-Answer the user's question using ONLY the uploaded
-financial report.
+The user has uploaded a financial report.
+
+Answer the user's question using ONLY information
+contained in that uploaded report.
 
 USER QUESTION:
 {question}
 
-IMPORTANT RULES:
+============================================================
+ANSWER RULES
+============================================================
 
-1. Answer the actual question directly.
-2. Use information from the uploaded PDF.
-3. Do not invent facts or financial numbers.
-4. If the report does not contain enough information,
-   clearly say so.
+1. Answer the user's actual question directly.
+
+2. Use only information from the uploaded PDF.
+
+3. Never invent financial figures.
+
+4. If the PDF does not contain enough information,
+   clearly say that the report does not provide enough
+   information to answer that part.
+
 5. Use simple, professional language.
+
 6. Avoid unnecessary technical jargon.
-7. If numbers are relevant, include them.
-8. Explain why the numbers matter.
-9. You may make reasonable financial interpretations
-   based on the report, but clearly distinguish
-   interpretation from facts.
-10. If the user asks about future growth, explain the
-    growth drivers and risks found in the report.
-11. If the user asks about investment potential,
-    provide an analytical view but DO NOT give a direct
-    Buy, Sell, or Hold recommendation.
-12. The answer should be easy for a general investor
-    or finance student to understand.
-13. Do not answer questions unrelated to the uploaded report.
 
-Format the answer clearly using:
+7. If financial numbers are useful, include them.
 
-## Direct Answer
+8. Explain what important numbers mean in simple terms.
 
-## Key Points
+9. You may make reasonable interpretations based on
+   the information in the report.
 
-## What the Report Suggests
+10. Clearly separate facts from interpretation.
 
-## What to Watch
+11. If the user asks about future growth:
+    explain the company's growth drivers, opportunities
+    and risks found in the report.
 
-Only use sections that are actually useful.
+12. If the user asks whether the company is financially
+    strong:
+    discuss revenue, profit, assets, debt, cash flow,
+    margins and other relevant metrics available in
+    the report.
+
+13. If the user asks about investment potential:
+    provide an analytical assessment based on the report,
+    but DO NOT give a direct Buy, Sell or Hold recommendation.
+
+14. If the question is unrelated to the uploaded report,
+    politely explain that you can answer questions related
+    to the uploaded financial report.
+
+15. Do not pretend to know information that is not in
+    the uploaded report.
+
+============================================================
+RESPONSE STYLE
+============================================================
+
+Make the answer visually easy to read.
+
+Do NOT write one huge paragraph.
+
+Use:
+
+### Direct Answer
+
+Then give the main answer in 2–4 short paragraphs.
+
+Then, when useful:
+
+### Key Points
+
+- Point
+- Point
+- Point
+
+Then, when useful:
+
+### What This Means
+
+Explain the practical meaning.
+
+Then, when useful:
+
+### What to Watch
+
+- Point
+- Point
+
+Use only the sections that are useful.
+
+Keep the answer concise but informative.
+
+Do not return HTML.
+
+Return normal Markdown.
 """
 
+
         with st.spinner(
-            "Gemini is analysing your question..."
+            "Gemini is analysing the report and preparing your answer..."
         ):
 
             try:
@@ -1425,18 +2018,37 @@ Only use sections that are actually useful.
                     json_mode=False
                 )
 
+
+                answer = response.text.strip()
+
+
                 st.markdown(
                     "### Gemini's Answer"
                 )
 
-                st.write(
-                    response.text
-                )
+
+                if answer:
+
+                    st.markdown(
+                        answer
+                    )
+
+                else:
+
+                    st.warning(
+                        "Gemini returned an empty answer. "
+                        "Please try asking the question again."
+                    )
+
 
             except Exception as error:
 
                 st.error(
-                    f"Gemini could not answer the question: {error}"
+                    "Gemini could not answer the question."
+                )
+
+                st.code(
+                    str(error)
                 )
 
 
@@ -1446,8 +2058,13 @@ Only use sections that are actually useful.
 
 st.divider()
 
-st.caption(
-    "Financial Analysis Copilot • "
-    "AI-generated analysis based on the uploaded financial report. "
-    "For educational and research purposes only."
+st.markdown(
+    """
+    <div class="footer">
+        Financial Analysis Copilot •
+        AI-generated analysis based on the uploaded financial report.
+        For educational and research purposes only.
+    </div>
+    """,
+    unsafe_allow_html=True
 )
