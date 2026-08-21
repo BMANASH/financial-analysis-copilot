@@ -344,23 +344,19 @@ st.markdown("""
     font-size: 12px;
     font-weight: 700;
 }
-.cheat-card {
-    background: #141a24;
-    border: 1px solid #28374d;
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
+.slicer-card {
+    background: #151d2a;
+    border: 1px solid #2d3e58;
+    border-left: 3px solid #3b82f6;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 10px;
+    margin-bottom: 12px;
 }
-.cheat-term {
-    color: #60a5fa;
+.slicer-meaning {
+    color: #e2e8f0;
     font-size: 12.5px;
-    font-weight: 700;
-    margin-bottom: 2px;
-}
-.cheat-meaning {
-    color: #cbd5e1;
-    font-size: 11.5px;
-    line-height: 1.4;
+    line-height: 1.5;
 }
 .footer {
     color: #707b8c;
@@ -606,21 +602,31 @@ with st.sidebar:
             st.caption(f"Engine: `{st.session_state.selected_model}`")
 
     # ========================================================
-    # DYNAMIC SIDEBAR JARGON CHEAT SHEET (EXTRACTED FROM PDF)
+    # SIDEBAR INTERACTIVE JARGON SLICER (PDF-GROUNDED)
     # ========================================================
     if st.session_state.analysis and "terms_cheat_sheet" in st.session_state.analysis:
         cheat_terms = st.session_state.analysis.get("terms_cheat_sheet", [])
         if cheat_terms:
             st.markdown("---")
-            st.markdown("### 📌 PDF Jargon Cheat Sheet")
-            st.caption("Common financial terms used in this specific report explained in 1 line:")
-            for item in cheat_terms:
-                term_name = item.get("term", "")
-                term_mean = item.get("meaning", "")
+            st.markdown("### 📌 Financial Jargon Slicer")
+            st.caption("Select any financial or reporting term from this report to view its 1-line plain English meaning:")
+
+            term_map = {item.get("term", "").strip(): item.get("meaning", "").strip() for item in cheat_terms if item.get("term")}
+            term_names = list(term_map.keys())
+
+            if term_names:
+                selected_jargon = st.selectbox(
+                    "Select a financial term:",
+                    options=term_names,
+                    index=0,
+                    key="sidebar_jargon_slicer"
+                )
+
+                selected_definition = term_map[selected_jargon]
                 st.markdown(f"""
-                <div class="cheat-card">
-                    <div class="cheat-term">{term_name}</div>
-                    <div class="cheat-meaning">{term_mean}</div>
+                <div class="slicer-card">
+                    <div style="color: #60a5fa; font-weight: 700; font-size: 13px; margin-bottom: 4px;">💡 {selected_jargon}</div>
+                    <div class="slicer-meaning">{selected_definition}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -671,7 +677,7 @@ STRICT CONTENT DEPTH & COUNT REQUIREMENTS
    - "weakening": exactly 4 to 6 challenges, drops, or concerns with specific numbers/facts.
    - "growth_drivers": exactly 4 to 6 key factors that could drive future revenue.
    - "investor_watch": exactly 4 to 6 specific checkpoints an investor should track next.
-6. TERMS_CHEAT_SHEET: Extract 6 to 10 specific financial or reporting terms that appear inside THIS uploaded PDF (e.g. Consolidated, Standalone, AUM, Net Interest Margin, Operating Margin, Gross NPA, CASA, Capital Adequacy, Solvency, etc. depending on the company type). Provide a clear 1-line plain English explanation of what it means for this company.
+6. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF (e.g. Consolidated, Standalone, AUM, Net Interest Margin, Operating Margin, Gross NPA, CASA, Capital Adequacy, Solvency, Stage 3 Loans, etc. depending on the company type). Provide a clear 1-line plain English explanation of what it means for this company.
 
 ============================================================
 LANGUAGE STYLE RULES
@@ -696,7 +702,7 @@ Return ONLY valid JSON with this exact structure:
   "terms_cheat_sheet": [
     {
       "term": "Term Name (e.g. Consolidated)",
-      "meaning": "1 short plain English sentence explaining it"
+      "meaning": "1 short plain English sentence explaining what it means for this company"
     }
   ],
   "key_metrics": [
