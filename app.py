@@ -4,6 +4,7 @@ import re
 import tempfile
 import os
 import time
+import pandas as pd
 from google import genai
 from google.genai import types
 
@@ -259,6 +260,24 @@ st.markdown("""
     font-weight: 700;
     margin-bottom: 8px;
 }
+.chart-box {
+    background: #151a24;
+    border: 1px solid #283241;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+}
+.chart-title {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 650;
+    margin-bottom: 6px;
+}
+.chart-desc {
+    color: #8f9aaa;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
 .footer {
     color: #707b8c;
     font-size: 12px;
@@ -388,7 +407,7 @@ def generate_with_fallback(contents, json_mode=False):
     raise Exception(f"All available models failed.\n\n{error_text}")
 
 # ============================================================
-# SAFE JSON PARSER
+# SAFE JSON PARSER & NUMERIC PARSER
 # ============================================================
 
 def clean_json_response(text):
@@ -414,6 +433,19 @@ def clean_json_response(text):
             pass
 
     return {}
+
+def parse_clean_float(val):
+    """Safely extracts float values from formatted string numbers"""
+    if val is None:
+        return None
+    cleaned = str(val).replace(",", "").replace("₹", "").replace("$", "").replace("%", "").strip()
+    match = re.search(r"[-+]?\d*\.?\d+", cleaned)
+    if match:
+        try:
+            return float(match.group())
+        except Exception:
+            return None
+    return None
 
 # ============================================================
 # PDF UPLOAD TO GEMINI
@@ -703,9 +735,9 @@ if data:
                 """
                 st.markdown(kpi_card_html, unsafe_allow_html=True)
 
-    # Tabs
-    tab_overview, tab_metrics, tab_business, tab_mgmt, tab_risks, tab_investor = st.tabs([
-        "Overview", "Financial Metrics Table", "Business Updates", "Management Plans", "Risks (Plain English)", "Investor Takeaway"
+    # Tabs (Now with Step 22 Charts Tab)
+    tab_overview, tab_metrics, tab_charts, tab_business, tab_mgmt, tab_risks, tab_investor = st.tabs([
+        "Overview", "Financial Metrics Table", "📊 Visual Charts", "Business Updates", "Management Plans", "Risks (Plain English)", "Investor Takeaway"
     ])
 
     with tab_overview:
@@ -765,6 +797,59 @@ if data:
                 st.info("No metrics matching your search.")
         else:
             st.info("No financial metrics found.")
+
+    # ========================================================
+    # STEP 22: VISUAL CHARTS TAB
+    # ========================================================
+    with tab_charts:
+        st.subheader("Visual Financial Analytics")
+        st.write("Interactive comparisons generated directly from the reported financial statements:")
+
+        # Parse metrics into a structured dataframe for charting
+        chart_records = []
+        for m in metrics:
+            curr_val = parse_clean_float(m.get("current_period"))
+            prev_val = parse_clean_float(m.get("previous_period"))
+            m_name = m.get("metric", "").strip()
+
+            if curr_val is not None and prev_val is not None:
+                chart_records.append({
+                    "Metric": m_name,
+                    "Previous Period": prev_val,
+                    "Current Period": curr_val,
+                    "Unit": m.get("unit", "")
+                })
+
+        if chart_records:
+            chart_df = pd.DataFrame(chart_records)
+
+            col_ch1, col_ch2 = st.columns(2)
+
+            with col_ch1:
+                st.markdown("""
+                <div class="chart-box">
+                    <div class="chart-title">📈 Current vs. Previous Period Comparison</div>
+                    <div class="chart-desc">Side-by-side growth comparison across key financial lines</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # Focus on top 6 major metrics
+                plot_data = chart_df.head(6).set_index("Metric")[["Previous Period", "Current Period"]]
+                st.bar_chart(plot_data, height=360, use_container_width=True)
+
+            with col_ch2:
+                st.markdown("""
+                <div class="chart-box">
+                    <div class="chart-title">📊 Period-over-Period Metric Progression</div>
+                    <div class="chart-desc">Relative scale across reported operating and income metrics</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # Transposed display showing trajectory
+                st.area_chart(plot_data, height=360, use_container_width=True)
+
+        else:
+            st.info("💡 Visual charts will automatically appear whenever both current and previous period figures are available in the report.")
 
     with tab_business:
         st.subheader("Business Updates")
@@ -859,7 +944,7 @@ if data:
                 st.markdown(card_html, unsafe_allow_html=True)
 
     # ========================================================
-    # STEP 21: MCQ-TYPE DEEP-DIVE SELECTION
+    # USER-CONTROLLED DEEP-DIVE (MCQ SELECTION)
     # ========================================================
     st.markdown("---")
     st.markdown('<div class="section-title">🔬 Deep-Dive Financial Analysis</div>', unsafe_allow_html=True)
