@@ -240,6 +240,10 @@ Financial report:
             overview = analysis["company_overview"]
             metrics = analysis["key_metrics"]
 
+            # -----------------------------
+            # COMPANY OVERVIEW
+            # -----------------------------
+
             st.header("Company Overview")
 
             st.subheader(
@@ -262,9 +266,11 @@ Financial report:
 
             st.divider()
 
-            st.header("Key Financial Metrics")
+            # -----------------------------
+            # KEY FINANCIAL METRICS
+            # -----------------------------
 
-            # Find important metrics for the top dashboard cards
+            st.header("Key Financial Metrics")
 
             total_income = None
             pat = None
@@ -350,6 +356,10 @@ Financial report:
 
             st.divider()
 
+            # -----------------------------
+            # DETAILED FINANCIAL METRICS
+            # -----------------------------
+
             st.subheader("Detailed Financial Metrics")
 
             table_data = []
@@ -372,6 +382,60 @@ Financial report:
                 use_container_width=True,
                 hide_index=True
             )
+
+            st.divider()
+
+            # -----------------------------
+            # BUSINESS PERFORMANCE
+            # -----------------------------
+
+            st.header("Business Performance")
+
+            business_performance = analysis.get(
+                "business_performance",
+                []
+            )
+
+            if business_performance:
+
+                for item in business_performance:
+
+                    st.markdown(
+                        f"- {item}"
+                    )
+
+            else:
+
+                st.info(
+                    "Business performance information was not available."
+                )
+
+            st.divider()
+
+            # -----------------------------
+            # MANAGEMENT COMMENTARY
+            # -----------------------------
+
+            st.header("Management Commentary")
+
+            management_commentary = analysis.get(
+                "management_commentary",
+                []
+            )
+
+            if management_commentary:
+
+                for item in management_commentary:
+
+                    st.markdown(
+                        f"- {item}"
+                    )
+
+            else:
+
+                st.info(
+                    "Management commentary was not available."
+                )
 
         except json.JSONDecodeError:
 
