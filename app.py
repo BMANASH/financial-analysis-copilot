@@ -246,13 +246,26 @@ st.markdown("""
     font-size: 14px;
     line-height: 1.5;
 }
-.chat-response-card {
-    background: #151a24;
-    border: 1px solid #283241;
+.deep-dive-box {
+    background: #111622;
+    border: 1px solid #28374d;
+    border-radius: 14px;
+    padding: 22px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+.deep-card {
+    background: #161c28;
+    border: 1px solid #2e3d54;
     border-radius: 12px;
-    padding: 16px 20px;
-    margin-top: 8px;
-    margin-bottom: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+}
+.deep-card-title {
+    color: #60a5fa;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
 }
 .footer {
     color: #707b8c;
@@ -271,6 +284,8 @@ defaults = {
     "gemini_file": None,
     "uploaded_name": None,
     "analysis": None,
+    "deep_dive": None,
+    "deep_dive_choice": "Select an option...",
     "selected_model": None,
     "chat_history": []
 }
@@ -468,6 +483,8 @@ with st.sidebar:
                     st.session_state.gemini_file = gemini_file
                     st.session_state.uploaded_name = uploaded_file.name
                     st.session_state.analysis = None
+                    st.session_state.deep_dive = None
+                    st.session_state.deep_dive_choice = "Select an option..."
                     st.session_state.chat_history = []
                     st.session_state.selected_model = None
                     st.success("Financial report ready for analysis.")
@@ -602,6 +619,7 @@ Return ONLY valid JSON with this exact structure:
                 st.error("Gemini returned an incomplete response. Please click 'Generate Financial Analysis' again.")
             else:
                 st.session_state.analysis = data
+                st.session_state.deep_dive = None  # Reset deep dive on fresh run
                 st.success("Financial analysis generated successfully.")
                 st.rerun()
 
@@ -850,6 +868,107 @@ if data:
                 card_html = f"""<div class="takeaway-watch">◉ {item}</div>"""
                 st.markdown(card_html, unsafe_allow_html=True)
 
+    # ========================================================
+    # STEP 21: USER-CONTROLLED DEEP-DIVE FINANCIAL ANALYSIS
+    # ========================================================
+    st.markdown("---")
+    st.markdown('<div class="section-title">🔬 Deep-Dive Financial Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Would you like Gemini to conduct a specialized deep-dive analysis on profitability margins, balance sheet health, debt, and operational efficiency?</div>', unsafe_allow_html=True)
+
+    user_choice = st.radio(
+        "Choose whether to generate the in-depth financial assessment:",
+        options=["Select an option...", "Yes, Show In-Depth Analysis", "No / Not Right Now"],
+        index=0,
+        horizontal=True,
+        key="deep_dive_radio"
+    )
+
+    if user_choice == "Yes, Show In-Depth Analysis":
+        if st.session_state.deep_dive is None:
+            deep_prompt = """
+You are a senior financial analyst providing a specialized deep-dive assessment of the uploaded annual report in plain, everyday English.
+
+Extract and analyze three core financial pillars from the uploaded PDF:
+1. PROFITABILITY & MARGINS: Profit margins, return on capital, drivers of net earnings, and cost pressures.
+2. DEBT, LIQUIDITY & CAPITAL HEALTH: Borrowing levels, cash reserves, capital adequacy, and solvency.
+3. OPERATING EFFICIENCY & REVENUE COMPOSITION: How efficiently the company runs its operations, employee/tech costs, and shift toward core recurring revenue.
+
+============================================================
+RULES:
+- Use plain, conversational, professional English.
+- Explain technical metrics in brackets or everyday terms.
+- Use exact figures and percentages found in the report.
+- Return ONLY valid JSON with this structure:
+{
+  "profitability_depth": {
+    "headline": "Short plain English verdict on profitability",
+    "insights": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+  },
+  "debt_and_liquidity": {
+    "headline": "Short plain English verdict on debt and balance sheet safety",
+    "insights": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+  },
+  "operating_efficiency": {
+    "headline": "Short plain English verdict on operational efficiency and scale",
+    "insights": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+  }
+}
+"""
+            with st.spinner("Gemini is conducting an in-depth financial investigation..."):
+                try:
+                    deep_res = generate_with_fallback(
+                        contents=[deep_prompt, st.session_state.gemini_file],
+                        json_mode=True
+                    )
+                    deep_data = clean_json_response(deep_res.text)
+                    if deep_data and "profitability_depth" in deep_data:
+                        st.session_state.deep_dive = deep_data
+                    else:
+                        st.warning("Could not structure deep-dive data. Please try again.")
+                except Exception as e:
+                    st.error(f"Deep-dive analysis error: {e}")
+
+        if st.session_state.deep_dive:
+            dd = st.session_state.deep_dive
+            prof = dd.get("profitability_depth", {})
+            debt = dd.get("debt_and_liquidity", {})
+            eff = dd.get("operating_efficiency", {})
+
+            col_d1, col_d2, col_d3 = st.columns(3)
+
+            with col_d1:
+                st.markdown(f"""
+                <div class="deep-card">
+                    <div class="deep-card-title">📊 Profitability & Margins</div>
+                    <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{prof.get('headline', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in prof.get("insights", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            with col_d2:
+                st.markdown(f"""
+                <div class="deep-card">
+                    <div class="deep-card-title">🛡️ Debt & Balance Sheet Safety</div>
+                    <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{debt.get('headline', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in debt.get("insights", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            with col_d3:
+                st.markdown(f"""
+                <div class="deep-card">
+                    <div class="deep-card-title">⚙️ Operating Efficiency & Scale</div>
+                    <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{eff.get('headline', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in eff.get("insights", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+    elif user_choice == "No / Not Right Now":
+        st.info("💡 Feel free to explore the tabs above or ask any question below if you have any doubts!")
+
 # ============================================================
 # STEP 20: ENHANCED ASK GEMINI EXPERIENCE (CHAT + PROMPT CHIPS)
 # ============================================================
@@ -892,11 +1011,9 @@ for chat in st.session_state.chat_history:
 # Text Input Bar
 user_input = st.chat_input("Ask a question about this financial report...")
 
-# Trigger question from either input box or chips
 active_query = user_input or suggested_question
 
 if active_query:
-    # Append user question to history
     st.session_state.chat_history.append({
         "role": "user",
         "content": active_query
@@ -945,7 +1062,6 @@ RULES FOR ANSWERING
                 answer = response.text.strip() if response.text else "Gemini returned an empty response. Please try asking again."
                 st.markdown(answer)
                 
-                # Append assistant answer to history
                 st.session_state.chat_history.append({
                     "role": "assistant",
                     "content": answer
