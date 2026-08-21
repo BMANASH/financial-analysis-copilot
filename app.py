@@ -291,7 +291,7 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# DYNAMIC MODEL DISCOVERY & FALLBACK
+# DYNAMIC MODEL DISCOVERY & SMART RANKING
 # ============================================================
 
 def get_available_models():
@@ -312,11 +312,15 @@ def get_available_models():
 def model_score(model_name):
     name = model_name.lower()
     score = 0
-    if "flash" in name:
+    # Prefer full standard Flash models over Lite variants
+    if "flash" in name and "lite" not in name:
+        score += 150
+    elif "pro" in name:
         score += 100
-    if "latest" in name:
+    elif "flash-lite" in name or "lite" in name:
         score += 50
-    if "pro" in name:
+    
+    if "latest" in name:
         score += 30
     return score
 
@@ -345,11 +349,13 @@ def generate_with_fallback(contents, json_mode=False):
             if json_mode:
                 config = types.GenerateContentConfig(
                     response_mime_type="application/json",
-                    temperature=0.2
+                    temperature=0.2,
+                    max_output_tokens=8192
                 )
             else:
                 config = types.GenerateContentConfig(
-                    temperature=0.3
+                    temperature=0.3,
+                    max_output_tokens=8192
                 )
 
             response = client.models.generate_content(
@@ -494,57 +500,53 @@ if not st.session_state.gemini_file:
 # ============================================================
 
 st.markdown('<div class="section-title">Generate Financial Analysis</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Gemini will read the uploaded report and create a simple, clear financial dashboard.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Gemini will read the uploaded report and create a complete, easy-to-understand financial dashboard.</div>', unsafe_allow_html=True)
 
 generate_button = st.button("Generate Financial Analysis", type="primary")
 
 if generate_button:
     analysis_prompt = """
-You are a clear, practical financial analyst explaining an annual report to a regular investor or student.
+You are an expert financial analyst who explains financial annual reports to regular investors and finance students in simple, everyday English without losing depth or numbers.
 
 Analyze ONLY the uploaded PDF. It can belong to ANY company.
-Identify the company name, industry, reporting period, report type, and describe what the business does in 1-2 everyday sentences.
+Identify the company name, industry, reporting period, report type, and provide a clear 2-sentence description of what the business does.
 
 ============================================================
-CRITICAL LANGUAGE RULES (MUST FOLLOW STRICTLY)
+STRICT CONTENT DEPTH & COUNT REQUIREMENTS
 ============================================================
-1. WRITE IN SIMPLE, EVERYDAY CONVERSATIONAL ENGLISH.
-   - Do NOT write dense academic phrases like "macroeconomic volatility", "interest rate sensitivity", "mark-to-market valuations", "compressing net interest margins", "capital adequacy ratios".
-   - Instead, explain what actually happens in plain words.
-   
-2. EXPLANATION PATTERNS:
-   - Instead of "Higher funding costs compress net interest margins":
-     Write: "If borrowing costs rise, the company pays more for its own loans, leaving less profit from the loans it gives to customers."
-   - Instead of "Surging yields impacting mark-to-market gains":
-     Write: "Rising interest rates temporarily reduced the paper value of the government bonds and investments the company holds."
-   - Instead of "Operating cost escalation from business incubation":
-     Write: "Starting new businesses like insurance and mutual funds requires heavy upfront spending on tech and staff before profits start rolling in."
-   - Instead of "AUM (Assets Under Management)":
-     Write: "Total Client Money Managed (AUM)" or "Total Loan Book"
+1. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, margin, loan, asset, and profit metrics found in the report. Keep the metric name clean and concise.
+2. BUSINESS_PERFORMANCE: Provide exactly 5 to 7 major developments. For each, give a clear 2-sentence summary and a 1-sentence explanation of why it matters.
+3. MANAGEMENT_COMMENTARY: Provide exactly 4 to 6 strategic management themes or plans.
+4. RISKS: Provide exactly 5 to 6 distinct risk factors. Explain the risk clearly and explain what it means for an investor in everyday terms.
+5. ANALYST_TAKEAWAY:
+   - "improving": exactly 4 to 6 clear positive points with specific numbers/facts.
+   - "weakening": exactly 4 to 6 challenges, drops, or concerns with specific numbers/facts.
+   - "growth_drivers": exactly 4 to 6 key factors that could drive future revenue.
+   - "investor_watch": exactly 4 to 6 specific checkpoints an investor should track next.
 
-3. METRIC NAMES IN KEY_METRICS:
-   - Keep the "metric" field short and clean (e.g. "Total Income / Revenue", "Net Profit (PAT)", "Total Client Investments Managed (AUM)", "Total Loan Book").
-   - Do NOT put long 4-line sentences inside the "metric" name field.
-
-4. ACCURACY:
-   - Use ONLY facts and figures from the PDF. Never invent numbers.
-   - Do NOT give Buy/Sell/Hold recommendations.
+============================================================
+LANGUAGE STYLE RULES
+============================================================
+- Write in clean, professional, plain English.
+- Avoid academic, textbook jargon (e.g. explain what treasury volatility, credit provisioning, or margin compression actually means in real-world terms).
+- Always anchor findings with exact numbers, percentages, and growth figures from the document.
+- Never invent figures. Do NOT give Buy/Sell/Hold advice.
 
 ============================================================
 OUTPUT FORMAT (JSON ONLY)
 ============================================================
-Return ONLY valid JSON matching this exact structure:
+Return ONLY valid JSON with this exact structure:
 {
   "company_overview": {
     "company_name": "",
     "industry": "",
-    "business_type": "1-2 plain-English sentences on how this company makes money",
+    "business_type": "2 clear sentences on what the company actually does and how it earns revenue",
     "reporting_period": "",
     "report_type": ""
   },
   "key_metrics": [
     {
-      "metric": "Clean short name e.g. Total Revenue, Net Profit (PAT)",
+      "metric": "Clean name e.g. Total Revenue, Net Profit (PAT), Total Loan Book",
       "current_period": "",
       "previous_period": "",
       "yoy_growth": "",
@@ -554,34 +556,34 @@ Return ONLY valid JSON matching this exact structure:
   ],
   "business_performance": [
     {
-      "title": "Plain-English title",
-      "summary": "1-2 simple sentences on what happened",
-      "why_it_matters": "1 simple sentence on why this matters to the business"
+      "title": "Clear development title",
+      "summary": "2 simple sentences on what happened with exact numbers",
+      "why_it_matters": "1 sentence on why this matters to the business"
     }
   ],
   "management_commentary": [
     {
-      "title": "Simple topic title",
-      "summary": "What the leadership is planning or doing, in plain English"
+      "title": "Strategy or Theme Title",
+      "summary": "What leadership is doing or planning in clear plain English"
     }
   ],
   "risks": [
     {
-      "title": "Clear risk name",
-      "what_is_the_risk": "Simple explanation of the danger or problem",
-      "why_it_matters": "How this could hurt profits or the business in everyday terms"
+      "title": "Risk Name",
+      "what_is_the_risk": "Clear explanation of the danger or challenge",
+      "why_it_matters": "Plain-English explanation of how this affects business earnings"
     }
   ],
   "analyst_takeaway": {
-    "improving": ["Plain-English positive point 1", "Plain-English positive point 2"],
-    "weakening": ["Plain-English concern or drop 1", "Plain-English concern or drop 2"],
-    "growth_drivers": ["What could drive future revenue in plain terms"],
-    "investor_watch": ["What a regular person should keep an eye on next"]
+    "improving": ["4 to 6 bullet points"],
+    "weakening": ["4 to 6 bullet points"],
+    "growth_drivers": ["4 to 6 bullet points"],
+    "investor_watch": ["4 to 6 bullet points"]
   }
 }
 """
 
-    with st.spinner("Gemini is analysing the report in simple, easy-to-read English..."):
+    with st.spinner("Gemini is reading the complete report and generating full detailed analysis..."):
         try:
             response = generate_with_fallback(
                 contents=[analysis_prompt, st.session_state.gemini_file],
@@ -695,7 +697,7 @@ if data:
         st.subheader("Financial Snapshot")
         st.write("The main business developments from this report:")
         if performance:
-            for item in performance[:5]:
+            for item in performance:
                 title = item.get("title", "Business Development")
                 summary = item.get("summary", "")
                 why = item.get("why_it_matters", "")
