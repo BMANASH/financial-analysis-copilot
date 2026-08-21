@@ -4,7 +4,6 @@ import re
 import tempfile
 import os
 import time
-import pandas as pd
 from google import genai
 from google.genai import types
 
@@ -264,19 +263,86 @@ st.markdown("""
     background: #151a24;
     border: 1px solid #283241;
     border-radius: 14px;
-    padding: 20px;
+    padding: 22px;
     margin-bottom: 18px;
 }
 .chart-title {
     color: #ffffff;
     font-size: 16px;
     font-weight: 650;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 .chart-desc {
     color: #8f9aaa;
     font-size: 13px;
-    margin-bottom: 14px;
+    margin-bottom: 18px;
+}
+.vis-row {
+    margin-bottom: 16px;
+}
+.vis-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 6px;
+}
+.vis-track {
+    background: #232b38;
+    border-radius: 8px;
+    height: 26px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+.vis-fill-curr {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+.vis-fill-prev {
+    background: #475569;
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+.vis-fill-pos {
+    background: linear-gradient(90deg, #059669, #10b981);
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+.vis-fill-neg {
+    background: linear-gradient(90deg, #dc2626, #ef4444);
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
 }
 .footer {
     color: #707b8c;
@@ -734,7 +800,7 @@ if data:
                 """
                 st.markdown(kpi_card_html, unsafe_allow_html=True)
 
-    # Tabs (Cleaned & Updated Names)
+    # Tabs
     tab_overview, tab_metrics, tab_charts, tab_business, tab_mgmt, tab_risks, tab_investor = st.tabs([
         "Overview", "Financial Metrics Table", "📊 Visual Charts", "Business Updates", "Management Plans", "Risks", "Investor Takeaway"
     ])
@@ -798,7 +864,7 @@ if data:
             st.info("No financial metrics found.")
 
     # ========================================================
-    # CLEAN & INTUITIVE VISUAL CHARTS TAB
+    # STEP 22: CLEAR & READABLE VISUAL CHARTS
     # ========================================================
     with tab_charts:
         st.subheader("Visual Financial Comparisons")
@@ -817,54 +883,108 @@ if data:
                     "Previous": prev_val,
                     "Current": curr_val,
                     "Growth (%)": growth_val if growth_val is not None else 0.0,
-                    "Unit": m.get("unit", "")
+                    "Unit": m.get("unit", "").strip()
                 })
 
         if chart_records:
-            chart_df = pd.DataFrame(chart_records)
-            metric_list = chart_df["Metric"].tolist()
+            col_v1, col_v2 = st.columns(2)
 
-            col_chart1, col_chart2 = st.columns(2)
-
-            with col_chart1:
+            with col_v1:
                 st.markdown("""
                 <div class="chart-box">
-                    <div class="chart-title">📊 Compare Specific Metric</div>
-                    <div class="chart-desc">Select any item to view its Previous vs. Current value directly</div>
-                </div>
+                    <div class="chart-title">🔍 Metric Visual Comparison</div>
+                    <div class="chart-desc">Select any metric to see its Previous vs. Current value side-by-side:</div>
                 """, unsafe_allow_html=True)
 
-                selected_metric = st.selectbox(
-                    "Select metric to inspect:",
-                    options=metric_list,
+                metric_options = [r["Metric"] for r in chart_records]
+                chosen_metric_name = st.selectbox(
+                    "Choose metric to inspect:",
+                    options=metric_options,
                     index=0,
-                    key="metric_chart_select"
+                    key="visual_metric_selector"
                 )
 
-                row_selected = chart_df[chart_df["Metric"] == selected_metric].iloc[0]
-                unit_label = row_selected["Unit"]
+                selected_item = next(r for r in chart_records if r["Metric"] == chosen_metric_name)
+                c_val = selected_item["Current"]
+                p_val = selected_item["Previous"]
+                u_lbl = selected_item["Unit"]
+                g_val = selected_item["Growth (%)"]
 
-                single_df = pd.DataFrame({
-                    "Period": ["Previous Period", "Current Period"],
-                    f"Value ({unit_label})": [row_selected["Previous"], row_selected["Current"]]
-                }).set_index("Period")
+                max_val = max(abs(c_val), abs(p_val)) if max(abs(c_val), abs(p_val)) > 0 else 1
+                prev_pct = max(int((abs(p_val) / max_val) * 100), 10)
+                curr_pct = max(int((abs(c_val) / max_val) * 100), 10)
 
-                st.bar_chart(single_df, height=300, use_container_width=True)
+                diff_amt = c_val - p_val
+                growth_sign = "+" if diff_amt >= 0 else ""
+                growth_color = "#34d399" if diff_amt >= 0 else "#f87171"
 
-            with col_chart2:
+                compare_card_html = f"""
+                <div style="background: #111722; padding: 18px; border-radius: 12px; border: 1px solid #233145; margin-top: 10px;">
+                    <div class="vis-row">
+                        <div class="vis-label">
+                            <span style="color: #94a3b8;">Previous Period</span>
+                            <span>{p_val:,.2f} {u_lbl}</span>
+                        </div>
+                        <div class="vis-track">
+                            <div class="vis-fill-prev" style="width: {prev_pct}%;">{p_val:,.2f} {u_lbl}</div>
+                        </div>
+                    </div>
+                    <div class="vis-row" style="margin-top: 15px;">
+                        <div class="vis-label">
+                            <span style="color: #60a5fa;">Current Period</span>
+                            <span>{c_val:,.2f} {u_lbl}</span>
+                        </div>
+                        <div class="vis-track">
+                            <div class="vis-fill-curr" style="width: {curr_pct}%;">{c_val:,.2f} {u_lbl}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #1f2a3c; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #8f9aaa; font-size: 13px;">Net Change:</span>
+                        <span style="color: {growth_color}; font-weight: 700; font-size: 15px;">
+                            {growth_sign}{diff_amt:,.2f} {u_lbl} ({growth_sign}{g_val:,.1f}% YoY)
+                        </span>
+                    </div>
+                </div>
+                </div>
+                """
+                st.markdown(compare_card_html, unsafe_allow_html=True)
+
+            with col_v2:
                 st.markdown("""
                 <div class="chart-box">
-                    <div class="chart-title">📈 Year-over-Year Growth Rates (%)</div>
-                    <div class="chart-desc">Percentage expansion or contraction across reported items</div>
-                </div>
+                    <div class="chart-title">📈 Year-over-Year Growth Leaders</div>
+                    <div class="chart-desc">Horizontal performance bars with exact percentages:</div>
                 """, unsafe_allow_html=True)
 
-                growth_df = chart_df[chart_df["Growth (%)"] != 0.0].head(7)
-                if not growth_df.empty:
-                    growth_plot = growth_df.set_index("Metric")[["Growth (%)"]]
-                    st.bar_chart(growth_plot, height=330, use_container_width=True)
+                growth_items = [r for r in chart_records if r["Growth (%)"] != 0.0]
+                growth_items.sort(key=lambda x: abs(x["Growth (%)"]), reverse=True)
+                top_growers = growth_items[:6]
+
+                if top_growers:
+                    max_growth = max(abs(r["Growth (%)"]) for r in top_growers) if top_growers else 100
+                    
+                    for item in top_growers:
+                        g_pct = item["Growth (%)"]
+                        bar_w = min(max(int((abs(g_pct) / max_growth) * 100), 12), 100)
+                        bar_class = "vis-fill-pos" if g_pct >= 0 else "vis-fill-neg"
+                        g_tag = f"+{g_pct:,.1f}%" if g_pct >= 0 else f"{g_pct:,.1f}%"
+
+                        growth_row_html = f"""
+                        <div class="vis-row">
+                            <div class="vis-label">
+                                <span>{item['Metric']}</span>
+                                <span style="color: {'#34d399' if g_pct >= 0 else '#f87171'};">{g_tag}</span>
+                            </div>
+                            <div class="vis-track">
+                                <div class="{bar_class}" style="width: {bar_w}%;">{g_tag}</div>
+                            </div>
+                        </div>
+                        """
+                        st.markdown(growth_row_html, unsafe_allow_html=True)
                 else:
-                    st.info("Growth percentage data not directly available for charting.")
+                    st.info("No comparative growth items found.")
+
+                st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.info("💡 Charts will appear as soon as numerical values are recorded in the report.")
 
