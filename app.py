@@ -246,6 +246,14 @@ st.markdown("""
     font-size: 14px;
     line-height: 1.5;
 }
+.chat-response-card {
+    background: #151a24;
+    border: 1px solid #283241;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
 .footer {
     color: #707b8c;
     font-size: 12px;
@@ -312,7 +320,6 @@ def get_available_models():
 def model_score(model_name):
     name = model_name.lower()
     score = 0
-    # Prefer full standard Flash models over Lite variants
     if "flash" in name and "lite" not in name:
         score += 150
     elif "pro" in name:
@@ -844,58 +851,112 @@ if data:
                 st.markdown(card_html, unsafe_allow_html=True)
 
 # ============================================================
-# ASK QUESTIONS ABOUT THE REPORT
+# STEP 20: ENHANCED ASK GEMINI EXPERIENCE (CHAT + PROMPT CHIPS)
 # ============================================================
 
 st.divider()
-st.markdown('<div class="section-title">Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Ask any question in plain English. Gemini answers strictly using the uploaded PDF.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below. Gemini answers strictly using the uploaded PDF.</div>', unsafe_allow_html=True)
 
-question = st.text_area(
-    "Your question",
-    placeholder="Examples:\n• Why did profits go down this year?\n• How is the company planning to grow?\n• What are the main risks if I invest?",
-    height=100
-)
+# Quick Prompts / Chips
+st.markdown("**Suggested Questions:**")
+chip_cols = st.columns(4)
+suggested_question = None
 
-ask_button = st.button("Ask Gemini", type="primary", key="ask_question_btn")
+with chip_cols[0]:
+    if st.button("📈 Why did profits change YoY?", use_container_width=True):
+        suggested_question = "Why did profits change compared with the previous year? Break down key drivers of the profit change in simple terms."
+with chip_cols[1]:
+    if st.button("🚀 What are the biggest growth drivers?", use_container_width=True):
+        suggested_question = "What are the company's major growth drivers and biggest future expansion opportunities based on this report?"
+with chip_cols[2]:
+    if st.button("💰 Explain debt & cash position", use_container_width=True):
+        suggested_question = "How is the company's debt, borrowings, and overall cash/liquidity position? Is its financial footing strong?"
+with chip_cols[3]:
+    if st.button("⚠️ Key risks for investors", use_container_width=True):
+        suggested_question = "What are the primary operational, financial, and market risks an investor should know about?"
 
-if ask_button:
-    if not question.strip():
-        st.warning("Please enter a question first.")
-    else:
-        question_prompt = f"""
+# Header row with clear button
+chat_header_left, chat_header_right = st.columns([4, 1])
+with chat_header_right:
+    if st.session_state.chat_history:
+        if st.button("🗑️ Clear History", use_container_width=True):
+            st.session_state.chat_history = []
+            st.rerun()
+
+# Display Conversation History
+for chat in st.session_state.chat_history:
+    with st.chat_message(chat["role"]):
+        st.markdown(chat["content"])
+
+# Text Input Bar
+user_input = st.chat_input("Ask a question about this financial report...")
+
+# Trigger question from either input box or chips
+active_query = user_input or suggested_question
+
+if active_query:
+    # Append user question to history
+    st.session_state.chat_history.append({
+        "role": "user",
+        "content": active_query
+    })
+    
+    with st.chat_message("user"):
+        st.markdown(active_query)
+
+    question_prompt = f"""
 You are a helpful, clear financial guide talking to a regular investor or finance student.
-Answer the question using ONLY facts from the uploaded financial report.
+Answer the user's question using ONLY facts from the uploaded financial report.
 
 USER QUESTION:
-{question}
+{active_query}
 
-RULES:
-1. Answer directly and in simple, clear English.
-2. Avoid textbook jargon. If a technical term must be used, explain what it means in plain words immediately.
-3. Use concrete numbers from the report where helpful, and explain what those numbers mean in real life.
-4. Do NOT give direct Buy/Sell/Hold recommendations.
-5. Structure your answer cleanly with Markdown headings:
+============================================================
+RULES FOR ANSWERING
+============================================================
+1. Answer directly and in simple, clear everyday English.
+2. Avoid textbook jargon. If a technical term is necessary, explain what it means in plain words immediately.
+3. Use concrete numbers and percentages from the report whenever helpful, and explain what those numbers mean in real life.
+4. If the question is outside the scope of the report or the information is missing, state clearly:
+   "The uploaded report does not contain specific information regarding this."
+5. Do NOT give direct Buy, Sell or Hold recommendations.
+6. Format your answer cleanly with Markdown:
    ### Direct Answer
-   ### Key Takeaways
+   (2-3 clear plain-English paragraphs answering the question directly)
+   
+   ### Key Numbers & Facts
+   (Bullet points with specific figures and what they mean)
+   
    ### What This Means For You
+   (Practical takeaway for an investor or analyst)
+   
+   ### What to Watch
+   (1-2 specific future checkpoints or indicators)
 """
-        with st.spinner("Gemini is reading the report and preparing your answer in simple English..."):
+
+    with st.chat_message("assistant"):
+        with st.spinner("Gemini is reading the report and preparing your answer..."):
             try:
                 response = generate_with_fallback(
                     contents=[question_prompt, st.session_state.gemini_file],
                     json_mode=False
                 )
-                answer = response.text.strip() if response.text else ""
+                answer = response.text.strip() if response.text else "Gemini returned an empty response. Please try asking again."
+                st.markdown(answer)
                 
-                st.markdown("### Gemini's Answer")
-                if answer:
-                    st.markdown(answer)
-                else:
-                    st.warning("Gemini returned an empty answer. Please try asking again.")
+                # Append assistant answer to history
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": answer
+                })
             except Exception as error:
-                st.error("Gemini could not answer the question.")
-                st.code(str(error))
+                error_msg = f"Could not generate answer: {str(error)}"
+                st.error(error_msg)
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": error_msg
+                })
 
 # ============================================================
 # FOOTER
