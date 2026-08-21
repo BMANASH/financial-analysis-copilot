@@ -435,7 +435,6 @@ def clean_json_response(text):
     return {}
 
 def parse_clean_float(val):
-    """Safely extracts float values from formatted string numbers"""
     if val is None:
         return None
     cleaned = str(val).replace(",", "").replace("₹", "").replace("$", "").replace("%", "").strip()
@@ -574,7 +573,7 @@ STRICT CONTENT DEPTH & COUNT REQUIREMENTS
 LANGUAGE STYLE RULES
 ============================================================
 - Write in clean, professional, plain English.
-- Avoid academic, textbook jargon (e.g. explain what treasury volatility, credit provisioning, or margin compression actually means in real-world terms).
+- Avoid academic, textbook jargon.
 - Always anchor findings with exact numbers, percentages, and growth figures from the document.
 - Never invent figures. Do NOT give Buy/Sell/Hold advice.
 
@@ -735,9 +734,9 @@ if data:
                 """
                 st.markdown(kpi_card_html, unsafe_allow_html=True)
 
-    # Tabs (Now with Step 22 Charts Tab)
+    # Tabs (Cleaned & Updated Names)
     tab_overview, tab_metrics, tab_charts, tab_business, tab_mgmt, tab_risks, tab_investor = st.tabs([
-        "Overview", "Financial Metrics Table", "📊 Visual Charts", "Business Updates", "Management Plans", "Risks (Plain English)", "Investor Takeaway"
+        "Overview", "Financial Metrics Table", "📊 Visual Charts", "Business Updates", "Management Plans", "Risks", "Investor Takeaway"
     ])
 
     with tab_overview:
@@ -799,57 +798,75 @@ if data:
             st.info("No financial metrics found.")
 
     # ========================================================
-    # STEP 22: VISUAL CHARTS TAB
+    # CLEAN & INTUITIVE VISUAL CHARTS TAB
     # ========================================================
     with tab_charts:
-        st.subheader("Visual Financial Analytics")
-        st.write("Interactive comparisons generated directly from the reported financial statements:")
+        st.subheader("Visual Financial Comparisons")
+        st.write("Clean graphical views to help compare performance at a glance:")
 
-        # Parse metrics into a structured dataframe for charting
         chart_records = []
         for m in metrics:
             curr_val = parse_clean_float(m.get("current_period"))
             prev_val = parse_clean_float(m.get("previous_period"))
+            growth_val = parse_clean_float(m.get("yoy_growth"))
             m_name = m.get("metric", "").strip()
 
             if curr_val is not None and prev_val is not None:
                 chart_records.append({
                     "Metric": m_name,
-                    "Previous Period": prev_val,
-                    "Current Period": curr_val,
+                    "Previous": prev_val,
+                    "Current": curr_val,
+                    "Growth (%)": growth_val if growth_val is not None else 0.0,
                     "Unit": m.get("unit", "")
                 })
 
         if chart_records:
             chart_df = pd.DataFrame(chart_records)
+            metric_list = chart_df["Metric"].tolist()
 
-            col_ch1, col_ch2 = st.columns(2)
+            col_chart1, col_chart2 = st.columns(2)
 
-            with col_ch1:
+            with col_chart1:
                 st.markdown("""
                 <div class="chart-box">
-                    <div class="chart-title">📈 Current vs. Previous Period Comparison</div>
-                    <div class="chart-desc">Side-by-side growth comparison across key financial lines</div>
+                    <div class="chart-title">📊 Compare Specific Metric</div>
+                    <div class="chart-desc">Select any item to view its Previous vs. Current value directly</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Focus on top 6 major metrics
-                plot_data = chart_df.head(6).set_index("Metric")[["Previous Period", "Current Period"]]
-                st.bar_chart(plot_data, height=360, use_container_width=True)
+                selected_metric = st.selectbox(
+                    "Select metric to inspect:",
+                    options=metric_list,
+                    index=0,
+                    key="metric_chart_select"
+                )
 
-            with col_ch2:
+                row_selected = chart_df[chart_df["Metric"] == selected_metric].iloc[0]
+                unit_label = row_selected["Unit"]
+
+                single_df = pd.DataFrame({
+                    "Period": ["Previous Period", "Current Period"],
+                    f"Value ({unit_label})": [row_selected["Previous"], row_selected["Current"]]
+                }).set_index("Period")
+
+                st.bar_chart(single_df, height=300, use_container_width=True)
+
+            with col_chart2:
                 st.markdown("""
                 <div class="chart-box">
-                    <div class="chart-title">📊 Period-over-Period Metric Progression</div>
-                    <div class="chart-desc">Relative scale across reported operating and income metrics</div>
+                    <div class="chart-title">📈 Year-over-Year Growth Rates (%)</div>
+                    <div class="chart-desc">Percentage expansion or contraction across reported items</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Transposed display showing trajectory
-                st.area_chart(plot_data, height=360, use_container_width=True)
-
+                growth_df = chart_df[chart_df["Growth (%)"] != 0.0].head(7)
+                if not growth_df.empty:
+                    growth_plot = growth_df.set_index("Metric")[["Growth (%)"]]
+                    st.bar_chart(growth_plot, height=330, use_container_width=True)
+                else:
+                    st.info("Growth percentage data not directly available for charting.")
         else:
-            st.info("💡 Visual charts will automatically appear whenever both current and previous period figures are available in the report.")
+            st.info("💡 Charts will appear as soon as numerical values are recorded in the report.")
 
     with tab_business:
         st.subheader("Business Updates")
