@@ -246,10 +246,10 @@ st.markdown("""
     font-size: 14px;
     line-height: 1.5;
 }
-.deep-dive-box {
-    background: #111622;
-    border: 1px solid #28374d;
-    border-radius: 14px;
+.deep-dive-container {
+    background: #121722;
+    border: 1px solid #253346;
+    border-radius: 16px;
     padding: 22px;
     margin-top: 15px;
     margin-bottom: 20px;
@@ -285,7 +285,7 @@ defaults = {
     "uploaded_name": None,
     "analysis": None,
     "deep_dive": None,
-    "deep_dive_choice": "Select an option...",
+    "deep_dive_status": None,  # None, "active", "dismissed"
     "selected_model": None,
     "chat_history": []
 }
@@ -484,7 +484,7 @@ with st.sidebar:
                     st.session_state.uploaded_name = uploaded_file.name
                     st.session_state.analysis = None
                     st.session_state.deep_dive = None
-                    st.session_state.deep_dive_choice = "Select an option..."
+                    st.session_state.deep_dive_status = None
                     st.session_state.chat_history = []
                     st.session_state.selected_model = None
                     st.success("Financial report ready for analysis.")
@@ -619,7 +619,8 @@ Return ONLY valid JSON with this exact structure:
                 st.error("Gemini returned an incomplete response. Please click 'Generate Financial Analysis' again.")
             else:
                 st.session_state.analysis = data
-                st.session_state.deep_dive = None  # Reset deep dive on fresh run
+                st.session_state.deep_dive = None
+                st.session_state.deep_dive_status = None
                 st.success("Financial analysis generated successfully.")
                 st.rerun()
 
@@ -869,21 +870,22 @@ if data:
                 st.markdown(card_html, unsafe_allow_html=True)
 
     # ========================================================
-    # STEP 21: USER-CONTROLLED DEEP-DIVE FINANCIAL ANALYSIS
+    # STEP 21: USER-CONTROLLED DEEP-DIVE (CLEAN 2-BUTTON TRIGGER)
     # ========================================================
     st.markdown("---")
     st.markdown('<div class="section-title">🔬 Deep-Dive Financial Analysis</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-description">Would you like Gemini to conduct a specialized deep-dive analysis on profitability margins, balance sheet health, debt, and operational efficiency?</div>', unsafe_allow_html=True)
 
-    user_choice = st.radio(
-        "Choose whether to generate the in-depth financial assessment:",
-        options=["Select an option...", "Yes, Show In-Depth Analysis", "No / Not Right Now"],
-        index=0,
-        horizontal=True,
-        key="deep_dive_radio"
-    )
+    col_btn1, col_btn2, col_space = st.columns([1.5, 1.5, 3])
+    with col_btn1:
+        if st.button("🔬 Yes, Show In-Depth Analysis", type="primary", use_container_width=True):
+            st.session_state.deep_dive_status = "active"
 
-    if user_choice == "Yes, Show In-Depth Analysis":
+    with col_btn2:
+        if st.button("✕ No, Keep It Summary Only", use_container_width=True):
+            st.session_state.deep_dive_status = "dismissed"
+
+    if st.session_state.deep_dive_status == "active":
         if st.session_state.deep_dive is None:
             deep_prompt = """
 You are a senior financial analyst providing a specialized deep-dive assessment of the uploaded annual report in plain, everyday English.
@@ -966,7 +968,7 @@ RULES:
                     st.markdown(f"• {pt}")
                 st.markdown("</div>", unsafe_allow_html=True)
 
-    elif user_choice == "No / Not Right Now":
+    elif st.session_state.deep_dive_status == "dismissed":
         st.info("💡 Feel free to explore the tabs above or ask any question below if you have any doubts!")
 
 # ============================================================
