@@ -344,6 +344,24 @@ st.markdown("""
     font-size: 12px;
     font-weight: 700;
 }
+.cheat-card {
+    background: #141a24;
+    border: 1px solid #28374d;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+}
+.cheat-term {
+    color: #60a5fa;
+    font-size: 12.5px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+.cheat-meaning {
+    color: #cbd5e1;
+    font-size: 11.5px;
+    line-height: 1.4;
+}
 .footer {
     color: #707b8c;
     font-size: 12px;
@@ -587,6 +605,25 @@ with st.sidebar:
         if st.session_state.selected_model:
             st.caption(f"Engine: `{st.session_state.selected_model}`")
 
+    # ========================================================
+    # DYNAMIC SIDEBAR JARGON CHEAT SHEET (EXTRACTED FROM PDF)
+    # ========================================================
+    if st.session_state.analysis and "terms_cheat_sheet" in st.session_state.analysis:
+        cheat_terms = st.session_state.analysis.get("terms_cheat_sheet", [])
+        if cheat_terms:
+            st.markdown("---")
+            st.markdown("### 📌 PDF Jargon Cheat Sheet")
+            st.caption("Common financial terms used in this specific report explained in 1 line:")
+            for item in cheat_terms:
+                term_name = item.get("term", "")
+                term_mean = item.get("meaning", "")
+                st.markdown(f"""
+                <div class="cheat-card">
+                    <div class="cheat-term">{term_name}</div>
+                    <div class="cheat-meaning">{term_mean}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
 # ============================================================
 # HERO SECTION
 # ============================================================
@@ -634,6 +671,7 @@ STRICT CONTENT DEPTH & COUNT REQUIREMENTS
    - "weakening": exactly 4 to 6 challenges, drops, or concerns with specific numbers/facts.
    - "growth_drivers": exactly 4 to 6 key factors that could drive future revenue.
    - "investor_watch": exactly 4 to 6 specific checkpoints an investor should track next.
+6. TERMS_CHEAT_SHEET: Extract 6 to 10 specific financial or reporting terms that appear inside THIS uploaded PDF (e.g. Consolidated, Standalone, AUM, Net Interest Margin, Operating Margin, Gross NPA, CASA, Capital Adequacy, Solvency, etc. depending on the company type). Provide a clear 1-line plain English explanation of what it means for this company.
 
 ============================================================
 LANGUAGE STYLE RULES
@@ -655,6 +693,12 @@ Return ONLY valid JSON with this exact structure:
     "reporting_period": "",
     "report_type": ""
   },
+  "terms_cheat_sheet": [
+    {
+      "term": "Term Name (e.g. Consolidated)",
+      "meaning": "1 short plain English sentence explaining it"
+    }
+  ],
   "key_metrics": [
     {
       "metric": "Clean name e.g. Total Revenue, Net Profit (PAT), Total Loan Book",
@@ -864,7 +908,7 @@ if data:
             st.info("No financial metrics found.")
 
     # ========================================================
-    # STEP 22: CLEAR & READABLE VISUAL CHARTS
+    # CLEAR & READABLE VISUAL CHARTS
     # ========================================================
     with tab_charts:
         st.subheader("Visual Financial Comparisons")
