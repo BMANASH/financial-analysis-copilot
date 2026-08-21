@@ -43,7 +43,47 @@ You are a Senior Financial Analyst and Equity Research Analyst.
 
 Analyze the uploaded financial report.
 
-Your first task is to understand the company and its business.
+Your job is to turn the report into a clear, professional,
+easy-to-understand financial analysis.
+
+IMPORTANT COMMUNICATION STYLE:
+
+- Use simple professional English.
+- Write for a business student, investor, manager, or analyst.
+- Avoid unnecessary technical jargon.
+- Do not make the explanation childish or overly casual.
+- Keep the financial meaning accurate.
+- If an important technical financial term is necessary,
+  explain it briefly in simple words.
+- Prefer short and clear sentences.
+- Avoid overly long paragraphs.
+- Focus on what the number or event means for the business.
+- Do not simply copy sentences from the report.
+- Summarize and explain them.
+
+For example:
+
+Instead of:
+"Interest rate volatility may affect fair value movements
+in the treasury portfolio."
+
+Prefer:
+"Interest rate risk: Changes in interest rates can reduce
+the value of the company's investments and affect earnings."
+
+Instead of:
+"Asset quality deterioration could increase ECL provisioning."
+
+Prefer:
+"Credit risk: If more borrowers struggle to repay their loans,
+the company may need to set aside more money for possible losses."
+
+Do NOT remove important financial terms completely.
+Explain them when necessary.
+
+--------------------------------------------------
+
+COMPANY IDENTIFICATION
 
 Determine:
 
@@ -66,12 +106,15 @@ Classify the company into the most appropriate category:
 - Infrastructure / Construction
 - Other
 
-Then select the financial metrics that are most relevant
-to that company and sector.
+--------------------------------------------------
 
-Examples:
+FINANCIAL METRICS
+
+Select only the financial metrics that are relevant
+to the company's industry.
 
 For Banks, NBFCs and Financial Services:
+
 - Total Income
 - NII
 - NIM
@@ -86,6 +129,7 @@ For Banks, NBFCs and Financial Services:
 - Capital Adequacy Ratio
 
 For Manufacturing and Automobile:
+
 - Revenue
 - Revenue Growth
 - EBITDA
@@ -98,6 +142,7 @@ For Manufacturing and Automobile:
 - ROCE
 
 For IT and Technology:
+
 - Revenue
 - Revenue Growth
 - EBIT
@@ -110,6 +155,7 @@ For IT and Technology:
 - Attrition
 
 For FMCG and Consumer:
+
 - Revenue
 - Revenue Growth
 - Volume Growth
@@ -121,6 +167,7 @@ For FMCG and Consumer:
 - Distribution
 
 For Insurance:
+
 - Gross Written Premium
 - APE
 - VNB
@@ -131,21 +178,129 @@ For Insurance:
 
 Do not force irrelevant metrics into the analysis.
 
-IMPORTANT ACCURACY RULES:
+--------------------------------------------------
+
+IMPORTANT ACCURACY RULES
 
 - Use only information found in the uploaded report.
 - Do not invent financial figures.
 - Do not guess missing information.
-- If a metric is not available, use "Not available".
+- If a metric is unavailable, write "Not available".
 - Clearly distinguish Consolidated and Standalone figures.
 - Use the latest financial period available.
 - Compare with the previous year whenever available.
 - Keep financial figures as reported.
-- Mention the unit used in the report.
+- Mention the correct unit.
+- Do not provide Buy, Sell or Hold recommendations.
 
-VERY IMPORTANT:
+--------------------------------------------------
 
-Return your answer ONLY as valid JSON.
+BUSINESS PERFORMANCE
+
+Explain the most important developments in the company.
+
+Focus on:
+
+- Revenue and profit performance
+- Important business segments
+- Major growth areas
+- New products or services
+- Expansion
+- Major investments
+- Capital allocation
+- Important strategic developments
+
+Write 5 to 8 clear points.
+
+Each point should explain:
+WHAT happened + WHY it matters.
+
+--------------------------------------------------
+
+MANAGEMENT COMMENTARY
+
+Summarize important statements made by:
+
+- Chairman
+- CEO / MD
+- CFO
+- Other senior management
+
+Focus on:
+
+- Management's view of the business
+- Growth plans
+- Future strategy
+- Capital allocation
+- New businesses
+- Industry outlook
+- Guidance or expectations
+
+Write 4 to 6 clear points.
+
+Do not present management opinions as guaranteed future results.
+
+--------------------------------------------------
+
+RISK AND HEADWIND ASSESSMENT
+
+Identify the most important risks mentioned or clearly supported
+by the financial report.
+
+Focus on:
+
+- Demand slowdown
+- Input cost pressure
+- Interest rate risk
+- Foreign exchange risk
+- Credit risk
+- Regulatory risk
+- Competition
+- Technology risk
+- Cybersecurity
+- Execution risk
+- High debt or finance costs
+- New business losses
+- Supply chain problems
+- Macroeconomic risks
+
+Only include risks that are relevant to this company.
+
+For each risk:
+
+1. Give the risk a short name.
+2. Explain the risk in simple professional language.
+3. Explain why it matters to the company.
+
+Write 4 to 6 risks.
+
+--------------------------------------------------
+
+ANALYST TAKEAWAY
+
+Create four sections:
+
+IMPROVING:
+What is getting better?
+
+WEAKENING:
+What is getting worse?
+
+GROWTH DRIVERS:
+What could support future growth?
+
+INVESTOR WATCH:
+What important things should an investor monitor?
+
+Use simple professional language.
+
+Do not give investment recommendations.
+
+--------------------------------------------------
+
+VERY IMPORTANT OUTPUT RULE
+
+Return ONLY valid JSON.
 
 Do not use Markdown.
 
@@ -185,7 +340,11 @@ Use exactly this structure:
     ],
 
     "risks": [
-        ""
+        {{
+            "risk_name": "",
+            "explanation": "",
+            "why_it_matters": ""
+        }}
     ],
 
     "analyst_takeaway": {{
@@ -204,20 +363,21 @@ Use exactly this structure:
     }}
 }}
 
-The "key_metrics" section should contain only the most relevant
-metrics for the company.
+The "basis" field must say:
 
-The "basis" field must say either:
 "Consolidated"
+
 or
+
 "Standalone"
+
 or
+
 "Not specified"
 
 If a value is unavailable, write:
-"Not available"
 
-Do not provide Buy, Sell or Hold recommendations.
+"Not available"
 
 Financial report:
 
@@ -435,6 +595,121 @@ Financial report:
 
                 st.info(
                     "Management commentary was not available."
+                )
+
+            st.divider()
+
+            # -----------------------------
+            # RISK & HEADWIND ASSESSMENT
+            # -----------------------------
+
+            st.header("Risk & Headwind Assessment")
+
+            risks = analysis.get(
+                "risks",
+                []
+            )
+
+            if risks:
+
+                for risk in risks:
+
+                    with st.expander(
+                        risk.get(
+                            "risk_name",
+                            "Risk"
+                        )
+                    ):
+
+                        st.write(
+                            "**What is the risk?**"
+                        )
+
+                        st.write(
+                            risk.get(
+                                "explanation",
+                                "Not available"
+                            )
+                        )
+
+                        st.write(
+                            "**Why does it matter?**"
+                        )
+
+                        st.write(
+                            risk.get(
+                                "why_it_matters",
+                                "Not available"
+                            )
+                        )
+
+            else:
+
+                st.info(
+                    "Risk information was not available."
+                )
+
+            st.divider()
+
+            # -----------------------------
+            # ANALYST TAKEAWAY
+            # -----------------------------
+
+            st.header("Analyst Takeaway")
+
+            takeaway = analysis.get(
+                "analyst_takeaway",
+                {}
+            )
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                st.subheader("What is Improving?")
+
+                for item in takeaway.get(
+                    "improving",
+                    []
+                ):
+
+                    st.markdown(
+                        f"- {item}"
+                    )
+
+            with col2:
+
+                st.subheader("What is Weakening?")
+
+                for item in takeaway.get(
+                    "weakening",
+                    []
+                ):
+
+                    st.markdown(
+                        f"- {item}"
+                    )
+
+            st.subheader("Growth Drivers")
+
+            for item in takeaway.get(
+                "growth_drivers",
+                []
+            ):
+
+                st.markdown(
+                    f"- {item}"
+                )
+
+            st.subheader("What Should an Investor Watch?")
+
+            for item in takeaway.get(
+                "investor_watch",
+                []
+            ):
+
+                st.markdown(
+                    f"- {item}"
                 )
 
         except json.JSONDecodeError:
