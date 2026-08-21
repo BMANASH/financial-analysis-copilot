@@ -196,7 +196,6 @@ client = create_client(API_KEY)
 # FAST & RELIABLE MODEL FALLBACK
 # ============================================================
 
-# Priority order: try the fastest, latest models directly first
 CANDIDATE_MODELS = [
     "gemini-2.5-flash",
     "gemini-2.0-flash",
@@ -370,38 +369,59 @@ if not st.session_state.gemini_file:
 # ============================================================
 
 st.markdown('<div class="section-title">Generate Financial Analysis</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Gemini will read the uploaded report and create a structured financial dashboard.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Gemini will read the uploaded report and create a simple, easy-to-understand financial dashboard.</div>', unsafe_allow_html=True)
 
 generate_button = st.button("Generate Financial Analysis", type="primary")
 
 if generate_button:
     analysis_prompt = """
-You are a professional financial analyst.
+You are an expert financial analyst who explains company reports to everyday investors and finance students.
+
 Analyze ONLY the uploaded financial report. The PDF can belong to ANY company.
 
 First identify the actual:
 - Company name
 - Industry / sector
-- Business type
+- Business type (explain in simple terms what the business actually does)
 - Reporting period
 - Report type
 
 Do NOT assume the company name.
 
-RULES:
-1. Use ONLY information found in the uploaded PDF. Never invent financial numbers.
+============================================================
+CRITICAL LANGUAGE REQUIREMENT: "SIMPLE TERMS IN BRACKETS"
+============================================================
+1. Use clear, simple, professional English throughout. Avoid dense textbook or academic jargon.
+2. Whenever you use a financial, accounting, or technical business term, ALWAYS add a short, simple explanation inside brackets right beside it.
+   Examples:
+   - "Consolidated Profit After Tax (PAT - Net Profit after all expenses and taxes)"
+   - "Assets Under Management (AUM - Total client money managed by the firm)"
+   - "Operating Leverage (Profit growing faster than expenses as revenue expands)"
+   - "Credit Loss Provisions (Money set aside in case borrowers fail to repay loans)"
+   - "Treasury Yield Volatility (Ups and downs in interest rates earned on government securities)"
+   - "Net Interest Margin (NIM - Profit margin earned on loans after paying interest on deposits)"
+   - "Capital Adequacy Ratio (CAR - Financial cushion to absorb potential loan losses)"
+
+============================================================
+ANALYSIS RULES
+============================================================
+1. Use ONLY facts and numbers found in the uploaded PDF. Never make up figures.
 2. If information is unavailable, write: "Not available in the report."
-3. Keep the language professional but simple. Avoid unnecessary jargon.
-4. Explain important numbers in practical business language.
-5. Do not give a Buy, Sell or Hold recommendation.
+3. Do not give a direct Buy, Sell or Hold recommendation.
+4. For every insight, explain what happened and why it matters in practical business language.
 
-KEY METRICS: Select 10–18 of the most useful metrics relevant to the company.
-BUSINESS PERFORMANCE: Identify 5–8 major developments with short explanations and why it matters.
-MANAGEMENT: Identify 4–6 important management comments or strategic themes.
-RISKS: Identify 4–6 important risks with simple explanations and why they matter.
-ANALYST TAKEAWAY: Create 4 sections: improving, weakening, growth_drivers, investor_watch.
+============================================================
+SECTIONS TO POPULATE
+============================================================
+- KEY METRICS: 10–18 useful financial and operating metrics with metric name containing the bracketed explanation (e.g. "Profit After Tax (Net Profit)").
+- BUSINESS PERFORMANCE: 5–8 major developments explaining what happened and why it matters.
+- MANAGEMENT COMMENTARY: 4–6 strategic plans or leadership comments in simple terms.
+- RISKS: 4–6 primary business or financial risks, explaining what the risk is and why it matters to an investor.
+- ANALYST TAKEAWAY: 4 lists (improving, weakening, growth_drivers, investor_watch).
 
-OUTPUT FORMAT:
+============================================================
+OUTPUT FORMAT
+============================================================
 Return ONLY valid JSON with this exact structure:
 {
   "company_overview": {
@@ -450,7 +470,7 @@ Return ONLY valid JSON with this exact structure:
 }
 """
 
-    with st.spinner("Gemini is reading the report and generating your dashboard (this usually takes 30–45 seconds)..."):
+    with st.spinner("Gemini is analysing the report in simple terminology..."):
         try:
             response = generate_with_fallback(
                 contents=[analysis_prompt, st.session_state.gemini_file],
@@ -560,12 +580,12 @@ if data:
 
     with tab_metrics:
         st.subheader("Detailed Financial & Operating Metrics")
-        st.write("Detailed figures recorded from the report:")
+        st.write("Detailed figures recorded from the report (with simplified explanations):")
         if metrics:
             table_rows = []
             for m in metrics:
                 table_rows.append({
-                    "Metric": m.get("metric", ""),
+                    "Metric (Explanation)": m.get("metric", ""),
                     "Current Period": m.get("current_period", ""),
                     "Previous Period": m.get("previous_period", ""),
                     "YoY Growth": m.get("yoy_growth", ""),
@@ -676,21 +696,22 @@ if ask_button:
         st.warning("Please enter a question first.")
     else:
         question_prompt = f"""
-You are a professional financial analyst.
+You are a friendly, highly knowledgeable financial mentor explaining things to an everyday investor or finance student.
 The user uploaded a financial report. Answer using ONLY information contained in that report.
 
 USER QUESTION:
 {question}
 
 RULES:
-1. Answer directly and factually using only the uploaded PDF.
-2. Never invent figures. If information is not in the document, state that clearly.
-3. Use clear, simple, professional language. Explain numbers and their significance.
-4. If asked about future growth, explain opportunities and risks cited in the report.
-5. Provide analytical assessment without giving direct Buy/Sell/Hold recommendations.
-6. Format clearly using concise Markdown sections (e.g., Direct Answer, Key Points, What to Watch).
+1. Answer directly, clearly, and factually using only the uploaded PDF.
+2. Use plain, simple English. Avoid dense financial jargon.
+3. ALWAYS provide a short, simple explanation in brackets whenever you mention technical terms (e.g., "EBITDA (operating cash profit before interest and taxes)", "AUM (total client money managed)", "Stage 3 Loans (loans where payments are delayed by over 90 days)").
+4. Never invent figures. If information is not in the document, state that clearly.
+5. If asked about future growth, explain opportunities and risks cited in the report.
+6. Provide analytical assessment without giving direct Buy/Sell/Hold recommendations.
+7. Format clearly using concise Markdown sections (### Direct Answer, ### Key Points, ### What This Means, ### What to Watch).
 """
-        with st.spinner("Gemini is reading the report and preparing your answer..."):
+        with st.spinner("Gemini is analysing the report and preparing your answer in simple terms..."):
             try:
                 response = generate_with_fallback(
                     contents=[question_prompt, st.session_state.gemini_file],
