@@ -37,7 +37,7 @@ st.markdown("""
     border: 1px solid #2d3748;
     border-radius: 18px;
     padding: 30px 34px;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 .hero-title {
     font-size: 38px;
@@ -52,16 +52,16 @@ st.markdown("""
     line-height: 1.5;
 }
 .section-title {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 700;
     color: #ffffff;
     margin-top: 25px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 .section-description {
     color: #9ca7b6;
-    font-size: 15px;
-    margin-bottom: 20px;
+    font-size: 14px;
+    margin-bottom: 18px;
 }
 .company-card {
     background: #151a24;
@@ -80,9 +80,69 @@ st.markdown("""
 }
 .company-value {
     color: #ffffff;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     line-height: 1.4;
+}
+.kpi-card {
+    background: #151a24;
+    border: 1px solid #283241;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    min-height: 145px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.kpi-label {
+    color: #8f9aaa;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.kpi-value {
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 750;
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+.kpi-badge-pos {
+    display: inline-block;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.kpi-badge-neg {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.kpi-badge-neutral {
+    display: inline-block;
+    background: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+}
+.kpi-basis {
+    color: #6c7889;
+    font-size: 11px;
+    margin-top: 6px;
 }
 .insight-card {
     background: #151a24;
@@ -93,23 +153,34 @@ st.markdown("""
 }
 .insight-title {
     color: #ffffff;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 650;
     margin-bottom: 8px;
 }
 .insight-text {
     color: #b8c1ce;
-    font-size: 15px;
-    line-height: 1.65;
+    font-size: 14px;
+    line-height: 1.6;
 }
-.why-label {
-    color: #8f9aaa;
-    font-size: 12px;
+.why-box {
+    background: #10141d;
+    border-left: 3px solid #3b82f6;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin-top: 12px;
+}
+.why-title {
+    color: #60a5fa;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 14px;
+    letter-spacing: 0.6px;
+    font-weight: 700;
     margin-bottom: 4px;
-    font-weight: 600;
+}
+.why-content {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.5;
 }
 .risk-card {
     background: #19161a;
@@ -119,40 +190,67 @@ st.markdown("""
     margin-bottom: 14px;
 }
 .risk-title {
-    color: #ffffff;
-    font-size: 17px;
+    color: #fca5a5;
+    font-size: 16px;
     font-weight: 650;
     margin-bottom: 10px;
 }
-.risk-label {
-    color: #a88f94;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 12px;
-    margin-bottom: 4px;
-    font-weight: 600;
+.risk-box {
+    background: #141113;
+    border-left: 3px solid #ef4444;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin-top: 10px;
 }
-.risk-text {
-    color: #c1c5cc;
-    font-size: 15px;
-    line-height: 1.6;
-}
-.takeaway-card {
-    background: #151a24;
-    border: 1px solid #2d3748;
-    border-radius: 12px;
-    padding: 16px 18px;
+.takeaway-improving {
+    background: #121d19;
+    border: 1px solid #1e3a2f;
+    border-left: 4px solid #10b981;
+    border-radius: 10px;
+    padding: 14px 16px;
     margin-bottom: 10px;
-    color: #c3cbd6;
-    line-height: 1.55;
-    font-size: 14px;
+    color: #d1fae5;
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+.takeaway-weakening {
+    background: #201417;
+    border: 1px solid #451e24;
+    border-left: 4px solid #ef4444;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    color: #fee2e2;
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+.takeaway-driver {
+    background: #131b26;
+    border: 1px solid #23354d;
+    border-left: 4px solid #3b82f6;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    color: #dbeafe;
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+.takeaway-watch {
+    background: #1c1a14;
+    border: 1px solid #3d351e;
+    border-left: 4px solid #f59e0b;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    color: #fef3c7;
+    font-size: 13.5px;
+    line-height: 1.5;
 }
 .footer {
     color: #707b8c;
     font-size: 12px;
     text-align: center;
-    padding-top: 20px;
+    padding-top: 25px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -205,8 +303,6 @@ def get_available_models():
                 continue
             clean_name = name.replace("models/", "")
             supported_actions = getattr(model, "supported_actions", []) or []
-            
-            # Keep only models that can generate content
             if "generateContent" in supported_actions and "gemini" in clean_name.lower():
                 available.append(clean_name)
         return available
@@ -226,10 +322,7 @@ def model_score(model_name):
 
 def get_ranked_models():
     live_models = get_available_models()
-    
-    # Priority aliases combined with whatever Google returns live
     candidate_pool = ["gemini-flash-latest", "gemini-pro-latest"] + live_models
-    
     unique_models = list(dict.fromkeys(candidate_pool))
     unique_models.sort(key=model_score, reverse=True)
     return unique_models
@@ -502,7 +595,7 @@ Return ONLY valid JSON with this exact structure:
 }
 """
 
-    with st.spinner("Gemini is reading the report and generating your dashboard in simple terms..."):
+    with st.spinner("Gemini is reading the report and generating your enhanced dashboard..."):
         try:
             response = generate_with_fallback(
                 contents=[analysis_prompt, st.session_state.gemini_file],
@@ -522,7 +615,7 @@ Return ONLY valid JSON with this exact structure:
             st.code(str(error))
 
 # ============================================================
-# DISPLAY ANALYSIS DASHBOARD
+# DISPLAY ANALYSIS DASHBOARD (STEP 19 ENHANCEMENTS)
 # ============================================================
 
 data = st.session_state.analysis
@@ -553,7 +646,7 @@ if data:
             column_html = f"""<div class="company-card"><div class="company-label">{item[0]}</div><div class="company-value">{item[1]}</div></div>"""
             st.markdown(column_html, unsafe_allow_html=True)
 
-    # Key Financial Metrics
+    # Key Financial Metrics Cards
     st.markdown('<div class="section-title">Key Financial Metrics</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-description">The most important headline numbers extracted from the report.</div>', unsafe_allow_html=True)
 
@@ -576,22 +669,37 @@ if data:
         metric_columns = st.columns(len(headline_metrics))
         for column, metric in zip(metric_columns, headline_metrics):
             with column:
-                metric_name = metric.get("metric", "Metric")
+                m_name = metric.get("metric", "Metric")
                 current = metric.get("current_period", "N/A")
                 unit = metric.get("unit", "")
-                growth = metric.get("yoy_growth", "")
+                growth = str(metric.get("yoy_growth", "")).strip()
                 basis = metric.get("basis", "")
+                value_display = f"{current} {unit}".strip()
 
-                value_text = f"{current} {unit}".strip()
-                valid_growth = (growth and str(growth).lower() not in ["n/a", "not available", "not applicable"])
-
-                if valid_growth:
-                    st.metric(label=metric_name, value=value_text, delta=str(growth), border=True)
+                # Build delta badge
+                badge_html = ""
+                if growth and growth.lower() not in ["n/a", "not available", "not applicable", ""]:
+                    if growth.startswith("-") or "decline" in growth.lower():
+                        badge_html = f"""<div class="kpi-badge-neg">▼ {growth}</div>"""
+                    elif growth.startswith("+") or not growth.startswith("-"):
+                        clean_growth = growth if growth.startswith("+") else f"+{growth}"
+                        badge_html = f"""<div class="kpi-badge-pos">▲ {clean_growth} YoY</div>"""
                 else:
-                    st.metric(label=metric_name, value=value_text, border=True)
+                    badge_html = """<div class="kpi-badge-neutral">Historical Baseline</div>"""
 
-                if basis:
-                    st.caption(f"Basis: {basis}")
+                basis_html = f"""<div class="kpi-basis">Basis: {basis}</div>""" if basis else ""
+
+                kpi_card_html = f"""
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">{m_name}</div>
+                        <div class="kpi-value">{value_display}</div>
+                        {badge_html}
+                    </div>
+                    {basis_html}
+                </div>
+                """
+                st.markdown(kpi_card_html, unsafe_allow_html=True)
 
     # Tabs
     tab_overview, tab_metrics, tab_business, tab_mgmt, tab_risks, tab_investor = st.tabs([
@@ -607,24 +715,52 @@ if data:
                 summary = item.get("summary", "")
                 why = item.get("why_it_matters", "")
 
-                card_html = f"""<div class="insight-card"><div class="insight-title">{title}</div><div class="insight-text">{summary}</div><div class="why-label">Why it matters</div><div class="insight-text">{why}</div></div>"""
+                card_html = f"""
+                <div class="insight-card">
+                    <div class="insight-title">{title}</div>
+                    <div class="insight-text">{summary}</div>
+                    <div class="why-box">
+                        <div class="why-title">Why it matters</div>
+                        <div class="why-content">{why}</div>
+                    </div>
+                </div>
+                """
                 st.markdown(card_html, unsafe_allow_html=True)
 
     with tab_metrics:
         st.subheader("Detailed Financial & Operating Metrics")
-        st.write("Detailed figures recorded from the report (with simplified explanations):")
+        st.write("Search and filter lines recorded directly from the financial statements:")
+
         if metrics:
-            table_rows = []
+            col_search, col_filter = st.columns([2, 1])
+            with col_search:
+                search_query = st.text_input("🔍 Search metric or explanation...", placeholder="e.g. Revenue, PAT, AUM, Borrowings", key="metric_search").lower()
+            with col_filter:
+                all_bases = list(set([m.get("basis", "").strip() for m in metrics if m.get("basis", "").strip()]))
+                basis_filter = st.selectbox("Filter by Basis", options=["All"] + all_bases, key="basis_filter")
+
+            filtered_rows = []
             for m in metrics:
-                table_rows.append({
-                    "Metric (Explanation)": m.get("metric", ""),
-                    "Current Period": m.get("current_period", ""),
-                    "Previous Period": m.get("previous_period", ""),
-                    "YoY Growth": m.get("yoy_growth", ""),
-                    "Unit": m.get("unit", ""),
-                    "Basis": m.get("basis", "")
-                })
-            st.dataframe(table_rows, use_container_width=True, hide_index=True, height=450)
+                metric_name = m.get("metric", "")
+                basis_val = m.get("basis", "")
+
+                match_search = (not search_query) or (search_query in metric_name.lower())
+                match_basis = (basis_filter == "All") or (basis_val.lower() == basis_filter.lower())
+
+                if match_search and match_basis:
+                    filtered_rows.append({
+                        "Metric (Explanation)": metric_name,
+                        "Current Period": m.get("current_period", ""),
+                        "Previous Period": m.get("previous_period", ""),
+                        "YoY Growth": m.get("yoy_growth", ""),
+                        "Unit": m.get("unit", ""),
+                        "Basis": basis_val
+                    })
+
+            if filtered_rows:
+                st.dataframe(filtered_rows, use_container_width=True, hide_index=True, height=450)
+            else:
+                st.info("No metrics matching your search criteria.")
         else:
             st.info("No detailed financial metrics found.")
 
@@ -640,8 +776,12 @@ if data:
                 with st.expander(f"{idx}. {title}", expanded=(idx <= 2)):
                     st.write(summary)
                     if why:
-                        st.markdown("**Why it matters:**")
-                        st.write(why)
+                        st.markdown(f"""
+                        <div class="why-box">
+                            <div class="why-title">Why it matters</div>
+                            <div class="why-content">{why}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
     with tab_mgmt:
         st.subheader("Management Commentary")
@@ -664,7 +804,16 @@ if data:
                 desc = r.get("what_is_the_risk", "")
                 why = r.get("why_it_matters", "")
 
-                risk_html = f"""<div class="risk-card"><div class="risk-title">{title}</div><div class="risk-label">What is the risk?</div><div class="risk-text">{desc}</div><div class="risk-label">Why it matters</div><div class="risk-text">{why}</div></div>"""
+                risk_html = f"""
+                <div class="risk-card">
+                    <div class="risk-title">⚠️ {title}</div>
+                    <div class="insight-text">{desc}</div>
+                    <div class="risk-box">
+                        <div style="color: #f87171; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Why it matters</div>
+                        <div class="why-content">{why}</div>
+                    </div>
+                </div>
+                """
                 st.markdown(risk_html, unsafe_allow_html=True)
 
     with tab_investor:
@@ -678,33 +827,33 @@ if data:
 
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown("### What is improving?")
+            st.markdown("### 🟢 What is improving?")
             if improving:
                 for item in improving:
-                    card_html = f"""<div class="takeaway-card">{item}</div>"""
+                    card_html = f"""<div class="takeaway-improving">✓ {item}</div>"""
                     st.markdown(card_html, unsafe_allow_html=True)
             else:
                 st.info("No specific improvement points identified.")
 
         with col2:
-            st.markdown("### What is weakening?")
+            st.markdown("### 🔴 What is weakening?")
             if weakening:
                 for item in weakening:
-                    card_html = f"""<div class="takeaway-card">{item}</div>"""
+                    card_html = f"""<div class="takeaway-weakening">✗ {item}</div>"""
                     st.markdown(card_html, unsafe_allow_html=True)
             else:
                 st.info("No specific weakening points identified.")
 
-        st.markdown("### Main Growth Drivers")
+        st.markdown("### 🚀 Main Growth Drivers")
         if growth_drivers:
             for item in growth_drivers:
-                card_html = f"""<div class="takeaway-card">{item}</div>"""
+                card_html = f"""<div class="takeaway-driver">◆ {item}</div>"""
                 st.markdown(card_html, unsafe_allow_html=True)
 
-        st.markdown("### What Should an Investor Watch?")
+        st.markdown("### 🔍 What Should an Investor Watch?")
         if investor_watch:
             for item in investor_watch:
-                card_html = f"""<div class="takeaway-card">{item}</div>"""
+                card_html = f"""<div class="takeaway-watch">◉ {item}</div>"""
                 st.markdown(card_html, unsafe_allow_html=True)
 
 # ============================================================
