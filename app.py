@@ -632,6 +632,10 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
             candidates.extend(["HUDCO.NS", "HUDCO.BO"])
         elif "nhpc" in c_lower:
             candidates.extend(["NHPC.NS", "NHPC.BO"])
+        elif "state bank" in c_lower or "sbi" in c_lower:
+            candidates.extend(["SBIN.NS", "SBIN.BO"])
+        elif "infosys" in c_lower or "infy" in c_lower:
+            candidates.extend(["INFY.NS", "INFY.BO"])
 
         for sym in candidates:
             try:
@@ -652,6 +656,19 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
     except Exception:
         pass
     return None
+
+def download_pdf_from_url(url):
+    """Downloads a PDF with standard browser headers to bypass 403 bot blocks"""
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+    }
+    req = urllib.request.Request(url, headers=headers)
+    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    with urllib.request.urlopen(req, timeout=35) as response, open(temp_pdf.name, 'wb') as out_file:
+        out_file.write(response.read())
+    return temp_pdf.name
 
 def upload_pdf_to_gemini(pdf_source):
     temp_path = None
@@ -708,7 +725,7 @@ uploaded_file = st.file_uploader(
     key="main_pdf_uploader"
 )
 
-# Helper Prompt placed directly under the Upload PDF box
+# Helper Prompt placed directly below the file uploader
 if not st.session_state.gemini_file or not st.session_state.analysis:
     st.info("👆 Upload an annual report PDF or paste a direct PDF link below to begin automatic financial analysis.")
 
@@ -742,10 +759,8 @@ elif pdf_url_input and pdf_url_input.strip().startswith("http"):
     if url_str.lower().endswith(".pdf") or ".pdf" in url_str.lower():
         active_name = url_str.split("/")[-1].split("?")[0] or "report_from_url.pdf"
         try:
-            with st.spinner("Downloading PDF from URL..."):
-                temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-                urllib.request.urlretrieve(url_str, temp_pdf.name)
-                active_source = temp_pdf.name
+            with st.spinner("Downloading PDF from URL securely..."):
+                active_source = download_pdf_from_url(url_str)
         except Exception as e:
             st.error(f"Could not retrieve PDF from URL: {e}")
 
@@ -1012,18 +1027,18 @@ with tab_scorecard:
                 st.markdown(f"• {pt}")
             st.markdown("</div>", unsafe_allow_html=True)
 
-            with col_s2:
-                st.markdown(f"""
-                <div class="scorecard-card">
-                    <div class="scorecard-header">
-                        <div class="scorecard-title">💰 Profitability & Earnings Quality</div>
-                        <div class="scorecard-badge">{prof_info.get('badge', 'Operating Profit')}</div>
-                    </div>
-                    <div class="scorecard-verdict">{prof_info.get('verdict', '')}</div>
-                """, unsafe_allow_html=True)
-                for pt in prof_info.get("points", []):
-                    st.markdown(f"• {pt}")
-                st.markdown("</div>", unsafe_allow_html=True)
+        with col_s2:
+            st.markdown(f"""
+            <div class="scorecard-card">
+                <div class="scorecard-header">
+                    <div class="scorecard-title">💰 Profitability & Earnings Quality</div>
+                    <div class="scorecard-badge">{prof_info.get('badge', 'Operating Profit')}</div>
+                </div>
+                <div class="scorecard-verdict">{prof_info.get('verdict', '')}</div>
+            """, unsafe_allow_html=True)
+            for pt in prof_info.get("points", []):
+                st.markdown(f"• {pt}")
+            st.markdown("</div>", unsafe_allow_html=True)
 
         col_s3, col_s4 = st.columns(2)
 
