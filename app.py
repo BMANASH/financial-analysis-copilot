@@ -697,36 +697,38 @@ generate_button = st.button("Generate Financial Analysis", type="primary")
 
 if generate_button:
     analysis_prompt = """
-You are an expert financial analyst who explains financial annual reports to regular investors and finance students in simple, everyday English without losing depth or numbers.
+You are an expert financial mentor explaining an annual report to everyday investors and finance students in simple, clean, professional English without textbook jargon.
 
 Analyze ONLY the uploaded PDF. It can belong to ANY company.
-Identify the company name, industry, reporting period, report type, and provide a clear 2-sentence description of what the business does.
+Identify the company name, industry, reporting period, report type, and describe what the business actually does and how it earns revenue in 2 plain sentences.
 
 ============================================================
-STRICT CONTENT DEPTH & COUNT REQUIREMENTS
+STRICT CONTENT & PLAIN-ENGLISH RULES
 ============================================================
-1. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, margin, loan, asset, and profit metrics found in the report. Keep the metric name clean and concise.
-2. INVESTOR_SCORECARD: Evaluate 4 strategic pillars based strictly on report data:
-   - "growth_momentum": badge (e.g. "Robust Expansion" / "Moderate Growth"), verdict (1-sentence summary), and 3 specific bullet points with figures.
-   - "profitability_quality": badge (e.g. "Solid Margin Expansion" / "Under Incubation Cost Pressure"), verdict (1-sentence summary), and 3 specific bullet points with figures.
-   - "balance_sheet_safety": badge (e.g. "Extremely Well-Capitalized" / "Conservative Leverage"), verdict (1-sentence summary), and 3 specific bullet points with figures.
-   - "strategic_execution": badge (e.g. "Rapid Scaling & Execution" / "Milestones Achieved"), verdict (1-sentence summary), and 3 specific bullet points with figures.
-3. MANAGEMENT_COMMENTARY: Provide exactly 4 to 6 strategic management themes or plans.
-4. RISKS: Provide exactly 5 to 6 distinct risk factors. Explain the risk clearly and explain what it means for an investor in everyday terms.
-5. ANALYST_TAKEAWAY:
-   - "improving": exactly 4 to 6 clear positive points with specific numbers/facts.
-   - "weakening": exactly 4 to 6 challenges, drops, or concerns with specific numbers/facts.
-   - "growth_drivers": exactly 4 to 6 key factors that could drive future revenue.
-   - "investor_watch": exactly 4 to 6 specific checkpoints an investor should track next.
-6. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF (e.g. Consolidated, Standalone, AUM, Net Interest Margin, Operating Margin, Gross NPA, CASA, Capital Adequacy, Solvency, Stage 3 Loans, etc. depending on the company type). Provide a clear 1-line plain English explanation of what it means for this company.
+1. NO DENSE JARGON:
+   - Do NOT write complex phrases like "line-by-line consolidation of early-stage subsidiaries", "incubation drag", "treasury yield volatility impacting mark-to-market valuations", or "CRAR standing at 103% with 0.01x leverage".
+   - Instead, translate them into real-world meaning:
+     * Instead of "Incubation drag on profit": Write "Starting new businesses like mutual funds and insurance required heavy setup costs, which temporarily reduced total profit."
+     * Instead of "High CRAR and low leverage ratio": Write "The company holds a very large capital safety buffer with virtually no debt, making its balance sheet exceptionally secure."
+     * Instead of "Surging yields reducing mark-to-market gains": Write "Rising market interest rates temporarily lowered the paper value of the government bonds and securities held by the company."
+     * Instead of "Payment aggregator TPV surging": Write "Total money processed through digital payment services more than doubled."
 
-============================================================
-LANGUAGE STYLE RULES
-============================================================
-- Write in clean, professional, plain English.
-- Avoid academic, textbook jargon.
-- Always anchor findings with exact numbers, percentages, and growth figures from the document.
-- Never invent figures. Do NOT give Buy/Sell/Hold advice.
+2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report. Keep the metric name clean and concise.
+
+3. INVESTOR_SCORECARD:
+   - "growth_momentum": badge (e.g. "Robust Expansion" / "Moderate Growth"), verdict (1-sentence plain-English summary), and 3 bullet points with exact figures and real-world explanations.
+   - "profitability_quality": badge (e.g. "Under Startup Cost Pressure" / "Solid Margin Growth"), verdict (1-sentence plain-English summary), and 3 bullet points with exact figures explaining why profits moved.
+   - "balance_sheet_safety": badge (e.g. "Extremely Safe & Well-Capitalized" / "Low Debt Buffer"), verdict (1-sentence plain-English summary), and 3 bullet points explaining debt, cash, and safety cushion.
+   - "strategic_execution": badge (e.g. "Rapid Commercial Rollout" / "Key Partnerships Launched"), verdict (1-sentence plain-English summary), and 3 bullet points explaining new businesses, apps, and major milestones in simple words.
+
+4. MANAGEMENT_COMMENTARY: Provide 4 to 6 strategic management themes or future plans in plain words.
+5. RISKS: Provide 5 to 6 distinct risk factors. Explain the risk clearly and what it means for an everyday investor.
+6. ANALYST_TAKEAWAY:
+   - "improving": 4 to 6 positive points with figures.
+   - "weakening": 4 to 6 challenges, drops, or costs with figures.
+   - "growth_drivers": 4 to 6 future revenue growth opportunities.
+   - "investor_watch": 4 to 6 specific checkpoints an investor should track next.
+7. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF. Provide a clear 1-line plain English explanation of what it means for this company.
 
 ============================================================
 OUTPUT FORMAT (JSON ONLY)
@@ -760,22 +762,22 @@ Return ONLY valid JSON with this exact structure:
     "growth_momentum": {
       "badge": "e.g. Robust Expansion",
       "verdict": "1-sentence plain English summary",
-      "points": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+      "points": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
     },
     "profitability_quality": {
       "badge": "e.g. Under Near-term Cost Pressure",
       "verdict": "1-sentence plain English summary",
-      "points": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+      "points": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
     },
     "balance_sheet_safety": {
-      "badge": "e.g. Extremely Well-Capitalized",
+      "badge": "e.g. Extremely Safe & Well-Capitalized",
       "verdict": "1-sentence plain English summary",
-      "points": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+      "points": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
     },
     "strategic_execution": {
-      "badge": "e.g. Scaling Rapidly",
+      "badge": "e.g. Rapid Commercial Scale",
       "verdict": "1-sentence plain English summary",
-      "points": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+      "points": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
     }
   },
   "management_commentary": [
@@ -800,7 +802,7 @@ Return ONLY valid JSON with this exact structure:
 }
 """
 
-    with st.spinner("Gemini is reading the complete report and generating full detailed analysis..."):
+    with st.spinner("Gemini is reading the complete report and generating simple, professional analysis..."):
         try:
             response = generate_with_fallback(
                 contents=[analysis_prompt, st.session_state.gemini_file],
@@ -906,17 +908,17 @@ if data:
                 """
                 st.markdown(kpi_card_html, unsafe_allow_html=True)
 
-    # Clean Tabs (Consolidated & Non-Redundant)
+    # Consolidated Tabs
     tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.tabs([
-        "⭐ Strategic Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks", "Investor Takeaway"
+        "⭐ Report Overview & Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks", "Investor Takeaway"
     ])
 
     # ========================================================
-    # STRATEGIC SCORECARD TAB (REPLACES ACCORDION LIST)
+    # REPORT OVERVIEW & SCORECARD TAB
     # ========================================================
     with tab_scorecard:
         st.subheader("Executive Strategic Scorecard")
-        st.write("A structured 4-pillar evaluation matrix extracted directly from this report:")
+        st.write("A structured 4-pillar evaluation matrix explained in simple, practical terms:")
 
         if scorecard:
             growth_info = scorecard.get("growth_momentum", {})
@@ -980,7 +982,7 @@ if data:
                     st.markdown(f"• {pt}")
                 st.markdown("</div>", unsafe_allow_html=True)
         else:
-            st.info("Strategic Scorecard is generated automatically when processing the report.")
+            st.info("Scorecard will automatically appear once the report is analysed.")
 
     with tab_metrics:
         st.subheader("All Financial & Operating Numbers")
@@ -1143,7 +1145,7 @@ if data:
 
     with tab_mgmt:
         st.subheader("Management Strategy & Outlook")
-        st.write("What company leadership says about future plans and technology:")
+        st.write("What company leadership says about future plans and technology in everyday language:")
         if management:
             for item in management:
                 title = item.get("title", "Management View")
