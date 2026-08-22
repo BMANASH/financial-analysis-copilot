@@ -145,44 +145,6 @@ st.markdown("""
     font-size: 11px;
     margin-top: 6px;
 }
-.insight-card {
-    background: #151a24;
-    border: 1px solid #2d3748;
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 14px;
-}
-.insight-title {
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 650;
-    margin-bottom: 8px;
-}
-.insight-text {
-    color: #b8c1ce;
-    font-size: 14px;
-    line-height: 1.6;
-}
-.why-box {
-    background: #10141d;
-    border-left: 3px solid #3b82f6;
-    border-radius: 0 8px 8px 0;
-    padding: 10px 14px;
-    margin-top: 12px;
-}
-.why-title {
-    color: #60a5fa;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-.why-content {
-    color: #cbd5e1;
-    font-size: 13.5px;
-    line-height: 1.5;
-}
 .scorecard-card {
     background: #151a24;
     border: 1px solid #283648;
@@ -282,18 +244,32 @@ st.markdown("""
     font-size: 14px;
     line-height: 1.5;
 }
-.deep-card {
-    background: #161c28;
-    border: 1px solid #2e3d54;
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 14px;
+.position-box {
+    background: #131822;
+    border: 1px solid #28374d;
+    border-radius: 14px;
+    padding: 22px;
+    margin-top: 15px;
+    margin-bottom: 20px;
 }
-.deep-card-title {
-    color: #60a5fa;
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 8px;
+.stat-card {
+    background: #171e2c;
+    border: 1px solid #2c3c54;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+}
+.stat-label {
+    color: #8f9aaa;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.stat-val {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 750;
+    margin-top: 4px;
 }
 .chart-box {
     background: #151a24;
@@ -413,6 +389,7 @@ defaults = {
     "analysis": None,
     "deep_dive": None,
     "selected_model": None,
+    "position_assessment": None,
     "chat_history": []
 }
 
@@ -622,6 +599,7 @@ with st.sidebar:
                     st.session_state.uploaded_name = uploaded_file.name
                     st.session_state.analysis = None
                     st.session_state.deep_dive = None
+                    st.session_state.position_assessment = None
                     st.session_state.chat_history = []
                     st.session_state.selected_model = None
                     st.success("Financial report ready for analysis.")
@@ -706,21 +684,13 @@ Identify the company name, industry, reporting period, report type, and describe
 STRICT CONTENT & PLAIN-ENGLISH RULES
 ============================================================
 1. NO DENSE JARGON:
-   - Do NOT write complex phrases like "line-by-line consolidation of early-stage subsidiaries", "incubation drag", "treasury yield volatility impacting mark-to-market valuations", or "CRAR standing at 103% with 0.01x leverage".
-   - Instead, translate them into real-world meaning:
-     * Instead of "Incubation drag on profit": Write "Starting new businesses like mutual funds and insurance required heavy setup costs, which temporarily reduced total profit."
-     * Instead of "High CRAR and low leverage ratio": Write "The company holds a very large capital safety buffer with virtually no debt, making its balance sheet exceptionally secure."
-     * Instead of "Surging yields reducing mark-to-market gains": Write "Rising market interest rates temporarily lowered the paper value of the government bonds and securities held by the company."
-     * Instead of "Payment aggregator TPV surging": Write "Total money processed through digital payment services more than doubled."
-
+   - Translate complex metrics into real-world meaning without losing facts or exact numbers.
 2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report. Keep the metric name clean and concise.
-
 3. INVESTOR_SCORECARD:
-   - "growth_momentum": badge (e.g. "Robust Expansion" / "Moderate Growth"), verdict (1-sentence plain-English summary), and 3 bullet points with exact figures and real-world explanations.
-   - "profitability_quality": badge (e.g. "Under Startup Cost Pressure" / "Solid Margin Growth"), verdict (1-sentence plain-English summary), and 3 bullet points with exact figures explaining why profits moved.
-   - "balance_sheet_safety": badge (e.g. "Extremely Safe & Well-Capitalized" / "Low Debt Buffer"), verdict (1-sentence plain-English summary), and 3 bullet points explaining debt, cash, and safety cushion.
-   - "strategic_execution": badge (e.g. "Rapid Commercial Rollout" / "Key Partnerships Launched"), verdict (1-sentence plain-English summary), and 3 bullet points explaining new businesses, apps, and major milestones in simple words.
-
+   - "growth_momentum": badge, verdict, and 3 bullet points with figures.
+   - "profitability_quality": badge, verdict, and 3 bullet points explaining why profits moved.
+   - "balance_sheet_safety": badge, verdict, and 3 bullet points explaining debt, cash, and safety cushion.
+   - "strategic_execution": badge, verdict, and 3 bullet points explaining new businesses, apps, and major milestones.
 4. MANAGEMENT_COMMENTARY: Provide 4 to 6 strategic management themes or future plans in plain words.
 5. RISKS: Provide 5 to 6 distinct risk factors. Explain the risk clearly and what it means for an everyday investor.
 6. ANALYST_TAKEAWAY:
@@ -815,6 +785,7 @@ Return ONLY valid JSON with this exact structure:
             else:
                 st.session_state.analysis = data
                 st.session_state.deep_dive = None
+                st.session_state.position_assessment = None
                 st.success("Financial analysis generated successfully.")
                 st.rerun()
 
@@ -913,9 +884,6 @@ if data:
         "⭐ Report Overview & Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks", "Investor Takeaway"
     ])
 
-    # ========================================================
-    # REPORT OVERVIEW & SCORECARD TAB
-    # ========================================================
     with tab_scorecard:
         st.subheader("Executive Strategic Scorecard")
         st.write("A structured 4-pillar evaluation matrix explained in simple, practical terms:")
@@ -1215,6 +1183,99 @@ if data:
             for item in investor_watch:
                 card_html = f"""<div class="takeaway-watch">◉ {item}</div>"""
                 st.markdown(card_html, unsafe_allow_html=True)
+
+    # ========================================================
+    # NEW MODULE: PERSONALIZED INVESTMENT POSITION & ASSESSMENT
+    # ========================================================
+    st.markdown("---")
+    st.markdown('<div class="section-title">💼 Personalized Investment Position & Market Context</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Evaluate your investment position against the financial strength and risk factors found in this annual report.</div>', unsafe_allow_html=True)
+
+    investor_mcq = st.radio(
+        "Are you currently an investor in this company's stock?",
+        options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"],
+        index=0,
+        horizontal=True,
+        key="investor_position_mcq"
+    )
+
+    if investor_mcq == "No, I am just studying / evaluating":
+        st.info("💡 Thank you! Feel free to explore the annual report and dashboard above to evaluate the business.")
+
+    elif investor_mcq == "Yes, I hold shares in this company":
+        with st.container():
+            st.markdown("""
+            <div class="position-box">
+                <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 12px;">📊 Enter Your Investment Details:</div>
+            """, unsafe_allow_html=True)
+
+            col_p1, col_p2, col_p3 = st.columns(3)
+            with col_p1:
+                avg_price = st.number_input("Your Average Buying Price (₹)", min_value=0.0, value=0.0, step=1.0, format="%.2f")
+            with col_p2:
+                quantity = st.number_input("Total Number of Shares Held", min_value=0, value=0, step=1)
+            with col_p3:
+                current_market_price = st.number_input("Current Live Market Price (₹)", min_value=0.0, value=avg_price if avg_price > 0 else 0.0, step=1.0, format="%.2f")
+
+            if avg_price > 0 and quantity > 0 and current_market_price > 0:
+                total_invested = avg_price * quantity
+                current_val = current_market_price * quantity
+                pnl_amt = current_val - total_invested
+                pnl_pct = (pnl_amt / total_invested) * 100 if total_invested > 0 else 0.0
+
+                pnl_color = "#34d399" if pnl_amt >= 0 else "#f87171"
+                pnl_sign = "+" if pnl_amt >= 0 else ""
+
+                st.markdown("<br>", unsafe_allow_html=True)
+                col_st1, col_st2, col_st3, col_st4 = st.columns(4)
+                with col_st1:
+                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Total Invested</div><div class="stat-val">₹{total_invested:,.2f}</div></div>""", unsafe_allow_html=True)
+                with col_st2:
+                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Current Value</div><div class="stat-val">₹{current_val:,.2f}</div></div>""", unsafe_allow_html=True)
+                with col_st3:
+                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Unrealized P&L</div><div class="stat-val" style="color: {pnl_color};">{pnl_sign}₹{pnl_amt:,.2f}</div></div>""", unsafe_allow_html=True)
+                with col_st4:
+                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Return (%)</div><div class="stat-val" style="color: {pnl_color};">{pnl_sign}{pnl_pct:,.2f}%</div></div>""", unsafe_allow_html=True)
+
+                st.markdown("<br>", unsafe_allow_html=True)
+                if st.button("🔍 Get Analyst Strategic Assessment on Your Position", type="primary"):
+                    pos_prompt = f"""
+You are a senior equity research analyst talking to an existing investor in {company.get('company_name', 'this company')}.
+
+INVESTOR POSITION:
+- Average Purchase Price: ₹{avg_price:.2f}
+- Current Market Price: ₹{current_market_price:.2f}
+- Return to Date: {pnl_sign}{pnl_pct:.2f}%
+- Total Capital Invested: ₹{total_invested:,.2f}
+
+Using facts STRICTLY from the uploaded annual report PDF:
+1. Explain how the business's fundamentals (growth, margins, balance sheet safety, loan book / revenue expansion) align with this investor's entry price.
+2. Highlight whether the current price movements reflect temporary startup incubation costs or permanent business headwinds.
+3. List 3 concrete checkpoints this investor should track over the coming quarters (e.g. margin turnaround, loan default trends, deposit scaling).
+4. Write in clear, professional, everyday English. Do NOT give direct Buy/Sell/Hold advice.
+
+Format cleanly with Markdown:
+### 1. Position Alignment with Company Fundamentals
+### 2. Operational Strengths Supporting Your Investment
+### 3. Key Risks & Cost Pressures to Keep in Mind
+### 4. Strategic Checkpoints to Watch Next
+"""
+                    with st.spinner("Gemini is assessing your portfolio position against annual report fundamentals..."):
+                        try:
+                            pos_response = generate_with_fallback(
+                                contents=[pos_prompt, st.session_state.gemini_file],
+                                json_mode=False
+                            )
+                            st.session_state.position_assessment = pos_response.text.strip()
+                        except Exception as e:
+                            st.error(f"Could not generate position assessment: {e}")
+
+                if st.session_state.position_assessment:
+                    st.markdown("---")
+                    st.markdown("### 📋 Analyst Fundamental Perspective on Your Holdings")
+                    st.markdown(st.session_state.position_assessment)
+
+            st.markdown("</div>", unsafe_allow_html=True)
 
     # ========================================================
     # USER-CONTROLLED DEEP-DIVE (MCQ SELECTION)
