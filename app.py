@@ -1694,7 +1694,7 @@ for chat in st.session_state.chat_history:
         st.markdown(chat["content"])
 
 # Text Input Bar
-user_input = st.chat_input("Ask a question about this financial report...")
+user_input = st.chat_input("Ask a question about this financial report... stormwater, energy...")
 
 active_query = user_input or suggested_question
 
@@ -1760,12 +1760,12 @@ RULES FOR ANSWERING
                 })
 
 # ============================================================
-# END-OF-DASHBOARD EXPORT SECTION (PROFESSIONAL & FORMATTED)
+# END-OF-DASHBOARD EXPORT SECTION (CARD-BASED EXCEL & FORMATTED REPORT)
 # ============================================================
 
 st.markdown("---")
 st.markdown('<div class="section-title">📥 Export Financial Dashboard Summary</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Would you like to download the summary of the whole report that has been generated in the dashboard?</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>', unsafe_allow_html=True)
 
 export_decision = st.radio(
     "Select download preference:",
@@ -1778,17 +1778,17 @@ export_decision = st.radio(
 if export_decision == "Yes, download dashboard summary report":
     comp_name = company.get("company_name", "Company")
     
-    # Highly polished, professional executive layout for .txt
+    # 1. Professional Formatted Text Report
     detailed_report = f"""======================================================================
                   FINANCIAL ANALYSIS & INVESTMENT REPORT
 ======================================================================
-Company Name   : {company.get('company_name', 'N/A')}
-Stock Ticker   : {company.get('stock_ticker', 'N/A')}
-Industry       : {company.get('industry', 'N/A')}
+Company Name    : {company.get('company_name', 'N/A')}
+Stock Ticker    : {company.get('stock_ticker', 'N/A')}
+Industry        : {company.get('industry', 'N/A')}
 Reporting Period: {company.get('reporting_period', 'N/A')}
-Report Type    : {company.get('report_type', 'N/A')}
-Generated Date : {datetime.today().strftime('%d %B %Y')}
-Source File    : {st.session_state.uploaded_name}
+Report Type     : {company.get('report_type', 'N/A')}
+Generated Date  : {datetime.today().strftime('%d %B %Y')}
+Source File     : {st.session_state.uploaded_name}
 
 ----------------------------------------------------------------------
 1. EXECUTIVE BUSINESS PROFILE
@@ -1840,21 +1840,53 @@ Source File    : {st.session_state.uploaded_name}
 
     with col_dl2:
         if pd is not None and metrics:
-            df_metrics = pd.DataFrame(metrics)
-            df_metrics = df_metrics.rename(columns={
-                "metric": "Financial Metric",
-                "current_period": "Current Period",
-                "previous_period": "Previous Period",
-                "yoy_growth": "YoY Growth",
-                "unit": "Unit",
-                "basis": "Basis"
-            })
-            # Clean export bytes with utf-8-sig for proper Excel rendering of ₹
-            csv_export_bytes = df_metrics.to_csv(index=False).encode('utf-8-sig')
+            # 2. Rich Card-Based Excel Workbook (.xlsx) simulation using CSV structured as cards or formatted rows with explanations
+            # To create a card-like explanatory layout in Excel, we construct a structured summary dataframe
+            summary_card_data = []
+            summary_card_data.append(["=== COMPANY EXECUTIVE PROFILE ===", "", "", "", "", ""])
+            summary_card_data.append(["Company Name", company.get('company_name', 'N/A'), "", "", "", ""])
+            summary_card_data.append(["Industry / Sector", company.get('industry', 'N/A'), "", "", "", ""])
+            summary_card_data.append(["Business Profile", company.get('business_type', 'N/A'), "", "", "", ""])
+            summary_card_data.append(["Reporting Period", company.get('reporting_period', 'N/A'), "", "", "", ""])
+            summary_card_data.append(["", "", "", "", "", ""])
+            
+            summary_card_data.append(["=== KEY FINANCIAL & OPERATING METRICS ===", "", "", "", "", ""])
+            summary_card_data.append(["Financial Metric", "Current Period", "Previous Period", "YoY Growth", "Unit", "Basis"])
+            for m in metrics:
+                summary_card_data.append([
+                    m.get('metric', ''),
+                    m.get('current_period', ''),
+                    m.get('previous_period', ''),
+                    m.get('yoy_growth', ''),
+                    m.get('unit', ''),
+                    m.get('basis', '')
+                ])
+            
+            if st.session_state.position_assessment:
+                pos = st.session_state.position_assessment
+                summary_card_data.append(["", "", "", "", "", ""])
+                summary_card_data.append(["=== PERSONALIZED INVESTMENT POSITION ASSESSMENT ===", "", "", "", "", ""])
+                summary_card_data.append(["Position Status", pos.get('position_summary', ''), "", "", "", ""])
+                summary_card_data.append(["Current Market Price", pos.get('cmp_display', ''), f"As on {pos.get('live_date', '')}", "", "", ""])
+                summary_card_data.append(["Estimated Return / P&L", pos.get('pnl_str', ''), pos.get('amt_str', ''), "", "", ""])
+                
+                if "price_safety_points" in pos:
+                    summary_card_data.append(["--- Fundamental Safety Pillars ---", "", "", "", "", ""])
+                    for pt in pos["price_safety_points"]:
+                        summary_card_data.append([pt.get('title'), pt.get('explanation'), "", "", "", ""])
+
+                if "long_term_outlook_5_to_8_years" in pos:
+                    summary_card_data.append(["--- Long-Term Outlook (5-8 Years) ---", "", "", "", "", ""])
+                    for pt in pos["long_term_outlook_5_to_8_years"]:
+                        summary_card_data.append([pt.get('title'), pt.get('explanation'), "", "", "", ""])
+
+            df_card_layout = pd.DataFrame(summary_card_data)
+            csv_card_bytes = df_card_layout.to_csv(index=False, header=False).encode('utf-8-sig')
+
             st.download_button(
-                label="📊 Download Formatted Financial Data (.csv)",
-                data=csv_export_bytes,
-                file_name=f"{comp_name.replace(' ', '_')}_Financial_Metrics.csv",
+                label="📊 Download Structured Executive Report (.csv / Excel Compatible)",
+                data=csv_card_bytes,
+                file_name=f"{comp_name.replace(' ', '_')}_Structured_Executive_Dashboard.csv",
                 mime="text/csv",
                 use_container_width=True
             )
