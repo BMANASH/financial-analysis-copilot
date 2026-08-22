@@ -33,7 +33,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# INSTITUTIONAL FINTECH TERMINAL THEME & CSS
+# INSTITUTIONAL FINTECH TERMINAL THEME & FLOATING ANIMATIONS
 # ============================================================
 
 st.markdown("""
@@ -47,10 +47,11 @@ st.markdown("""
     padding-bottom: 4rem;
 }
 
+/* Entry Animation */
 @keyframes fadeInSlide {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(12px);
     }
     to {
         opacity: 1;
@@ -58,17 +59,17 @@ st.markdown("""
     }
 }
 
-/* Floating Animation Keyframes */
-@keyframes floatMotion {
-    0% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-8px);
-    }
-    100% {
-        transform: translateY(0px);
-    }
+/* Smooth Floating Keyframes */
+@keyframes floatSubtleA {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes floatSubtleB {
+    0% { transform: translateY(-3px); }
+    50% { transform: translateY(3px); }
+    100% { transform: translateY(-3px); }
 }
 
 .hero {
@@ -98,7 +99,6 @@ st.markdown("""
     letter-spacing: 0.3px;
 }
 
-/* Feature Grid & Floating Cards on Welcome Screen */
 .fintech-badge-row {
     display: flex;
     flex-wrap: wrap;
@@ -117,53 +117,41 @@ st.markdown("""
     align-items: center;
     gap: 6px;
 }
+
+/* Floating Feature Cards on Welcome Screen */
 .feature-card {
     background: #0e131f;
     border: 1px solid #1a2234;
     border-radius: 14px;
-    padding: 22px 20px;
+    padding: 22px;
     height: 100%;
+    animation: floatSubtleA 4.5s ease-in-out infinite;
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
+}
+.feature-card-alt {
+    animation: floatSubtleB 4.5s ease-in-out infinite !important;
+}
+.feature-card:hover, .feature-card-alt:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 16px 35px -5px rgba(59, 130, 246, 0.45), 0 0 15px rgba(59, 130, 246, 0.25) !important;
     cursor: default;
-    transition: border 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-    animation: fadeInSlide 0.4s ease-out forwards;
 }
-
-/* Staggered organic floating motion for each card */
-.float-card-1 {
-    animation: floatMotion 4.2s ease-in-out infinite;
-}
-.float-card-2 {
-    animation: floatMotion 4.8s ease-in-out 0.8s infinite;
-}
-.float-card-3 {
-    animation: floatMotion 4.4s ease-in-out 1.5s infinite;
-}
-.float-card-4 {
-    animation: floatMotion 5.0s ease-in-out 2.2s infinite;
-}
-
-/* Highlighted Border & Elevation on Hover */
-.feature-card:hover {
-    animation-play-state: paused !important;
-    transform: translateY(-10px) scale(1.02) !important;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 25px rgba(59, 130, 246, 0.45), 0 16px 35px -10px rgba(0, 0, 0, 0.8) !important;
-}
-
 .feature-icon {
     font-size: 26px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 .feature-title {
     color: #ffffff;
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 750;
     margin-bottom: 6px;
 }
 .feature-desc {
     color: #94a3b8;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.45;
 }
 
 .section-title {
@@ -202,6 +190,18 @@ st.markdown("""
     color: #94a3b8;
 }
 
+/* Dynamic Floating & Hover Glow on All Key Analysis Cards */
+.company-card, .kpi-card, .scorecard-card, .risk-card, .invest-kpi-card, .invest-section-box, .chart-box {
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: floatSubtleA 5s ease-in-out infinite;
+}
+.company-card:hover, .kpi-card:hover, .scorecard-card:hover, .invest-kpi-card:hover, .invest-section-box:hover, .chart-box:hover, .risk-card:hover {
+    transform: translateY(-7px) scale(1.015) !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 16px 35px -5px rgba(59, 130, 246, 0.45), 0 0 15px rgba(59, 130, 246, 0.2) !important;
+    cursor: default;
+}
+
 /* Symmetrical Company Overview Cards */
 .company-card {
     background: #0e131f;
@@ -214,12 +214,6 @@ st.markdown("""
     justify-content: flex-start;
     overflow-y: auto;
     margin-bottom: 10px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.company-card:hover {
-    transform: translateY(-3px);
-    border-color: #3b82f6 !important;
-    box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.3);
 }
 .company-label {
     color: #fbbf24;
@@ -247,12 +241,6 @@ st.markdown("""
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.kpi-card:hover {
-    transform: translateY(-3px);
-    border-color: #3b82f6 !important;
-    box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.3);
 }
 .kpi-label {
     color: #94a3b8;
@@ -311,12 +299,6 @@ st.markdown("""
     padding: 20px;
     margin-bottom: 16px;
     min-height: 240px;
-    transition: all 0.3s ease;
-}
-.scorecard-card:hover {
-    transform: translateY(-3px);
-    border-color: #3b82f6 !important;
-    box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.3);
 }
 .scorecard-header {
     display: flex;
@@ -409,18 +391,68 @@ st.markdown("""
     font-size: 14px;
     line-height: 1.5;
 }
+.invest-kpi-card {
+    background: #10182b;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 14px;
+}
+.invest-kpi-label {
+    color: #94a3b8;
+    font-size: 11.5px;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+.invest-kpi-val {
+    color: #ffffff;
+    font-size: 21px;
+    font-weight: 800;
+    margin-top: 5px;
+}
+.invest-section-box {
+    background: #070a12;
+    border: 1px solid #1a2234;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+}
+.invest-section-header {
+    color: #60a5fa;
+    font-size: 15px;
+    font-weight: 750;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.invest-subcard {
+    background: #111827;
+    border: 1px solid #1f2d45;
+    border-left: 3px solid #3b82f6;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+.invest-subcard-title {
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 750;
+    margin-bottom: 4px;
+}
+.invest-subcard-body {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.45;
+}
 .chart-box {
     background: #0e131f;
     border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 20px;
     margin-bottom: 16px;
-    transition: all 0.3s ease;
-}
-.chart-box:hover {
-    transform: translateY(-3px);
-    border-color: #3b82f6 !important;
-    box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.3);
 }
 .chart-title {
     color: #ffffff;
@@ -740,7 +772,7 @@ uploaded_file = st.file_uploader(
     key="main_pdf_uploader"
 )
 
-# Floating Interactive Fintech Feature Grid
+# Interactive Floating Feature Grid shown when waiting for upload
 if not st.session_state.gemini_file or not st.session_state.analysis:
     st.info("👆 Upload an annual report PDF above to begin automatic financial analysis.")
     
@@ -751,7 +783,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
     c_feat1, c_feat2, c_feat3, c_feat4 = st.columns(4)
     with c_feat1:
         st.markdown("""
-        <div class="feature-card float-card-1">
+        <div class="feature-card">
             <div class="feature-icon">📊</div>
             <div class="feature-title">Financial Extraction</div>
             <div class="feature-desc">Extracts 12–18 core balance sheet, revenue, loan book, and PAT numbers with exact YoY growth percentages.</div>
@@ -759,7 +791,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
         """, unsafe_allow_html=True)
     with c_feat2:
         st.markdown("""
-        <div class="feature-card float-card-2">
+        <div class="feature-card feature-card-alt">
             <div class="feature-icon">📈</div>
             <div class="feature-title">Portfolio Intelligence</div>
             <div class="feature-desc">Pulls live exchange quotes (NSE/BSE) to compute exact P&L, fundamental purchase safety, and 5–8 year outlooks.</div>
@@ -767,7 +799,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
         """, unsafe_allow_html=True)
     with c_feat3:
         st.markdown("""
-        <div class="feature-card float-card-3">
+        <div class="feature-card">
             <div class="feature-icon">🛡️</div>
             <div class="feature-title">Executive Scorecard</div>
             <div class="feature-desc">4-pillar evaluation matrix analyzing Growth Momentum, Profit Quality, Balance Sheet Cushion, and Execution.</div>
@@ -775,7 +807,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
         """, unsafe_allow_html=True)
     with c_feat4:
         st.markdown("""
-        <div class="feature-card float-card-4">
+        <div class="feature-card feature-card-alt">
             <div class="feature-icon">💬</div>
             <div class="feature-title">Grounded Research Copilot</div>
             <div class="feature-desc">Interactive institutional Q&A answering custom financial queries strictly using facts from the uploaded report.</div>
@@ -944,7 +976,7 @@ with st.expander("📌 Financial Glossary & Report Terms", expanded=False):
             </div>
             """, unsafe_allow_html=True)
 
-# Company Overview - Symmetrical Cards
+# Company Overview - Symmetrical Floating Cards
 st.markdown('<div class="section-title">Company Overview</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">A quick snapshot of the company and what it does.</div>', unsafe_allow_html=True)
 
