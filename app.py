@@ -1694,7 +1694,7 @@ for chat in st.session_state.chat_history:
         st.markdown(chat["content"])
 
 # Text Input Bar
-user_input = st.chat_input("Ask a question about this financial report... stormwater, energy...")
+user_input = st.chat_input("Ask a question about this financial report...")
 
 active_query = user_input or suggested_question
 
@@ -1760,12 +1760,15 @@ RULES FOR ANSWERING
                 })
 
 # ============================================================
-# END-OF-DASHBOARD EXPORT SECTION (CARD-BASED EXCEL & FORMATTED REPORT)
+# END-OF-DASHBOARD EXPORT SECTION (WITH FORMATTING DISCLAIMER)
 # ============================================================
 
 st.markdown("---")
 st.markdown('<div class="section-title">📥 Export Financial Dashboard Summary</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>', unsafe_allow_html=True)
+
+# Professional Formatting Disclaimer
+st.info("💡 **Disclaimer:** Depending on your spreadsheet or text editor settings, exported file formats (CSV/TXT) may require minor adjustments to column widths, text wrapping, or font sizes for optimal viewing.")
 
 export_decision = st.radio(
     "Select download preference:",
@@ -1840,8 +1843,6 @@ Source File     : {st.session_state.uploaded_name}
 
     with col_dl2:
         if pd is not None and metrics:
-            # 2. Rich Card-Based Excel Workbook (.xlsx) simulation using CSV structured as cards or formatted rows with explanations
-            # To create a card-like explanatory layout in Excel, we construct a structured summary dataframe
             summary_card_data = []
             summary_card_data.append(["=== COMPANY EXECUTIVE PROFILE ===", "", "", "", "", ""])
             summary_card_data.append(["Company Name", company.get('company_name', 'N/A'), "", "", "", ""])
