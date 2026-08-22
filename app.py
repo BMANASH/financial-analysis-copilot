@@ -5,6 +5,8 @@ import tempfile
 import os
 import time
 import pandas as pd
+from datetime import datetime
+import yfinance as yf
 from google import genai
 from google.genai import types
 
@@ -462,7 +464,6 @@ def model_score(model_name):
         score += 100
     elif "flash-lite" in name or "lite" in name:
         score += 50
-    
     if "latest" in name:
         score += 30
     return score
@@ -518,7 +519,7 @@ def generate_with_fallback(contents, json_mode=False):
     raise Exception(f"All available models failed.\n\n{error_text}")
 
 # ============================================================
-# SAFE PARSERS
+# SAFE PARSERS & LIVE MARKET LOOKUP
 # ============================================================
 
 def clean_json_response(text):
@@ -555,6 +556,49 @@ def parse_clean_float(val):
             return float(match.group())
         except Exception:
             return None
+    return None
+
+def fetch_live_stock_price(company_name, ticker_hint=""):
+    """Accurately pulls live market quote from NSE/BSE using yfinance"""
+    try:
+        candidates = []
+        if ticker_hint:
+            candidates.append(f"{ticker_hint}.NS")
+            candidates.append(f"{ticker_hint}.BO")
+            candidates.append(ticker_hint)
+
+        c_lower = company_name.lower()
+        if "jio" in c_lower:
+            candidates.extend(["JIOFIN.NS", "JIOFIN.BO", "543940.BO"])
+        elif "tata motors" in c_lower:
+            candidates.extend(["TATAMOTORS.NS", "TATAMOTORS.BO"])
+        elif "tata power" in c_lower:
+            candidates.extend(["TATAPOWER.NS", "TATAPOWER.BO"])
+        elif "varun beverages" in c_lower:
+            candidates.extend(["VBL.NS", "VBL.BO"])
+        elif "hudco" in c_lower:
+            candidates.extend(["HUDCO.NS", "HUDCO.BO"])
+        elif "nhpc" in c_lower:
+            candidates.extend(["NHPC.NS", "NHPC.BO"])
+
+        for sym in candidates:
+            try:
+                tk = yf.Ticker(sym)
+                hist = tk.history(period="5d")
+                if not hist.empty:
+                    last_price = float(hist["Close"].iloc[-1])
+                    last_date = hist.index[-1].strftime("%d %b %Y")
+                    return {
+                        "is_listed": True,
+                        "ticker": sym.replace(".NS", "").replace(".BO", ""),
+                        "price": last_price,
+                        "as_on": last_date,
+                        "exchange": "NSE" if ".NS" in sym else ("BSE" if ".BO" in sym else "Exchange")
+                    }
+            except Exception:
+                continue
+    except Exception:
+        pass
     return None
 
 # ============================================================
@@ -696,25 +740,26 @@ if generate_button:
 You are an expert financial mentor explaining an annual report to everyday investors and finance students in simple, clean, professional English without textbook jargon.
 
 Analyze ONLY the uploaded PDF. It can belong to ANY company.
-Identify the company name, industry, reporting period, report type, and describe what the business actually does and how it earns revenue in 2 plain sentences.
+Identify the company name, stock ticker (if applicable), industry, reporting period, report type, and describe what the business actually does and how it earns revenue in 2 plain sentences.
 
 ============================================================
 STRICT CONTENT & PLAIN-ENGLISH RULES
 ============================================================
-1. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report. Keep the metric name clean and concise.
-2. INVESTOR_SCORECARD:
+1. NO DENSE JARGON: Translate complex metrics into real-world meaning without losing facts or exact numbers.
+2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report. Keep the metric name clean and concise.
+3. INVESTOR_SCORECARD:
    - "growth_momentum": badge, verdict, and 3 bullet points with figures.
    - "profitability_quality": badge, verdict, and 3 bullet points explaining why profits moved.
    - "balance_sheet_safety": badge, verdict, and 3 bullet points explaining debt, cash, and safety cushion.
    - "strategic_execution": badge, verdict, and 3 bullet points explaining new businesses, apps, and major milestones.
-3. MANAGEMENT_COMMENTARY: Provide 4 to 6 strategic management themes or future plans in plain words.
-4. RISKS: Provide 5 to 6 distinct risk factors. Explain the risk clearly and what it means for an everyday investor.
-5. ANALYST_TAKEAWAY:
+4. MANAGEMENT_COMMENTARY: Provide 4 to 6 strategic management themes or future plans in plain words.
+5. RISKS: Provide 5 to 6 distinct risk factors. Explain the risk clearly and what it means for an everyday investor.
+6. ANALYST_TAKEAWAY:
    - "improving": 4 to 6 positive points with figures.
    - "weakening": 4 to 6 challenges, drops, or costs with figures.
    - "growth_drivers": 4 to 6 future revenue growth opportunities.
    - "investor_watch": 4 to 6 specific checkpoints an investor should track next.
-6. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF. Provide a clear 1-line plain English explanation of what it means for this company.
+7. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF. Provide a clear 1-line plain English explanation of what it means for this company.
 
 ============================================================
 OUTPUT FORMAT (JSON ONLY)
@@ -723,6 +768,7 @@ Return ONLY valid JSON with this exact structure:
 {
   "company_overview": {
     "company_name": "",
+    "stock_ticker": "e.g. JIOFIN or TATAMOTORS",
     "industry": "",
     "business_type": "2 clear sentences on what the company actually does and how it earns revenue",
     "reporting_period": "",
@@ -1201,7 +1247,7 @@ if data:
                 st.markdown(card_html, unsafe_allow_html=True)
 
     # ========================================================
-    # DYNAMIC INVESTMENT POSITION & MARKET SCREENING MODULE
+    # DYNAMIC INVESTMENT POSITION & ACCURATE LIVE CMP MODULE
     # ========================================================
     st.markdown("---")
     st.markdown('<div class="section-title">💼 Personalized Investment Position & Market Analysis</div>', unsafe_allow_html=True)
@@ -1227,9 +1273,9 @@ if data:
 
             col_inv1, col_inv2 = st.columns(2)
             with col_inv1:
-                total_invested_input = st.number_input("Total Amount Invested (₹)", min_value=0.0, value=0.0, step=1000.0, format="%.2f")
+                total_invested_input = st.number_input("Total Amount Invested (₹)", min_value=0.0, value=4860.87, step=500.0, format="%.2f")
             with col_inv2:
-                avg_price_input = st.number_input("Average Buying Price per Share (₹)", min_value=0.0, value=0.0, step=1.0, format="%.2f")
+                avg_price_input = st.number_input("Average Buying Price per Share (₹)", min_value=0.0, value=231.47, step=1.0, format="%.2f")
 
             calculated_shares = int(total_invested_input // avg_price_input) if (avg_price_input > 0 and total_invested_input > 0) else 0
 
@@ -1243,52 +1289,74 @@ if data:
 
                 if st.button("⚡ Analyse The Investment", type="primary"):
                     company_name = company.get('company_name', 'this company')
+                    ticker_hint = company.get('stock_ticker', '')
+
+                    # 1. Look up live market price directly
+                    with st.spinner(f"Retrieving live stock quote for {company_name}..."):
+                        market_info = fetch_live_stock_price(company_name, ticker_hint)
+
+                    live_price = market_info["price"] if market_info else 0.0
+                    live_date = market_info["as_on"] if market_info else datetime.today().strftime("%d %b %Y")
+                    exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "Unlisted / Market Data Unavailable"
+
+                    # Compute mathematical return
+                    if live_price > 0:
+                        cur_val = live_price * calculated_shares
+                        pnl_amt = cur_val - total_invested_input
+                        pnl_pct = (pnl_amt / total_invested_input) * 100
+                        pnl_sign = "+" if pnl_amt >= 0 else ""
+                        pnl_str = f"{pnl_sign}{pnl_pct:.2f}%"
+                        amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
+                        cmp_display = f"₹{live_price:,.2f}"
+                    else:
+                        cmp_display = "Unlisted / N/A"
+                        pnl_str = "N/A"
+                        amt_str = ""
+
                     analysis_req_prompt = f"""
-You are a senior equity research and fundamental market analyst.
-Evaluate this user's personal investment position in {company_name}.
+You are an expert equity research mentor.
+The investor holds {calculated_shares} shares of {company_name} at an average cost of ₹{avg_price_input:.2f} (Total outlay: ₹{total_invested_input:,.2f}).
+Current Market Price (CMP) as of {live_date} is {cmp_display} on {exchange_tag} ({pnl_str}).
 
-INVESTMENT DATA:
-- Capital Invested: ₹{total_invested_input:,.2f}
-- Purchase Price: ₹{avg_price_input:.2f}
-- Shares Held: ~{calculated_shares:,}
+Using facts strictly from the uploaded PDF annual report:
+1. Explain how the business's fundamentals (growth in core revenue, AUM, loan security, net worth safety) support this investor's purchase price.
+2. In simple, non-academic words, explain the future market outlook and upcoming growth catalysts.
+3. Provide 3 specific quarterly checkpoints this investor should track (e.g. margin turnaround, loan default trends, deposit scaling).
 
-TASK:
-1. SCREEN STOCK EXCHANGE LISTING:
-   - Determine if {company_name} is listed on public stock exchanges (NSE / BSE / NASDAQ).
-   - If LISTED: Estimate recent market price context (~₹ per share), compute gain/loss percentage against ₹{avg_price_input:.2f}, and note ticker.
-   - If UNLISTED: State clearly that the company is private/unlisted.
-
-2. RETURN VALID JSON ONLY with this exact clean structure (no dense walls of text, use concise punchy bullet points):
+Return ONLY valid JSON with this exact structure:
 {{
-  "is_listed": true,
-  "listing_status": "e.g. Listed on NSE (JIOFIN) / BSE (543940)",
-  "market_price_context": "₹320.00",
-  "gain_loss_percent": "+38.2%",
-  "gain_loss_amount": "+₹1,850.00",
-  "position_summary": "1 punchy sentence summarizing how this position stands today.",
+  "position_summary": "1 clear, simple sentence on how this position stands at current market levels.",
   "fundamental_strengths_vs_entry": [
-    "Clear strength 1 comparing entry price with actual report growth/AUM/net worth",
-    "Clear strength 2 on loan security, balance sheet cushion or profit transition",
-    "Clear strength 3 explaining why recent cost increases are normal startup rollout costs"
+    "Simple strength 1 comparing entry price with actual report growth and numbers",
+    "Simple strength 2 on loan safety, debt cushion, and capital security",
+    "Simple strength 3 clarifying that recent profit dips are normal setup costs for new businesses"
   ],
   "future_market_outlook": [
-    "Sector growth runway in India and digital adoption momentum",
-    "Key strategic catalysts (partnerships, tech platforms, new licenses) over next 2-3 years"
+    "Simple point 1 on India's financial sector runway and digital adoption",
+    "Simple point 2 on strategic partnerships and new business rollouts"
   ],
   "investor_action_plan": [
-    "Milestone 1 to track in upcoming quarterly results",
-    "Milestone 2 on margins / credit quality to monitor",
-    "Actionable mindset for long-term holders"
+    "Checklist item 1 to track in upcoming results",
+    "Checklist item 2 regarding loan quality and margins",
+    "Actionable long-term investor takeaway"
   ]
 }}
 """
-                    with st.spinner(f"Screening stock market for {company_name} and analyzing fundamentals..."):
+                    with st.spinner("Analyzing portfolio fundamentals..."):
                         try:
                             pos_response = generate_with_fallback(
                                 contents=[analysis_req_prompt, st.session_state.gemini_file],
                                 json_mode=True
                             )
-                            st.session_state.position_assessment = clean_json_response(pos_response.text)
+                            parsed_analysis = clean_json_response(pos_response.text)
+                            parsed_analysis["cmp_display"] = cmp_display
+                            parsed_analysis["live_date"] = live_date
+                            parsed_analysis["exchange_tag"] = exchange_tag
+                            parsed_analysis["pnl_str"] = pnl_str
+                            parsed_analysis["amt_str"] = amt_str
+                            parsed_analysis["is_pos"] = not pnl_str.startswith("-")
+
+                            st.session_state.position_assessment = parsed_analysis
                         except Exception as e:
                             st.error(f"Could not complete investment analysis: {e}")
 
@@ -1298,7 +1366,7 @@ TASK:
                     st.markdown("---")
                     st.markdown("### 📋 Analyst Portfolio Assessment")
                     
-                    # 4 Top Visual Metrics Cards
+                    # 4 Top Visual Metric Cards
                     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
                     with col_m1:
                         st.markdown(f"""
@@ -1317,23 +1385,24 @@ TASK:
                         </div>
                         """, unsafe_allow_html=True)
                     with col_m3:
-                        mkt_price = pos_data.get("market_price_context", "N/A")
+                        mkt_price = pos_data.get("cmp_display", "N/A")
+                        as_on_date = pos_data.get("live_date", "")
                         st.markdown(f"""
                         <div class="invest-kpi-card">
-                            <div class="invest-kpi-label">Market Price Context</div>
+                            <div class="invest-kpi-label">Current Market Price (CMP)</div>
                             <div class="invest-kpi-val" style="color: #60a5fa;">{mkt_price}</div>
-                            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">{pos_data.get('listing_status', 'Exchange Listed')}</div>
+                            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">As on {as_on_date} ({pos_data.get('exchange_tag', 'NSE/BSE')})</div>
                         </div>
                         """, unsafe_allow_html=True)
                     with col_m4:
-                        gain_pct = pos_data.get("gain_loss_percent", "N/A")
-                        is_pos = not str(gain_pct).startswith("-")
+                        gain_pct = pos_data.get("pnl_str", "N/A")
+                        is_pos = pos_data.get("is_pos", True)
                         pnl_color = "#34d399" if is_pos else "#f87171"
                         st.markdown(f"""
                         <div class="invest-kpi-card">
                             <div class="invest-kpi-label">Estimated Return</div>
                             <div class="invest-kpi-val" style="color: {pnl_color};">{gain_pct}</div>
-                            <div style="color: {pnl_color}; font-size: 11.5px; margin-top: 4px;">{pos_data.get('gain_loss_amount', '')}</div>
+                            <div style="color: {pnl_color}; font-size: 11.5px; margin-top: 4px;">{pos_data.get('amt_str', '')}</div>
                         </div>
                         """, unsafe_allow_html=True)
 
@@ -1345,7 +1414,7 @@ TASK:
                         </div>
                         """, unsafe_allow_html=True)
 
-                    # 3 Distinct Card Containers
+                    # 3 Distinct Scannable Card Containers
                     col_det1, col_det2 = st.columns(2)
 
                     with col_det1:
