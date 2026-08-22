@@ -683,8 +683,7 @@ Identify the company name, industry, reporting period, report type, and describe
 ============================================================
 STRICT CONTENT & PLAIN-ENGLISH RULES
 ============================================================
-1. NO DENSE JARGON:
-   - Translate complex metrics into real-world meaning without losing facts or exact numbers.
+1. NO DENSE JARGON: Translate complex metrics into real-world meaning without losing facts or exact numbers.
 2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report. Keep the metric name clean and concise.
 3. INVESTOR_SCORECARD:
    - "growth_momentum": badge, verdict, and 3 bullet points with figures.
@@ -884,6 +883,9 @@ if data:
         "⭐ Report Overview & Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks", "Investor Takeaway"
     ])
 
+    # ========================================================
+    # REPORT OVERVIEW & SCORECARD TAB
+    # ========================================================
     with tab_scorecard:
         st.subheader("Executive Strategic Scorecard")
         st.write("A structured 4-pillar evaluation matrix explained in simple, practical terms:")
@@ -1206,61 +1208,60 @@ if data:
         with st.container():
             st.markdown("""
             <div class="position-box">
-                <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 12px;">📊 Enter Your Investment Details:</div>
+                <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 12px;">📊 Enter Your Holdings:</div>
             """, unsafe_allow_html=True)
 
-            col_p1, col_p2, col_p3 = st.columns(3)
-            with col_p1:
-                avg_price = st.number_input("Your Average Buying Price (₹)", min_value=0.0, value=0.0, step=1.0, format="%.2f")
-            with col_p2:
-                quantity = st.number_input("Total Number of Shares Held", min_value=0, value=0, step=1)
-            with col_p3:
-                current_market_price = st.number_input("Current Live Market Price (₹)", min_value=0.0, value=avg_price if avg_price > 0 else 0.0, step=1.0, format="%.2f")
+            col_inv1, col_inv2 = st.columns(2)
+            with col_inv1:
+                total_invested_input = st.number_input("Total Amount Invested (₹)", min_value=0.0, value=0.0, step=500.0, format="%.2f")
+            with col_inv2:
+                total_shares_input = st.number_input("Total Number of Shares Held", min_value=0, value=0, step=1)
 
-            if avg_price > 0 and quantity > 0 and current_market_price > 0:
-                total_invested = avg_price * quantity
-                current_val = current_market_price * quantity
-                pnl_amt = current_val - total_invested
-                pnl_pct = (pnl_amt / total_invested) * 100 if total_invested > 0 else 0.0
-
-                pnl_color = "#34d399" if pnl_amt >= 0 else "#f87171"
-                pnl_sign = "+" if pnl_amt >= 0 else ""
+            if total_invested_input > 0 and total_shares_input > 0:
+                calc_avg_price = total_invested_input / total_shares_input
 
                 st.markdown("<br>", unsafe_allow_html=True)
-                col_st1, col_st2, col_st3, col_st4 = st.columns(4)
+                col_st1, col_st2, col_st3 = st.columns(3)
                 with col_st1:
-                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Total Invested</div><div class="stat-val">₹{total_invested:,.2f}</div></div>""", unsafe_allow_html=True)
+                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Total Capital Invested</div><div class="stat-val">₹{total_invested_input:,.2f}</div></div>""", unsafe_allow_html=True)
                 with col_st2:
-                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Current Value</div><div class="stat-val">₹{current_val:,.2f}</div></div>""", unsafe_allow_html=True)
+                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Shares Held</div><div class="stat-val">{total_shares_input:,}</div></div>""", unsafe_allow_html=True)
                 with col_st3:
-                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Unrealized P&L</div><div class="stat-val" style="color: {pnl_color};">{pnl_sign}₹{pnl_amt:,.2f}</div></div>""", unsafe_allow_html=True)
-                with col_st4:
-                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Return (%)</div><div class="stat-val" style="color: {pnl_color};">{pnl_sign}{pnl_pct:,.2f}%</div></div>""", unsafe_allow_html=True)
+                    st.markdown(f"""<div class="stat-card"><div class="stat-label">Calculated Average Price</div><div class="stat-val" style="color: #60a5fa;">₹{calc_avg_price:,.2f} / share</div></div>""", unsafe_allow_html=True)
 
                 st.markdown("<br>", unsafe_allow_html=True)
-                if st.button("🔍 Get Analyst Strategic Assessment on Your Position", type="primary"):
+                if st.button("🚀 Analyse The Investment", type="primary", use_container_width=True):
                     pos_prompt = f"""
-You are a senior equity research analyst talking to an existing investor in {company.get('company_name', 'this company')}.
+You are a senior stock market equity research and fundamental analyst analyzing {company.get('company_name', 'this company')}.
 
 INVESTOR POSITION:
-- Average Purchase Price: ₹{avg_price:.2f}
-- Current Market Price: ₹{current_market_price:.2f}
-- Return to Date: {pnl_sign}{pnl_pct:.2f}%
-- Total Capital Invested: ₹{total_invested:,.2f}
+- Total Capital Invested: ₹{total_invested_input:,.2f}
+- Shares Held: {total_shares_input:,}
+- Calculated Average Purchase Price: ₹{calc_avg_price:,.2f} per share
 
-Using facts STRICTLY from the uploaded annual report PDF:
-1. Explain how the business's fundamentals (growth, margins, balance sheet safety, loan book / revenue expansion) align with this investor's entry price.
-2. Highlight whether the current price movements reflect temporary startup incubation costs or permanent business headwinds.
-3. List 3 concrete checkpoints this investor should track over the coming quarters (e.g. margin turnaround, loan default trends, deposit scaling).
-4. Write in clear, professional, everyday English. Do NOT give direct Buy/Sell/Hold advice.
+YOUR TASK:
+1. Identify if this company is listed on Indian Stock Exchanges (NSE/BSE) or global exchanges.
+   - If listed, evaluate its current market presence, trading context, and general price dynamics against the investor's entry price of ₹{calc_avg_price:,.2f}.
+   - If unlisted/private, state clearly that it is not traded on public stock exchanges and evaluate based on book value / earnings.
+2. Cross-examine the investor's entry point with the FUNDAMENTAL TRUTHS found inside this uploaded annual report PDF:
+   - Margin sustainability & core business trajectory
+   - Debt safety, cash reserves, and balance sheet resilience
+   - Major catalysts (e.g. new licenses, apps, JVs, loan disbursements)
+3. Provide the FUTURE OUTLOOK of the stock/business from a financial analyst's lens:
+   - What the market is expecting going forward
+   - Potential headwinds/risks that could pressure the stock price
+4. Explain clearly HOW THE INVESTOR SHOULD LOOK AT THIS INVESTMENT (e.g., long-term compounding vs near-term cost volatility, key quarterly metrics to track).
+
+Write in clear, conversational, yet highly professional plain English. Do NOT give direct Buy/Sell/Hold advice.
 
 Format cleanly with Markdown:
-### 1. Position Alignment with Company Fundamentals
-### 2. Operational Strengths Supporting Your Investment
-### 3. Key Risks & Cost Pressures to Keep in Mind
-### 4. Strategic Checkpoints to Watch Next
+### 1. Market Listing & Position Comparison
+### 2. Fundamental Strengths Supporting Your Entry Price
+### 3. Near-Term Market Pressures & Risk Factors
+### 4. Future Outlook & What the Market is Watching
+### 5. Strategic Mindset for You as an Investor
 """
-                    with st.spinner("Gemini is assessing your portfolio position against annual report fundamentals..."):
+                    with st.spinner("Gemini is screening market context and assessing your investment..."):
                         try:
                             pos_response = generate_with_fallback(
                                 contents=[pos_prompt, st.session_state.gemini_file],
@@ -1268,11 +1269,11 @@ Format cleanly with Markdown:
                             )
                             st.session_state.position_assessment = pos_response.text.strip()
                         except Exception as e:
-                            st.error(f"Could not generate position assessment: {e}")
+                            st.error(f"Could not generate investment analysis: {e}")
 
                 if st.session_state.position_assessment:
                     st.markdown("---")
-                    st.markdown("### 📋 Analyst Fundamental Perspective on Your Holdings")
+                    st.markdown("### 📋 Fundamental & Market Analyst Assessment")
                     st.markdown(st.session_state.position_assessment)
 
             st.markdown("</div>", unsafe_allow_html=True)
