@@ -88,7 +88,7 @@ st.markdown("""
     font-size: 24px;
     font-weight: 750;
     color: #f8fafc;
-    margin-top: 30px;
+    margin-top: 20px;
     margin-bottom: 4px;
 }
 .section-description {
@@ -97,20 +97,21 @@ st.markdown("""
     margin-bottom: 18px;
 }
 
-/* Distinct Container Card for Interactive Sections */
-.action-container-card {
-    background: #0e131f;
-    border: 1px solid #1e293b;
+/* Gorgeous Highlighted Fintech Widget Cards for Action Sections */
+.fintech-widget-box {
+    background: linear-gradient(135deg, #0e1626 0%, #0b111d 100%);
+    border: 1px solid #1e3a8a;
+    border-left: 4px solid #3b82f6;
     border-radius: 16px;
-    padding: 26px;
-    margin-top: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+    padding: 28px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6);
     animation: fadeInSlide 0.4s ease-out forwards;
 }
-.action-container-card:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 14px 35px -10px rgba(59, 130, 246, 0.2);
+.fintech-widget-box:hover {
+    border-color: #60a5fa;
+    box-shadow: 0 16px 40px -10px rgba(59, 130, 246, 0.3);
 }
 
 /* Glassmorphic Fintech Cards with Hover Glow */
@@ -1099,9 +1100,9 @@ with tab_investor:
             st.markdown(f'<div class="takeaway-weakening">✗ {item}</div>', unsafe_allow_html=True)
 
 # ========================================================
-# INVESTMENT POSITION MODULE (WRAPPED IN CARD CONTAINER)
+# INVESTMENT POSITION MODULE (WRAPPED IN FINTECH WIDGET CARD)
 # ========================================================
-st.markdown('<div class="action-container-card">', unsafe_allow_html=True)
+st.markdown('<div class="fintech-widget-box">', unsafe_allow_html=True)
 st.markdown('<div class="section-title" style="margin-top:0;">💼 Personalized Investment Position & Market Analysis</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Evaluate your personal investment against live stock market pricing and the financial health in this annual report.</div>', unsafe_allow_html=True)
 
@@ -1164,9 +1165,9 @@ if investor_mcq == "Yes, I hold shares in this company":
 st.markdown('</div>', unsafe_allow_html=True)
 
 # ========================================================
-# EXPORT MODULE (WRAPPED IN CARD CONTAINER)
+# EXPORT MODULE (WRAPPED IN FINTECH WIDGET CARD)
 # ========================================================
-st.markdown('<div class="action-container-card">', unsafe_allow_html=True)
+st.markdown('<div class="fintech-widget-box">', unsafe_allow_html=True)
 st.markdown('<div class="section-title" style="margin-top:0;">📥 Export Financial Dashboard Summary</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>', unsafe_allow_html=True)
 
@@ -1184,9 +1185,9 @@ if export_choice == "Yes, download dashboard summary report":
 st.markdown('</div>', unsafe_allow_html=True)
 
 # ========================================================
-# ASK THE ANALYST AI CHATBOT (WRAPPED IN CARD CONTAINER)
+# ASK THE ANALYST AI CHATBOT (WRAPPED IN FINTECH WIDGET CARD)
 # ========================================================
-st.markdown('<div class="action-container-card">', unsafe_allow_html=True)
+st.markdown('<div class="fintech-widget-box">', unsafe_allow_html=True)
 st.markdown('<div class="section-title" style="margin-top:0;">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below.</div>', unsafe_allow_html=True)
 
