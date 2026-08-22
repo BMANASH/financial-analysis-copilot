@@ -33,7 +33,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# CUSTOM CSS
+# CUSTOM CSS & AUTOFILL KILLER SCRIPT
 # ============================================================
 
 st.markdown("""
@@ -439,13 +439,21 @@ st.markdown("""
     text-align: center;
     padding-top: 25px;
 }
-input::-webkit-contacts-auto-fill-button,
-input::-webkit-credentials-auto-fill-button {
-    visibility: hidden;
-    display: none !important;
-    pointer-events: none;
-}
 </style>
+
+<script>
+// Force disable browser autocomplete and autofill popups on all inputs
+document.addEventListener("DOMContentLoaded", function() {
+    setInterval(() => {
+        const inputs = window.parent.document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.setAttribute('autocomplete', 'new-password');
+            input.setAttribute('readonly', 'true');
+            setTimeout(() => input.removeAttribute('readonly'), 100);
+        });
+    }, 1000);
+});
+</script>
 """, unsafe_allow_html=True)
 
 # ============================================================
@@ -1795,7 +1803,7 @@ RULES FOR ANSWERING
                 st.error(error_msg)
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": answer
+                    "content": error_msg
                 })
 
 # ============================================================
