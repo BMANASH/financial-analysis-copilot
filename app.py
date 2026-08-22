@@ -708,7 +708,11 @@ uploaded_file = st.file_uploader(
     key="main_pdf_uploader"
 )
 
-st.markdown("<div style='text-align: center; color: #64748b; margin: 8px 0; font-size: 13px;'>— OR PROVIDE DIRECT PDF LINK —</div>", unsafe_allow_html=True)
+# Helper Prompt placed directly under the Upload PDF box
+if not st.session_state.gemini_file or not st.session_state.analysis:
+    st.info("👆 Upload an annual report PDF or paste a direct PDF link below to begin automatic financial analysis.")
+
+st.markdown("<div style='text-align: center; color: #64748b; margin: 18px 0 10px 0; font-size: 13px; font-weight: 600;'>— OR PROVIDE DIRECT PDF LINK —</div>", unsafe_allow_html=True)
 
 # Option 2: Direct PDF URL Input Box
 pdf_url_input = st.text_input(
@@ -722,10 +726,6 @@ st.markdown("""
     💡 <strong>Disclaimer:</strong> Please provide a <strong>direct link to a PDF file</strong> (ending in <code>.pdf</code>). General website or investor relations portal links will not work and will result in a broken analysis.
 </div>
 """, unsafe_allow_html=True)
-
-# Helper Prompt placed correctly right under the input area when waiting
-if not st.session_state.gemini_file or not st.session_state.analysis:
-    st.info("👆 Upload an annual report PDF or paste a direct PDF link above to begin automatic financial analysis.")
 
 # ============================================================
 # AUTOMATIC GENERATION ON UPLOAD OR URL SUBMISSION
@@ -1012,18 +1012,18 @@ with tab_scorecard:
                 st.markdown(f"• {pt}")
             st.markdown("</div>", unsafe_allow_html=True)
 
-        with col_s2:
-            st.markdown(f"""
-            <div class="scorecard-card">
-                <div class="scorecard-header">
-                    <div class="scorecard-title">💰 Profitability & Earnings Quality</div>
-                    <div class="scorecard-badge">{prof_info.get('badge', 'Operating Profit')}</div>
-                </div>
-                <div class="scorecard-verdict">{prof_info.get('verdict', '')}</div>
-            """, unsafe_allow_html=True)
-            for pt in prof_info.get("points", []):
-                st.markdown(f"• {pt}")
-            st.markdown("</div>", unsafe_allow_html=True)
+            with col_s2:
+                st.markdown(f"""
+                <div class="scorecard-card">
+                    <div class="scorecard-header">
+                        <div class="scorecard-title">💰 Profitability & Earnings Quality</div>
+                        <div class="scorecard-badge">{prof_info.get('badge', 'Operating Profit')}</div>
+                    </div>
+                    <div class="scorecard-verdict">{prof_info.get('verdict', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in prof_info.get("points", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
 
         col_s3, col_s4 = st.columns(2)
 
