@@ -33,25 +33,47 @@ st.set_page_config(
 )
 
 # ============================================================
-# CUSTOM CSS & AUTOFILL KILLER SCRIPT
+# CUSTOM CSS & FINTECH MOTION ANIMATIONS
 # ============================================================
 
 st.markdown("""
 <style>
 .stApp {
-    background: #0e1117;
+    background: #090d16;
 }
 .block-container {
     max-width: 1450px;
     padding-top: 2rem;
     padding-bottom: 4rem;
 }
+
+/* Smooth Fade-In Animation */
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Pulsing Emerald Glow for Profits */
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35); }
+    70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
 .hero {
-    background: linear-gradient(135deg, #18202d 0%, #111722 100%);
-    border: 1px solid #2d3748;
+    background: linear-gradient(135deg, #131b2c 0%, #0c111c 100%);
+    border: 1px solid #1e293b;
     border-radius: 18px;
-    padding: 30px 34px;
+    padding: 32px 36px;
     margin-bottom: 25px;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
+    animation: fadeInSlide 0.5s ease-out forwards;
 }
 .hero-title {
     font-size: 38px;
@@ -59,10 +81,13 @@ st.markdown("""
     color: #ffffff;
     line-height: 1.15;
     margin-bottom: 8px;
+    background: linear-gradient(90deg, #ffffff, #93c5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 .hero-subtitle {
     font-size: 16px;
-    color: #aeb8c7;
+    color: #94a3b8;
     line-height: 1.5;
 }
 .section-title {
@@ -73,23 +98,35 @@ st.markdown("""
     margin-bottom: 4px;
 }
 .section-description {
-    color: #9ca7b6;
+    color: #94a3b8;
     font-size: 14px;
     margin-bottom: 18px;
 }
+
+/* Interactive Card Hover & Motion Effects */
+.company-card, .kpi-card, .scorecard-card, .risk-card, .invest-kpi-card, .invest-section-box, .chart-box {
+    animation: fadeInSlide 0.5s ease-out forwards;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.company-card:hover, .kpi-card:hover, .scorecard-card:hover, .invest-kpi-card:hover, .invest-section-box:hover {
+    transform: translateY(-4px);
+    border-color: #3b82f6;
+    box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.25);
+}
+
 .company-card {
-    background: #151a24;
-    border: 1px solid #2c3543;
+    background: #111827;
+    border: 1px solid #1f2937;
     border-radius: 14px;
     padding: 16px;
     min-height: 110px;
     margin-bottom: 10px;
 }
 .company-label {
-    color: #8f9aaa;
+    color: #9ca3af;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.7px;
+    letter-spacing: 0.8px;
     margin-bottom: 6px;
 }
 .company-value {
@@ -99,8 +136,8 @@ st.markdown("""
     line-height: 1.4;
 }
 .kpi-card {
-    background: #151a24;
-    border: 1px solid #283241;
+    background: #111827;
+    border: 1px solid #1f2937;
     border-radius: 14px;
     padding: 18px 20px;
     margin-bottom: 10px;
@@ -110,7 +147,7 @@ st.markdown("""
     justify-content: space-between;
 }
 .kpi-label {
-    color: #8f9aaa;
+    color: #9ca3af;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -132,6 +169,7 @@ st.markdown("""
     padding: 3px 8px;
     border-radius: 6px;
     border: 1px solid rgba(16, 185, 129, 0.3);
+    animation: pulseGlow 2.5s infinite;
 }
 .kpi-badge-neg {
     display: inline-block;
@@ -154,13 +192,13 @@ st.markdown("""
     border: 1px solid rgba(156, 163, 175, 0.3);
 }
 .kpi-basis {
-    color: #6c7889;
+    color: #64748b;
     font-size: 11px;
     margin-top: 6px;
 }
 .scorecard-card {
-    background: #151a24;
-    border: 1px solid #283648;
+    background: #111827;
+    border: 1px solid #1f2937;
     border-radius: 14px;
     padding: 20px;
     margin-bottom: 16px;
@@ -194,8 +232,8 @@ st.markdown("""
     line-height: 1.4;
 }
 .risk-card {
-    background: #19161a;
-    border: 1px solid #483438;
+    background: #181317;
+    border: 1px solid #3f2228;
     border-radius: 14px;
     padding: 20px;
     margin-bottom: 14px;
@@ -207,15 +245,15 @@ st.markdown("""
     margin-bottom: 10px;
 }
 .risk-box {
-    background: #141113;
+    background: #110e11;
     border-left: 3px solid #ef4444;
     border-radius: 0 8px 8px 0;
     padding: 10px 14px;
     margin-top: 10px;
 }
 .takeaway-improving {
-    background: #121d19;
-    border: 1px solid #1e3a2f;
+    background: #0d2219;
+    border: 1px solid #143828;
     border-left: 4px solid #10b981;
     border-radius: 10px;
     padding: 14px 16px;
@@ -225,8 +263,8 @@ st.markdown("""
     line-height: 1.5;
 }
 .takeaway-weakening {
-    background: #201417;
-    border: 1px solid #451e24;
+    background: #2a1217;
+    border: 1px solid #521c25;
     border-left: 4px solid #ef4444;
     border-radius: 10px;
     padding: 14px 16px;
@@ -236,8 +274,8 @@ st.markdown("""
     line-height: 1.5;
 }
 .takeaway-driver {
-    background: #131b26;
-    border: 1px solid #23354d;
+    background: #0f1d32;
+    border: 1px solid #1e3a5f;
     border-left: 4px solid #3b82f6;
     border-radius: 10px;
     padding: 14px 16px;
@@ -247,8 +285,8 @@ st.markdown("""
     line-height: 1.5;
 }
 .takeaway-watch {
-    background: #1c1a14;
-    border: 1px solid #3d351e;
+    background: #271f0f;
+    border: 1px solid #52411e;
     border-left: 4px solid #f59e0b;
     border-radius: 10px;
     padding: 14px 16px;
@@ -258,16 +296,16 @@ st.markdown("""
     line-height: 1.5;
 }
 .position-box {
-    background: #131822;
-    border: 1px solid #28374d;
+    background: #111827;
+    border: 1px solid #1f2937;
     border-radius: 14px;
     padding: 22px;
     margin-top: 15px;
     margin-bottom: 20px;
 }
 .invest-kpi-card {
-    background: #171f2d;
-    border: 1px solid #2e405a;
+    background: #131d31;
+    border: 1px solid #253858;
     border-radius: 12px;
     padding: 16px;
     text-align: center;
@@ -287,8 +325,8 @@ st.markdown("""
     margin-top: 5px;
 }
 .invest-section-box {
-    background: #141a24;
-    border: 1px solid #283648;
+    background: #111827;
+    border: 1px solid #1f2937;
     border-radius: 14px;
     padding: 20px;
     margin-bottom: 18px;
@@ -303,12 +341,16 @@ st.markdown("""
     gap: 8px;
 }
 .invest-subcard {
-    background: #18202d;
-    border: 1px solid #2a384d;
+    background: #162032;
+    border: 1px solid #23354d;
     border-left: 3px solid #3b82f6;
     border-radius: 8px;
     padding: 14px 16px;
     margin-bottom: 10px;
+    transition: transform 0.2s ease;
+}
+.invest-subcard:hover {
+    transform: translateX(4px);
 }
 .invest-subcard-title {
     color: #ffffff;
@@ -322,8 +364,8 @@ st.markdown("""
     line-height: 1.5;
 }
 .price-gauge-card {
-    background: #161e2c;
-    border: 1px solid #2d3e58;
+    background: #131d31;
+    border: 1px solid #253858;
     border-radius: 12px;
     padding: 18px;
     margin-bottom: 16px;
@@ -335,8 +377,8 @@ st.markdown("""
     font-size: 13.5px;
 }
 .chart-box {
-    background: #151a24;
-    border: 1px solid #283241;
+    background: #111827;
+    border: 1px solid #1f2937;
     border-radius: 14px;
     padding: 22px;
     margin-bottom: 18px;
@@ -348,7 +390,7 @@ st.markdown("""
     margin-bottom: 4px;
 }
 .chart-desc {
-    color: #8f9aaa;
+    color: #94a3b8;
     font-size: 13px;
     margin-bottom: 18px;
 }
@@ -364,7 +406,7 @@ st.markdown("""
     margin-bottom: 6px;
 }
 .vis-track {
-    background: #232b38;
+    background: #1f2937;
     border-radius: 8px;
     height: 26px;
     width: 100%;
@@ -372,7 +414,7 @@ st.markdown("""
     position: relative;
 }
 .vis-fill-curr {
-    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    background: linear-gradient(90deg, #2563eb, #3b82f6);
     height: 100%;
     border-radius: 8px;
     display: flex;
@@ -384,7 +426,7 @@ st.markdown("""
     font-weight: 700;
 }
 .vis-fill-prev {
-    background: #475569;
+    background: #334155;
     height: 100%;
     border-radius: 8px;
     display: flex;
@@ -396,7 +438,7 @@ st.markdown("""
     font-weight: 700;
 }
 .vis-fill-pos {
-    background: linear-gradient(90deg, #059669, #10b981);
+    background: linear-gradient(90deg, #047857, #10b981);
     height: 100%;
     border-radius: 8px;
     display: flex;
@@ -408,7 +450,7 @@ st.markdown("""
     font-weight: 700;
 }
 .vis-fill-neg {
-    background: linear-gradient(90deg, #dc2626, #ef4444);
+    background: linear-gradient(90deg, #b91c1c, #ef4444);
     height: 100%;
     border-radius: 8px;
     display: flex;
@@ -420,8 +462,8 @@ st.markdown("""
     font-weight: 700;
 }
 .slicer-card {
-    background: #151d2a;
-    border: 1px solid #2d3e58;
+    background: #111827;
+    border: 1px solid #1f2937;
     border-left: 3px solid #3b82f6;
     border-radius: 8px;
     padding: 12px 14px;
@@ -434,7 +476,7 @@ st.markdown("""
     line-height: 1.5;
 }
 .footer {
-    color: #707b8c;
+    color: #64748b;
     font-size: 12px;
     text-align: center;
     padding-top: 25px;
