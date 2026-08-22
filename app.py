@@ -108,12 +108,17 @@ st.markdown("""
     box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.3);
 }
 
+/* Symmetrical Company Overview Cards */
 .company-card {
     background: #0e131f;
     border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 16px;
-    min-height: 120px;
+    height: 145px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
     margin-bottom: 10px;
 }
 .company-label {
@@ -123,13 +128,15 @@ st.markdown("""
     letter-spacing: 0.9px;
     margin-bottom: 6px;
     font-weight: 700;
+    flex-shrink: 0;
 }
 .company-value {
     color: #f8fafc;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.4;
+    font-size: 13.5px;
+    font-weight: 550;
+    line-height: 1.45;
 }
+
 .kpi-card {
     background: #0e131f;
     border: 1px solid #1a2234;
@@ -371,86 +378,56 @@ st.markdown("""
     background: #0e131f;
     border: 1px solid #1a2234;
     border-radius: 14px;
-    padding: 22px;
-    margin-bottom: 18px;
+    padding: 20px;
+    margin-bottom: 16px;
 }
 .chart-title {
     color: #ffffff;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    margin-bottom: 4px;
-}
-.chart-desc {
-    color: #94a3b8;
-    font-size: 13px;
-    margin-bottom: 18px;
+    margin-bottom: 10px;
 }
 .vis-row {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 .vis-label {
     display: flex;
     justify-content: space-between;
-    font-size: 13.5px;
-    font-weight: 650;
-    color: #ffffff;
-    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 4px;
 }
 .vis-track {
     background: #172033;
-    border-radius: 8px;
-    height: 26px;
+    border-radius: 6px;
+    height: 22px;
     width: 100%;
     overflow: hidden;
-    position: relative;
 }
 .vis-fill-curr {
     background: linear-gradient(90deg, #1d4ed8, #3b82f6);
     height: 100%;
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding-right: 10px;
+    padding-right: 8px;
     color: #ffffff;
-    font-size: 12px;
-    font-weight: 750;
+    font-size: 11.5px;
+    font-weight: 700;
 }
 .vis-fill-prev {
     background: #334155;
     height: 100%;
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding-right: 10px;
+    padding-right: 8px;
     color: #ffffff;
-    font-size: 12px;
-    font-weight: 750;
-}
-.vis-fill-pos {
-    background: linear-gradient(90deg, #059669, #10b981);
-    height: 100%;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 10px;
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 750;
-}
-.vis-fill-neg {
-    background: linear-gradient(90deg, #dc2626, #ef4444);
-    height: 100%;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 10px;
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 750;
+    font-size: 11.5px;
+    font-weight: 700;
 }
 .slicer-card {
     background: #0e131f;
@@ -874,7 +851,7 @@ with st.expander("📌 Financial Glossary & Report Terms", expanded=False):
             </div>
             """, unsafe_allow_html=True)
 
-# Company Overview
+# Company Overview - Symmetrical Cards
 st.markdown('<div class="section-title">Company Overview</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">A quick snapshot of the company and what it does.</div>', unsafe_allow_html=True)
 
@@ -1048,34 +1025,43 @@ with tab_metrics:
 
 with tab_charts:
     st.subheader("Visual Financial Comparisons")
+    st.write("Compare previous vs. current performance across key metrics at a glance:")
+    
     chart_records = []
     for m in metrics:
         curr_val = parse_clean_float(m.get("current_period"))
         prev_val = parse_clean_float(m.get("previous_period"))
-        growth_val = parse_clean_float(m.get("yoy_growth"))
         if curr_val is not None and prev_val is not None:
             chart_records.append({
                 "Metric": m.get("metric", "").strip(),
                 "Previous": prev_val,
                 "Current": curr_val,
-                "Growth (%)": growth_val if growth_val is not None else 0.0,
                 "Unit": m.get("unit", "").strip()
             })
+    
     if chart_records:
-        col_v1, col_v2 = st.columns(2)
-        with col_v1:
-            metric_options = [r["Metric"] for r in chart_records]
-            chosen_metric = st.selectbox("Inspect Metric:", options=metric_options, key="vis_metric_sel")
-            sel_item = next(r for r in chart_records if r["Metric"] == chosen_metric)
-            c_val, p_val, u_lbl = sel_item["Current"], sel_item["Previous"], sel_item["Unit"]
+        # Render a gorgeous multi-metric comparison grid instead of a restrictive dropdown
+        chart_cols = st.columns(2)
+        for idx, item in enumerate(chart_records[:6]):
+            c_val, p_val, u_lbl, m_name = item["Current"], item["Previous"], item["Unit"], item["Metric"]
             max_v = max(abs(c_val), abs(p_val)) if max(abs(c_val), abs(p_val)) > 0 else 1
-            st.markdown(f"""
-            <div class="chart-box">
-                <div class="vis-row"><div class="vis-label"><span>Previous</span><span>{p_val:,.2f} {u_lbl}</span></div>
-                <div class="vis-track"><div class="vis-fill-prev" style="width: {max(int((abs(p_val)/max_v)*100), 10)}%;">{p_val:,.2f}</div></div></div>
-                <div class="vis-row" style="margin-top:12px;"><div class="vis-label"><span>Current</span><span>{c_val:,.2f} {u_lbl}</span></div>
-                <div class="vis-track"><div class="vis-fill-curr" style="width: {max(int((abs(c_val)/max_v)*100), 10)}%;">{c_val:,.2f}</div></div></div>
-            </div>""", unsafe_allow_html=True)
+            prev_pct = max(int((abs(p_val) / max_v) * 100), 10)
+            curr_pct = max(int((abs(c_val) / max_v) * 100), 10)
+            
+            with chart_cols[idx % 2]:
+                st.markdown(f"""
+                <div class="chart-box">
+                    <div class="chart-title">{m_name}</div>
+                    <div class="vis-row">
+                        <div class="vis-label"><span>Previous Period</span><span>{p_val:,.2f} {u_lbl}</span></div>
+                        <div class="vis-track"><div class="vis-fill-prev" style="width: {prev_pct}%;">{p_val:,.2f}</div></div>
+                    </div>
+                    <div class="vis-row" style="margin-top:10px;">
+                        <div class="vis-label"><span>Current Period</span><span>{c_val:,.2f} {u_lbl}</span></div>
+                        <div class="vis-track"><div class="vis-fill-curr" style="width: {curr_pct}%;">{c_val:,.2f}</div></div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
 
 with tab_mgmt:
     st.subheader("Management Strategy & Outlook")
