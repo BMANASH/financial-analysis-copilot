@@ -5,6 +5,7 @@ import tempfile
 import os
 import time
 import io
+import urllib.request
 from datetime import datetime
 
 # Safe imports for data handling
@@ -108,11 +109,6 @@ st.markdown("""
     margin-bottom: 16px;
     box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.5);
     animation: fadeInSlide 0.4s ease-out forwards;
-    transition: all 0.3s ease;
-}
-.fintech-banner:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.25);
 }
 .fintech-banner-title {
     font-size: 20px;
@@ -657,12 +653,15 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
         pass
     return None
 
-def upload_pdf_to_gemini(uploaded_file):
+def upload_pdf_to_gemini(pdf_source):
     temp_path = None
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-            temp_file.write(uploaded_file.getbuffer())
-            temp_path = temp_file.name
+        if isinstance(pdf_source, str):
+            temp_path = pdf_source
+        else:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+                temp_file.write(pdf_source.getbuffer())
+                temp_path = temp_file.name
 
         gemini_file = client.files.upload(file=temp_path)
 
@@ -681,14 +680,14 @@ def upload_pdf_to_gemini(uploaded_file):
 
         raise Exception("PDF processing took too long. Please try uploading again.")
     finally:
-        if temp_path:
+        if not isinstance(pdf_source, str) and temp_path:
             try:
                 os.remove(temp_path)
             except Exception:
                 pass
 
 # ============================================================
-# HERO SECTION & MAIN BODY UPLOAD
+# HERO SECTION & UPLOAD / URL INPUT OPTIONS
 # ============================================================
 
 st.markdown("""
@@ -699,8 +698,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="section-title">Upload Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Upload your annual report or financial statement PDF below to automatically start the analysis.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Upload your annual report PDF or provide a direct PDF link URL below to automatically start the analysis.</div>', unsafe_allow_html=True)
 
+# Option 1: File Uploader
 uploaded_file = st.file_uploader(
     "Upload Financial Report (PDF)",
     type=["pdf"],
@@ -708,19 +708,52 @@ uploaded_file = st.file_uploader(
     key="main_pdf_uploader"
 )
 
+st.markdown("<div style='text-align: center; color: #64748b; margin: 8px 0; font-size: 13px;'>— OR PROVIDE DIRECT PDF LINK —</div>", unsafe_allow_html=True)
+
+# Option 2: Direct PDF URL Input Box
+pdf_url_input = st.text_input(
+    "Upload the direct PDF link in this box for the financial analyst to analyze it for you.",
+    placeholder="https://example.com/path/to/annual-report.pdf",
+    key="pdf_url_box"
+)
+
+st.markdown("""
+<div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 10px 14px; margin-top: 6px; margin-bottom: 20px; color: #93c5fd; font-size: 12.5px;">
+    💡 <strong>Disclaimer:</strong> Please provide a <strong>direct link to a PDF file</strong> (ending in <code>.pdf</code>). General website or investor relations portal links will not work and will result in a broken analysis.
+</div>
+""", unsafe_allow_html=True)
+
 # ============================================================
-# AUTOMATIC GENERATION ON UPLOAD
+# AUTOMATIC GENERATION ON UPLOAD OR URL SUBMISSION
 # ============================================================
+
+active_source = None
+active_name = None
 
 if uploaded_file:
-    is_new_file = (st.session_state.uploaded_name != uploaded_file.name)
+    active_source = uploaded_file
+    active_name = uploaded_file.name
+elif pdf_url_input and pdf_url_input.strip().startswith("http"):
+    url_str = pdf_url_input.strip()
+    if url_str.lower().endswith(".pdf") or ".pdf" in url_str.lower():
+        active_name = url_str.split("/")[-1].split("?")[0] or "report_from_url.pdf"
+        try:
+            with st.spinner("Downloading PDF from URL..."):
+                temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+                urllib.request.urlretrieve(url_str, temp_pdf.name)
+                active_source = temp_pdf.name
+        except Exception as e:
+            st.error(f"Could not retrieve PDF from URL: {e}")
 
-    if is_new_file or st.session_state.analysis is None:
-        with st.spinner("Processing PDF and running automatic financial analysis..."):
+if active_source:
+    is_new_source = (st.session_state.uploaded_name != active_name)
+
+    if is_new_source or st.session_state.analysis is None:
+        with st.spinner("Processing document and running automatic financial analysis..."):
             try:
-                gemini_file = upload_pdf_to_gemini(uploaded_file)
+                gemini_file = upload_pdf_to_gemini(active_source)
                 st.session_state.gemini_file = gemini_file
-                st.session_state.uploaded_name = uploaded_file.name
+                st.session_state.uploaded_name = active_name
 
                 analysis_prompt = """
 You are an expert financial mentor explaining an annual report to everyday investors and finance students in simple, clean, professional English without textbook jargon.
@@ -832,7 +865,7 @@ Return ONLY valid JSON with this exact structure:
                     st.success("Financial analysis generated automatically!")
                     st.rerun()
                 else:
-                    st.error("Could not parse response. Please re-upload.")
+                    st.error("Could not parse response. Please re-upload or check URL.")
             except Exception as e:
                 st.error(f"Error processing document: {e}")
 
@@ -841,7 +874,7 @@ Return ONLY valid JSON with this exact structure:
 # ============================================================
 
 if not st.session_state.gemini_file or not st.session_state.analysis:
-    st.info("👆 Upload an annual report PDF above to begin automatic financial analysis.")
+    st.info("👆 Upload an annual report PDF or paste a direct PDF link above to begin automatic financial analysis.")
     st.stop()
 
 # ============================================================
@@ -1111,7 +1144,7 @@ with tab_investor:
             st.markdown(f'<div class="takeaway-weakening">✗ {item}</div>', unsafe_allow_html=True)
 
 # ========================================================
-# INVESTMENT POSITION MODULE (SLEEK FINTECH BANNER CARD)
+# INVESTMENT POSITION MODULE (FINTECH BANNER CARD)
 # ========================================================
 st.markdown("""
 <div class="fintech-banner">
@@ -1178,7 +1211,7 @@ if investor_mcq == "Yes, I hold shares in this company":
             with cm4: st.metric("Estimated Return", p_data.get('pnl_str', 'N/A'), p_data.get('amt_str', ''))
 
 # ========================================================
-# EXPORT MODULE (SLEEK FINTECH BANNER CARD)
+# EXPORT MODULE (FINTECH BANNER CARD)
 # ========================================================
 st.markdown("""
 <div class="fintech-banner">
@@ -1200,7 +1233,7 @@ if export_choice == "Yes, download dashboard summary report":
     st.download_button("📄 Download Executive Summary Report (.txt)", data=report_text, file_name=f"{comp_name.replace(' ', '_')}_Summary.txt", mime="text/plain", use_container_width=True)
 
 # ========================================================
-# ASK THE ANALYST AI CHATBOT (SLEEK FINTECH BANNER CARD)
+# ASK THE ANALYST AI CHATBOT (FINTECH BANNER CARD)
 # ========================================================
 st.markdown("""
 <div class="fintech-banner">
