@@ -5,7 +5,7 @@ import tempfile
 import os
 import time
 import io
-import urllib.request
+import requests
 from datetime import datetime
 
 # Safe imports for data handling
@@ -658,16 +658,31 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
     return None
 
 def download_pdf_from_url(url):
-    """Downloads a PDF with standard browser headers to bypass 403 bot blocks"""
+    """Downloads PDF using requests with full browser simulation to prevent 403 Forbidden errors"""
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf,*/*;q=0.8',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/pdf',
         'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': 'https://www.google.com/',
+        'Sec-Ch-Ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'cross-site',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1'
     }
-    req = urllib.request.Request(url, headers=headers)
+    
+    session = requests.Session()
+    response = session.get(url, headers=headers, timeout=45, stream=True, allow_redirects=True)
+    response.raise_for_status()
+
     temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    with urllib.request.urlopen(req, timeout=35) as response, open(temp_pdf.name, 'wb') as out_file:
-        out_file.write(response.read())
+    with open(temp_pdf.name, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=32768):
+            if chunk:
+                f.write(chunk)
     return temp_pdf.name
 
 def upload_pdf_to_gemini(pdf_source):
