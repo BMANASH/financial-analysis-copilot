@@ -285,21 +285,40 @@ st.markdown("""
     font-weight: 750;
     margin-top: 5px;
 }
-.invest-detail-card {
-    background: #151a24;
+.invest-section-box {
+    background: #141a24;
     border: 1px solid #283648;
-    border-radius: 12px;
-    padding: 18px 20px;
-    margin-bottom: 14px;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
 }
-.invest-detail-title {
+.invest-section-header {
     color: #60a5fa;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
+}
+.invest-subcard {
+    background: #18202d;
+    border: 1px solid #2a384d;
+    border-left: 3px solid #3b82f6;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+}
+.invest-subcard-title {
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.invest-subcard-body {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.45;
 }
 .chart-box {
     background: #151a24;
@@ -459,7 +478,6 @@ ACTIVE_MODELS = [
 
 def generate_with_fallback(contents, json_mode=False):
     errors = []
-    
     ordered = ACTIVE_MODELS.copy()
     if st.session_state.selected_model and st.session_state.selected_model in ordered:
         ordered.remove(st.session_state.selected_model)
@@ -492,7 +510,7 @@ def generate_with_fallback(contents, json_mode=False):
             except Exception as error:
                 err_str = str(error)
                 if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                    time.sleep(2.5)  # Wait for quota replenishment
+                    time.sleep(2.5)
                     continue
                 errors.append(f"{model}: {err_str}")
                 break
@@ -1320,31 +1338,60 @@ if data:
                         amt_str = ""
 
                     analysis_req_prompt = f"""
-You are an expert equity research mentor.
-The investor holds {calculated_shares} shares of {company_name} at an average cost of ₹{avg_price_input:.2f} (Total outlay: ₹{total_invested_input:,.2f}).
-Current Market Price context as of {live_date} is {cmp_display} on {exchange_tag} ({pnl_str}).
+You are a senior equity research analyst talking to an everyday investor who owns shares of {company_name}.
+The user invested ₹{total_invested_input:,.2f} at an average price of ₹{avg_price_input:.2f} (~{calculated_shares:,} shares).
+The current live market price context is {cmp_display} on {exchange_tag} as of {live_date}.
 
-Using facts strictly from the uploaded PDF annual report:
-1. Explain how the business's fundamentals (growth in core revenue, AUM, loan security, net worth safety) support this investor's purchase price.
-2. In simple, non-academic words, explain the future market outlook and upcoming growth catalysts.
-3. Provide 3 specific quarterly checkpoints this investor should track (e.g. margin turnaround, loan default trends, deposit scaling).
+============================================================
+COMMUNICATION STYLE REQUIREMENTS:
+============================================================
+- Explain things in plain, clear English so a normal person or finance student understands immediately.
+- Use visual structured sub-items instead of long dense paragraphs.
+- Keep each point punchy (1-2 clear sentences).
 
+============================================================
+OUTPUT FORMAT (JSON ONLY):
+============================================================
 Return ONLY valid JSON with this exact structure:
 {{
-  "position_summary": "1 clear, simple sentence on how this position stands at current market levels.",
-  "fundamental_strengths_vs_entry": [
-    "Simple strength 1 comparing entry price with actual report growth and numbers",
-    "Simple strength 2 on loan safety, debt cushion, and capital security",
-    "Simple strength 3 clarifying that recent profit dips are normal setup costs for new businesses"
+  "position_summary": "1 punchy, clear sentence summarizing how this position stands at current market levels.",
+  "fundamental_strengths": [
+    {{
+      "title": "Strong Core Revenue Growth",
+      "explanation": "Core operational revenue grew 272% to ₹1,390 Cr, showing the actual business is scaling rapidly beneath your buying price."
+    }},
+    {{
+      "title": "Fortress Balance Sheet Protection",
+      "explanation": "With a net worth of ₹1,33,854 Cr and nearly zero debt, your investment has exceptional long-term downside safety."
+    }},
+    {{
+      "title": "Setup Costs vs Real Loss",
+      "explanation": "The small dip in net profit is purely due to temporary setup costs for new businesses (like mutual funds and payments bank), not business weakness."
+    }}
   ],
-  "future_market_outlook": [
-    "Simple point 1 on India's financial sector runway and digital adoption",
-    "Simple point 2 on strategic partnerships and new business rollouts"
+  "market_outlook": [
+    {{
+      "title": "Digital Finance Growth Runway",
+      "explanation": "India is moving rapidly toward digital mutual funds, digital loans, and insurance, giving the company massive expansion potential."
+    }},
+    {{
+      "title": "Tier-1 Global Partnerships",
+      "explanation": "Strategic joint ventures with global giants like BlackRock and Allianz give the company world-class products and trust."
+    }}
   ],
-  "investor_action_plan": [
-    "Checklist item 1 to track in upcoming results",
-    "Checklist item 2 regarding loan quality and margins",
-    "Actionable long-term investor takeaway"
+  "action_plan": [
+    {{
+      "title": "Track Quarterly Margin Turnaround",
+      "explanation": "Watch how setup costs gradually turn into recurring fee profits in upcoming quarterly financial statements."
+    }},
+    {{
+      "title": "Monitor Loan Book Quality",
+      "explanation": "Ensure bad loans remain negligible as the total loan book expands past ₹25,000 Cr."
+    }},
+    {{
+      "title": "Long-Term Patience",
+      "explanation": "Hold with a multi-year horizon as the platform transforms from building infrastructure into high-margin monetisation."
+    }}
   ]
 }}
 """
@@ -1372,6 +1419,7 @@ Return ONLY valid JSON with this exact structure:
                     st.markdown("---")
                     st.markdown("### 📋 Analyst Portfolio Assessment")
                     
+                    # 4 Top Visual Metric Cards
                     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
                     with col_m1:
                         st.markdown(f"""
@@ -1418,32 +1466,46 @@ Return ONLY valid JSON with this exact structure:
                         </div>
                         """, unsafe_allow_html=True)
 
-                    col_det1, col_det2 = st.columns(2)
-
-                    with col_det1:
-                        st.markdown("""
-                        <div class="invest-detail-card">
-                            <div class="invest-detail-title">🛡️ Fundamental Strengths vs. Your Entry</div>
-                        """, unsafe_allow_html=True)
-                        for pt in pos_data.get("fundamental_strengths_vs_entry", []):
-                            st.markdown(f"• {pt}")
-                        st.markdown("</div>", unsafe_allow_html=True)
-
-                    with col_det2:
-                        st.markdown("""
-                        <div class="invest-detail-card">
-                            <div class="invest-detail-title">🚀 Future Market Outlook & Catalysts</div>
-                        """, unsafe_allow_html=True)
-                        for pt in pos_data.get("future_market_outlook", []):
-                            st.markdown(f"• {pt}")
-                        st.markdown("</div>", unsafe_allow_html=True)
-
+                    # Section 1: Fundamental Strengths
                     st.markdown("""
-                    <div class="invest-detail-card">
-                        <div class="invest-detail-title">📌 Strategic Investor Action Plan (What to Track)</div>
+                    <div class="invest-section-box">
+                        <div class="invest-section-header">🛡️ Fundamental Strengths vs. Your Purchase Price</div>
                     """, unsafe_allow_html=True)
-                    for pt in pos_data.get("investor_action_plan", []):
-                        st.markdown(f"• {pt}")
+                    for item in pos_data.get("fundamental_strengths", []):
+                        st.markdown(f"""
+                        <div class="invest-subcard">
+                            <div class="invest-subcard-title">✓ {item.get('title', '')}</div>
+                            <div class="invest-subcard-body">{item.get('explanation', '')}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                    # Section 2: Future Market Outlook
+                    st.markdown("""
+                    <div class="invest-section-box">
+                        <div class="invest-section-header">🚀 Future Market Outlook & Catalysts</div>
+                    """, unsafe_allow_html=True)
+                    for item in pos_data.get("market_outlook", []):
+                        st.markdown(f"""
+                        <div class="invest-subcard" style="border-left-color: #8b5cf6;">
+                            <div class="invest-subcard-title">◆ {item.get('title', '')}</div>
+                            <div class="invest-subcard-body">{item.get('explanation', '')}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                    # Section 3: Action Plan Checklist
+                    st.markdown("""
+                    <div class="invest-section-box">
+                        <div class="invest-section-header">📌 Strategic Investor Action Plan (What to Track)</div>
+                    """, unsafe_allow_html=True)
+                    for item in pos_data.get("action_plan", []):
+                        st.markdown(f"""
+                        <div class="invest-subcard" style="border-left-color: #10b981;">
+                            <div class="invest-subcard-title">◉ {item.get('title', '')}</div>
+                            <div class="invest-subcard-body">{item.get('explanation', '')}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
                     st.markdown("</div>", unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
