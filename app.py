@@ -292,11 +292,11 @@ div[data-testid="stStatusWidget"] {
 }
 
 /* Dynamic Floating & Hover Glow on All Key Analysis Cards */
-.company-card, .kpi-card, .scorecard-card, .risk-card, .invest-kpi-card, .invest-section-box, .chart-box {
+.company-card, .kpi-card, .scorecard-card, .risk-card, .deep-card, .invest-kpi-card, .invest-section-box, .chart-box {
     transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     animation: floatSubtleA 5s ease-in-out infinite;
 }
-.company-card:hover, .kpi-card:hover, .scorecard-card:hover, .invest-kpi-card:hover, .invest-section-box:hover, .chart-box:hover, .risk-card:hover {
+.company-card:hover, .kpi-card:hover, .scorecard-card:hover, .invest-kpi-card:hover, .invest-section-box:hover, .chart-box:hover, .risk-card:hover, .deep-card:hover {
     transform: translateY(-7px) scale(1.015) !important;
     border-color: #60a5fa !important;
     box-shadow: 0 16px 35px -5px rgba(59, 130, 246, 0.45), 0 0 15px rgba(59, 130, 246, 0.2) !important;
@@ -493,6 +493,22 @@ div[data-testid="stStatusWidget"] {
     line-height: 1.5;
 }
 
+/* Deep-Dive Card Styling */
+.deep-card {
+    background: #0e131f;
+    border: 1px solid #1a2234;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 16px;
+    min-height: 240px;
+}
+.deep-card-title {
+    color: #60a5fa;
+    font-size: 16px;
+    font-weight: 750;
+    margin-bottom: 12px;
+}
+
 /* Detailed Investment Assessment Boxes */
 .invest-kpi-card {
     background: #10182b;
@@ -516,40 +532,39 @@ div[data-testid="stStatusWidget"] {
     margin-top: 5px;
 }
 .invest-section-box {
-    background: #0e131f;
+    background: #070a12;
     border: 1px solid #1a2234;
-    border-radius: 14px;
-    padding: 22px;
-    margin-top: 14px;
-    margin-bottom: 18px;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
 }
 .invest-section-header {
     color: #60a5fa;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 750;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 .invest-subcard {
-    background: #131b2e;
+    background: #111827;
     border: 1px solid #1f2d45;
     border-left: 3px solid #3b82f6;
-    border-radius: 10px;
-    padding: 14px 16px;
+    border-radius: 8px;
+    padding: 12px 14px;
     margin-bottom: 10px;
 }
 .invest-subcard-title {
     color: #ffffff;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 750;
     margin-bottom: 4px;
 }
 .invest-subcard-body {
     color: #cbd5e1;
-    font-size: 13.5px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.45;
 }
 
 .chart-box {
@@ -1350,6 +1365,121 @@ with tab_investor:
             st.markdown(f'<div class="takeaway-weakening">✗ {item}</div>', unsafe_allow_html=True)
 
 # ========================================================
+# RESTORED: USER-CONTROLLED DEEP-DIVE (MCQ SELECTION)
+# ========================================================
+st.markdown("""
+<div class="fintech-banner">
+    <div class="fintech-banner-title">🔬 Deep-Dive Financial Analysis</div>
+    <div class="fintech-banner-desc">Would you like to view an in-depth financial investigation covering profitability margins, debt & balance sheet safety, and operating efficiency?</div>
+</div>
+""", unsafe_allow_html=True)
+
+deep_choice = st.radio(
+    "Select preference:",
+    options=["No, keep summary view", "Yes, generate deep-dive financial analysis"],
+    index=0,
+    horizontal=True,
+    key="deep_dive_choice_rad"
+)
+
+if deep_choice == "Yes, generate deep-dive financial analysis":
+    if st.session_state.deep_dive is None:
+        deep_loader = st.empty()
+        deep_loader.markdown("""
+        <div class="center-loader-box">
+            <div class="loader-status-tag">🔬 Forensic Audit Engine</div>
+            <div class="fintech-spinner"></div>
+            <div class="loader-title">Conducting In-Depth Financial Investigation...</div>
+            <div class="loader-subtitle">Auditing profit margins, capital return ratios, debt solvency cushion & operational efficiency.</div>
+            <div class="loader-progress-track">
+                <div class="loader-progress-fill"></div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        deep_prompt = """
+You are a senior financial analyst providing a specialized deep-dive assessment of the uploaded annual report in plain, everyday English.
+
+Extract and analyze three core financial pillars from the uploaded PDF:
+1. PROFITABILITY & MARGINS: Profit margins, return on capital, drivers of net earnings, and cost pressures.
+2. DEBT, LIQUIDITY & CAPITAL HEALTH: Borrowing levels, cash reserves, capital adequacy, and solvency.
+3. OPERATING EFFICIENCY & REVENUE COMPOSITION: How efficiently the company runs its operations, employee/tech costs, and shift toward core recurring revenue.
+
+============================================================
+RULES:
+- Use plain, conversational, professional English without textbook jargon.
+- Explain technical metrics in brackets or everyday terms.
+- Use exact figures and percentages found in the report.
+- Return ONLY valid JSON with this structure:
+{
+  "profitability_depth": {
+    "headline": "Short plain English verdict on profitability",
+    "insights": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
+  },
+  "debt_and_liquidity": {
+    "headline": "Short plain English verdict on debt and balance sheet safety",
+    "insights": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
+  },
+  "operating_efficiency": {
+    "headline": "Short plain English verdict on operational efficiency and scale",
+    "insights": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
+  }
+}
+"""
+        try:
+            deep_res = generate_with_fallback(
+                contents=[deep_prompt, st.session_state.gemini_file],
+                json_mode=True
+            )
+            deep_data = clean_json_response(deep_res.text)
+            deep_loader.empty()
+            if deep_data and "profitability_depth" in deep_data:
+                st.session_state.deep_dive = deep_data
+            else:
+                st.warning("Could not structure deep-dive data. Please try re-selecting.")
+        except Exception as e:
+            deep_loader.empty()
+            st.error(f"Deep-dive analysis error: {e}")
+
+    if st.session_state.deep_dive:
+        dd = st.session_state.deep_dive
+        prof = dd.get("profitability_depth", {})
+        debt = dd.get("debt_and_liquidity", {})
+        eff = dd.get("operating_efficiency", {})
+
+        col_d1, col_d2, col_d3 = st.columns(3)
+
+        with col_d1:
+            st.markdown(f"""
+            <div class="deep-card">
+                <div class="deep-card-title">📊 Profitability & Margins</div>
+                <div style="color: #ffffff; font-weight: 650; font-size: 14px; margin-bottom: 12px;">{prof.get('headline', '')}</div>
+            """, unsafe_allow_html=True)
+            for pt in prof.get("insights", []):
+                st.markdown(f"• {pt}")
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        with col_d2:
+            st.markdown(f"""
+            <div class="deep-card">
+                <div class="deep-card-title">🛡️ Debt & Balance Sheet Safety</div>
+                <div style="color: #ffffff; font-weight: 650; font-size: 14px; margin-bottom: 12px;">{debt.get('headline', '')}</div>
+            """, unsafe_allow_html=True)
+            for pt in debt.get("insights", []):
+                st.markdown(f"• {pt}")
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        with col_d3:
+            st.markdown(f"""
+            <div class="deep-card">
+                <div class="deep-card-title">⚙️ Operating Efficiency & Scale</div>
+                <div style="color: #ffffff; font-weight: 650; font-size: 14px; margin-bottom: 12px;">{eff.get('headline', '')}</div>
+            """, unsafe_allow_html=True)
+            for pt in eff.get("insights", []):
+                st.markdown(f"• {pt}")
+            st.markdown("</div>", unsafe_allow_html=True)
+
+# ========================================================
 # INVESTMENT POSITION MODULE (DEEP MULTI-PILLAR ASSESSMENT)
 # ========================================================
 st.markdown("""
@@ -1596,11 +1726,24 @@ Source Document : {st.session_state.uploaded_name}
             for pt in p_obj.get("points", []):
                 detailed_txt_report += f"  - {pt}\n"
 
+    if st.session_state.deep_dive:
+        dd = st.session_state.deep_dive
+        detailed_txt_report += "\n----------------------------------------------------------------------\n4. FORENSIC DEEP-DIVE ASSESSMENT\n----------------------------------------------------------------------\n"
+        detailed_txt_report += f"\n[Profitability & Margins]\nVerdict: {dd.get('profitability_depth', {}).get('headline', '')}\n"
+        for pt in dd.get('profitability_depth', {}).get('insights', []):
+            detailed_txt_report += f"  - {pt}\n"
+        detailed_txt_report += f"\n[Debt & Balance Sheet Safety]\nVerdict: {dd.get('debt_and_liquidity', {}).get('headline', '')}\n"
+        for pt in dd.get('debt_and_liquidity', {}).get('insights', []):
+            detailed_txt_report += f"  - {pt}\n"
+        detailed_txt_report += f"\n[Operating Efficiency & Scale]\nVerdict: {dd.get('operating_efficiency', {}).get('headline', '')}\n"
+        for pt in dd.get('operating_efficiency', {}).get('insights', []):
+            detailed_txt_report += f"  - {pt}\n"
+
     if st.session_state.position_assessment:
         pos = st.session_state.position_assessment
         detailed_txt_report += f"""
 ----------------------------------------------------------------------
-4. PERSONALIZED INVESTMENT ASSESSMENT
+5. PERSONALIZED INVESTMENT ASSESSMENT
 ----------------------------------------------------------------------
 - Capital Invested     : ₹{pos.get('invested_amt', 0):,.2f} (~{pos.get('calc_shares', 0):,} Shares)
 - Purchase Price Basis : ₹{pos.get('avg_price', 0):,.2f}
@@ -1645,6 +1788,20 @@ Summary:
             m.get('unit', ''),
             m.get('basis', '')
         ])
+
+    if st.session_state.deep_dive:
+        dd = st.session_state.deep_dive
+        csv_rows.append(["", "", "", "", "", ""])
+        csv_rows.append(["=== FORENSIC DEEP-DIVE ASSESSMENT ===", "", "", "", "", ""])
+        csv_rows.append(["Profitability Depth", dd.get('profitability_depth', {}).get('headline', ''), "", "", "", ""])
+        for pt in dd.get('profitability_depth', {}).get('insights', []):
+            csv_rows.append(["Insight", pt, "", "", "", ""])
+        csv_rows.append(["Debt & Balance Sheet Safety", dd.get('debt_and_liquidity', {}).get('headline', ''), "", "", "", ""])
+        for pt in dd.get('debt_and_liquidity', {}).get('insights', []):
+            csv_rows.append(["Insight", pt, "", "", "", ""])
+        csv_rows.append(["Operating Efficiency", dd.get('operating_efficiency', {}).get('headline', ''), "", "", "", ""])
+        for pt in dd.get('operating_efficiency', {}).get('insights', []):
+            csv_rows.append(["Insight", pt, "", "", "", ""])
 
     if st.session_state.position_assessment:
         pos = st.session_state.position_assessment
