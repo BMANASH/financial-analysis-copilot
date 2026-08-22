@@ -47,7 +47,7 @@ st.markdown("""
     padding-bottom: 4rem;
 }
 
-/* Hide Default Streamlit Top-Right Running Man Widget */
+/* Hide Default Streamlit Top-Right Running Man / Status Widget */
 div[data-testid="stStatusWidget"] {
     display: none !important;
     visibility: hidden !important;
@@ -111,7 +111,7 @@ div[data-testid="stStatusWidget"] {
     -webkit-backdrop-filter: blur(20px) !important;
     border: 1px solid rgba(59, 130, 246, 0.5) !important;
     border-radius: 20px !important;
-    padding: 38px 32px !important;
+    padding: 38px 36px !important;
     margin: 25px auto !important;
     text-align: center;
     max-width: 640px;
@@ -130,7 +130,7 @@ div[data-testid="stStatusWidget"] {
     letter-spacing: 1px;
     padding: 4px 12px;
     border-radius: 20px;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 .fintech-spinner {
     width: 54px;
@@ -140,12 +140,12 @@ div[data-testid="stStatusWidget"] {
     border-right: 3.5px solid #3b82f6;
     border-radius: 50%;
     animation: spinGlow 0.85s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 .loader-title {
     color: #ffffff;
-    font-size: 20px;
+    font-size: 20.5px;
     font-weight: 800;
     margin-bottom: 8px;
     letter-spacing: -0.3px;
@@ -153,8 +153,8 @@ div[data-testid="stStatusWidget"] {
 .loader-subtitle {
     color: #94a3b8;
     font-size: 13.5px;
-    line-height: 1.5;
-    margin-bottom: 20px;
+    line-height: 1.55;
+    margin-bottom: 22px;
     max-width: 500px;
 }
 .loader-progress-track {
@@ -268,7 +268,7 @@ div[data-testid="stStatusWidget"] {
     margin-bottom: 18px;
 }
 
-/* Sleek Thin Fintech Banner Cards */
+/* Sleek Thin Fintech Banner Cards for Key Sections */
 .fintech-banner {
     background: linear-gradient(135deg, #0e131f 0%, #0a0e17 100%);
     border: 1px solid #1a2234;
@@ -291,7 +291,7 @@ div[data-testid="stStatusWidget"] {
     color: #94a3b8;
 }
 
-/* Dynamic Floating & Hover Glow on Analysis Cards */
+/* Dynamic Floating & Hover Glow on All Key Analysis Cards */
 .company-card, .kpi-card, .scorecard-card, .risk-card, .invest-kpi-card, .invest-section-box, .chart-box {
     transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     animation: floatSubtleA 5s ease-in-out infinite;
@@ -303,6 +303,7 @@ div[data-testid="stStatusWidget"] {
     cursor: default;
 }
 
+/* Symmetrical Company Overview Cards */
 .company-card {
     background: #0e131f;
     border: 1px solid #1a2234;
@@ -491,6 +492,8 @@ div[data-testid="stStatusWidget"] {
     font-size: 14px;
     line-height: 1.5;
 }
+
+/* Detailed Investment Assessment Boxes */
 .invest-kpi-card {
     background: #10182b;
     border: 1px solid #1e293b;
@@ -517,7 +520,7 @@ div[data-testid="stStatusWidget"] {
     border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 22px;
-    margin-top: 16px;
+    margin-top: 14px;
     margin-bottom: 18px;
 }
 .invest-section-header {
@@ -532,35 +535,23 @@ div[data-testid="stStatusWidget"] {
 .invest-subcard {
     background: #131b2e;
     border: 1px solid #1f2d45;
-    border-left: 3.5px solid #3b82f6;
+    border-left: 3px solid #3b82f6;
     border-radius: 10px;
     padding: 14px 16px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 .invest-subcard-title {
     color: #ffffff;
     font-size: 14px;
     font-weight: 750;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 .invest-subcard-body {
     color: #cbd5e1;
     font-size: 13.5px;
     line-height: 1.5;
 }
-.price-gauge-card {
-    background: #10182b;
-    border: 1px solid #1e293b;
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 16px;
-}
-.gauge-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 13.5px;
-}
+
 .chart-box {
     background: #0e131f;
     border: 1px solid #1a2234;
@@ -878,6 +869,7 @@ st.markdown("""
 st.markdown('<div class="section-title">Upload Financial Report</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Drag and drop your company annual report PDF below to automatically start the analysis.</div>', unsafe_allow_html=True)
 
+# Main Direct PDF Uploader
 uploaded_file = st.file_uploader(
     "Upload Financial Report (PDF)",
     type=["pdf"],
@@ -885,6 +877,7 @@ uploaded_file = st.file_uploader(
     key="main_pdf_uploader"
 )
 
+# Placeholder for center dynamic loader
 loader_container = st.empty()
 
 # Interactive Floating Feature Grid shown when waiting for upload
@@ -1357,256 +1350,177 @@ with tab_investor:
             st.markdown(f'<div class="takeaway-weakening">✗ {item}</div>', unsafe_allow_html=True)
 
 # ========================================================
-# INVESTMENT POSITION MODULE (IN-DEPTH EQUITY RESEARCH)
+# INVESTMENT POSITION MODULE (DEEP MULTI-PILLAR ASSESSMENT)
 # ========================================================
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">💼 Personalized Investment Position & Market Analysis</div>
-    <div class="fintech-banner-desc">Evaluate your personal investment against live stock market pricing and the financial health in this annual report.</div>
+    <div class="fintech-banner-desc">Evaluate your personal investment against live stock market pricing and the fundamental safety cushion in this annual report.</div>
 </div>
 """, unsafe_allow_html=True)
 
-investor_mcq = st.radio(
-    "Are you currently an investor in this company's stock?",
-    options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"],
-    index=0,
-    horizontal=True,
-    key="inv_mcq"
-)
+investor_mcq = st.radio("Are you currently an investor in this company's stock?", options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"], index=0, horizontal=True, key="inv_mcq")
 
 if investor_mcq == "Yes, I hold shares in this company":
     col_inv1, col_inv2 = st.columns(2)
     with col_inv1:
-        total_invested_input = st.number_input(
-            "Total Amount Invested (₹)",
-            min_value=0.0,
-            value=None,
-            placeholder="e.g. 50000.00",
-            step=500.0,
-            format="%.2f",
-            key="inv_amt"
-        )
+        total_invested_input = st.number_input("Total Amount Invested (₹)", min_value=0.0, value=None, placeholder="e.g. 50000.00", step=500.0, format="%.2f", key="inv_amt")
     with col_inv2:
-        avg_price_input = st.number_input(
-            "Average Buying Price per Share (₹)",
-            min_value=0.0,
-            value=None,
-            placeholder="e.g. 250.00",
-            step=1.0,
-            format="%.2f",
-            key="inv_price"
-        )
+        avg_price_input = st.number_input("Average Buying Price per Share (₹)", min_value=0.0, value=None, placeholder="e.g. 250.00", step=1.0, format="%.2f", key="inv_price")
 
-    has_valid_inputs = (
-        total_invested_input is not None and 
-        avg_price_input is not None and 
-        total_invested_input > 0 and 
-        avg_price_input > 0
-    )
-
-    if has_valid_inputs:
+    if total_invested_input and avg_price_input and total_invested_input > 0 and avg_price_input > 0:
         calc_shares = int(total_invested_input // avg_price_input)
         st.caption(f"Calculated Holding: ~{calc_shares:,} Shares")
         
-        pos_loader_slot = st.empty()
+        pos_loader_placeholder = st.empty()
 
         if st.button("⚡ Analyse The Investment", type="primary"):
             c_name = company.get('company_name', 'this company')
             t_hint = company.get('stock_ticker', '')
 
-            pos_loader_slot.markdown("""
+            pos_loader_placeholder.markdown("""
             <div class="center-loader-box">
-                <div class="loader-status-tag">⚡ Live Equity Modeling</div>
+                <div class="loader-status-tag">⚡ Portfolio Valuation Engine</div>
                 <div class="fintech-spinner"></div>
-                <div class="loader-title">Evaluating Portfolio Position...</div>
-                <div class="loader-subtitle">Connecting to live market pricing, computing net worth cushions & synthesizing 5-8 year projections.</div>
-                <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
+                <div class="loader-title">Auditing Investment Fundamentals...</div>
+                <div class="loader-subtitle">Evaluating your entry price against total net worth, loan safety cushions & 5-8 year compounding outlooks.</div>
+                <div class="loader-progress-track">
+                    <div class="loader-progress-fill"></div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
             market_info = fetch_live_stock_price(c_name, t_hint)
-            live_price = market_info["price"] if market_info else 0.0
+            live_price = market_info["price"] if market_info else avg_price_input
             live_date = market_info["as_on"] if market_info else datetime.today().strftime("%d %b %Y")
             exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "NSE / BSE"
 
-            if live_price > 0:
-                actual_invested = avg_price_input * calc_shares
-                cur_val = live_price * calc_shares
-                pnl_amt = cur_val - actual_invested
-                pnl_pct = ((live_price - avg_price_input) / avg_price_input) * 100
-                pnl_sign = "+" if pnl_amt >= 0 else ""
-                pnl_str = f"{pnl_sign}{pnl_pct:.2f}%"
-                amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
-                cmp_display = f"₹{live_price:,.2f}"
-                gain_per_share = live_price - avg_price_input
-                gain_sign = "+" if gain_per_share >= 0 else ""
-                per_share_str = f"{gain_sign}₹{gain_per_share:,.2f} per share"
-            else:
-                cmp_display = "Active Trading Quote"
-                pnl_str = "Active Level"
-                amt_str = "Live Quote Tracked"
-                per_share_str = "Active"
+            pnl_amt = (live_price - avg_price_input) * calc_shares
+            pnl_pct = ((live_price - avg_price_input) / avg_price_input) * 100
+            pnl_sign = "+" if pnl_amt >= 0 else ""
+            pnl_str = f"{pnl_sign}{pnl_pct:.2f}%"
+            amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
+            cmp_display = f"₹{live_price:,.2f}"
+            per_share_gain = live_price - avg_price_input
+            gain_sign = "+" if per_share_gain >= 0 else ""
+            per_share_str = f"{gain_sign}₹{per_share_gain:,.2f} per share"
 
             analysis_req_prompt = f"""
-You are a senior equity research analyst explaining an investment in {c_name} to a regular investor in plain, everyday English.
+You are an expert equity research mentor explaining an investment position in {c_name} to an everyday investor in plain, clean English without textbook jargon.
 
-INVESTMENT NUMBERS:
+INVESTMENT DATA:
 - Capital Invested: ₹{total_invested_input:,.2f}
-- Purchase Price: ₹{avg_price_input:.2f} (~{calc_shares:,} shares)
-- Current Market Price: {cmp_display} as of {live_date} on {exchange_tag}
-- Exact Return: {pnl_str} ({amt_str}, {per_share_str})
+- Average Purchase Price: ₹{avg_price_input:.2f} (~{calc_shares:,} shares)
+- Current Market Price: {cmp_display} as on {live_date} ({exchange_tag})
+- Estimated Return: {pnl_str} ({amt_str}, {per_share_str})
 
-STRUCTURE YOUR ANALYSIS STRICTLY INTO 3 DIRECT SECTIONS:
-1. "Profit or Loss": Clear 1-sentence verdict on whether the position is in profit or loss right now, the exact rupee difference per share between purchase price and market price, and what that means today.
-2. "The Price At Which Stock Is Bought Is Fundamentally Safe": Explain in 3 simple points why this buying price is safe by comparing it directly against the company's asset backing, net worth cushion, loan safety, and promoter benchmark.
-3. "Outlook for Next 5 to 8 Years": Explain in 3 clear long-term points how the business model, digital scale, and joint ventures compound value over a 5 to 8 year horizon based on the uploaded report.
+STRUCTURE YOUR JSON OUTPUT STRICTLY WITH THESE 3 SECTIONS:
+1. "profit_or_loss_summary": A clear 1-2 sentence plain English breakdown of whether the investor is in profit or loss right now, the exact rupee gain/loss per share, and what that means for their holding.
+2. "price_safety_points": Array of 3 distinct pillars explaining why this buying price is fundamentally safe (comparing entry price against net worth cushion, zero-debt safety, asset backing, and promoter infusion levels found in the uploaded report).
+3. "long_term_outlook_5_to_8_years": Array of 3 distinct points explaining how the company's core business model, digital scale, joint ventures, and revenue growth will compound value over the next 5 to 8 years.
 
 Return ONLY valid JSON with this exact structure:
 {{
-  "profit_or_loss_summary": "You are currently in profit by {pnl_str} ({amt_str}), having gained {per_share_str} from your entry price of ₹{avg_price_input:.2f} to the current market price of {cmp_display}.",
+  "profit_or_loss_summary": "Plain English summary of profit/loss position.",
   "price_safety_points": [
     {{
-      "title": "Below Net Asset & Promoter Cushion",
-      "explanation": "Clear explanation comparing purchase price to balance sheet net worth cushion in simple words."
-    }},
-    {{
-      "title": "Massive Capital Adequacy & Liquid Reserves",
-      "explanation": "Clear explanation of how the company's total net worth and low debt protects capital."
-    }},
-    {{
-      "title": "Core Operating Engine Compounding Behind Price",
-      "explanation": "Explanation of core revenue growth and business distribution safety supporting the entry price."
+      "title": "Clear Pillar Title (e.g. Massive Net Worth & Balance Sheet Cushion)",
+      "explanation": "Clear plain English explanation referencing exact figures from the annual report."
     }}
   ],
   "long_term_outlook_5_to_8_years": [
     {{
-      "title": "Ecosystem Digital Scale & User Monetisation",
-      "explanation": "How millions of active app and platform users convert into compounding fee streams across 5 to 8 years."
-    }},
-    {{
-      "title": "High-Margin Strategic Joint Ventures & Cross-Sell",
-      "explanation": "How mutual fund assets, credit lending and insurance distribution build high-margin recurring income over 5 to 8 years."
-    }},
-    {{
-      "title": "Operational Maturity & Long-Term Compounding",
-      "explanation": "Long-term investor takeaway on holding through setup phases into full operational scale."
+      "title": "Clear Growth Horizon Title (e.g. Digital Scale & Compounding Fee Income)",
+      "explanation": "Clear plain English explanation of business growth over 5-8 years."
     }}
   ]
 }}
 """
             try:
-                pos_response = generate_with_fallback(
-                    contents=[analysis_req_prompt, st.session_state.gemini_file],
-                    json_mode=True
-                )
-                parsed_analysis = clean_json_response(pos_response.text)
-                pos_loader_slot.empty()
-            except Exception as e:
-                pos_loader_slot.empty()
-                parsed_analysis = {}
+                pos_res = generate_with_fallback(contents=[analysis_req_prompt, st.session_state.gemini_file], json_mode=True)
+                parsed_pos = clean_json_response(pos_res.text)
+            except Exception:
+                parsed_pos = {}
 
-            parsed_analysis["cmp_display"] = cmp_display
-            parsed_analysis["live_date"] = live_date
-            parsed_analysis["exchange_tag"] = exchange_tag
-            parsed_analysis["pnl_str"] = pnl_str
-            parsed_analysis["amt_str"] = amt_str
-            parsed_analysis["is_pos"] = not str(pnl_str).startswith("-")
-            parsed_analysis["live_price"] = live_price
-            parsed_analysis["avg_price"] = avg_price_input
+            pos_loader_placeholder.empty()
 
-            st.session_state.position_assessment = parsed_analysis
+            parsed_pos["cmp_display"] = cmp_display
+            parsed_pos["live_date"] = live_date
+            parsed_pos["exchange_tag"] = exchange_tag
+            parsed_pos["pnl_str"] = pnl_str
+            parsed_pos["amt_str"] = amt_str
+            parsed_pos["is_pos"] = (pnl_amt >= 0)
+            parsed_pos["live_price"] = live_price
+            parsed_pos["avg_price"] = avg_price_input
+            parsed_pos["calc_shares"] = calc_shares
+            parsed_pos["invested_amt"] = total_invested_input
+            st.session_state.position_assessment = parsed_pos
 
         if st.session_state.position_assessment:
-            pos_data = st.session_state.position_assessment
-            
+            p_data = st.session_state.position_assessment
             st.markdown("---")
             st.markdown("### 📋 Analyst Portfolio Assessment")
             
-            col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-            with col_m1:
+            cm1, cm2, cm3, cm4 = st.columns(4)
+            with cm1:
                 st.markdown(f"""
                 <div class="invest-kpi-card">
                     <div class="invest-kpi-label">Invested Capital</div>
-                    <div class="invest-kpi-val">₹{total_invested_input:,.2f}</div>
-                    <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">~{calc_shares:,} Shares</div>
+                    <div class="invest-kpi-val">₹{p_data.get('invested_amt', total_invested_input):,.2f}</div>
+                    <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">~{p_data.get('calc_shares', calc_shares):,} Shares</div>
                 </div>
                 """, unsafe_allow_html=True)
-            with col_m2:
+            with cm2:
                 st.markdown(f"""
                 <div class="invest-kpi-card">
                     <div class="invest-kpi-label">Your Buy Price</div>
-                    <div class="invest-kpi-val">₹{avg_price_input:,.2f}</div>
+                    <div class="invest-kpi-val">₹{p_data.get('avg_price', avg_price_input):,.2f}</div>
                     <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">Cost Basis</div>
                 </div>
                 """, unsafe_allow_html=True)
-            with col_m3:
-                mkt_price = pos_data.get("cmp_display", "N/A")
-                as_on_date = pos_data.get("live_date", "")
+            with cm3:
                 st.markdown(f"""
                 <div class="invest-kpi-card">
                     <div class="invest-kpi-label">Current Market Price (CMP)</div>
-                    <div class="invest-kpi-val" style="color: #60a5fa;">{mkt_price}</div>
-                    <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">As on {as_on_date} ({pos_data.get('exchange_tag', 'NSE/BSE')})</div>
+                    <div class="invest-kpi-val" style="color: #60a5fa;">{p_data.get('cmp_display', 'N/A')}</div>
+                    <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">As on {p_data.get('live_date', '')} ({p_data.get('exchange_tag', 'NSE/BSE')})</div>
                 </div>
                 """, unsafe_allow_html=True)
-            with col_m4:
-                gain_pct = pos_data.get("pnl_str", "N/A")
-                is_pos = pos_data.get("is_pos", True)
+            with cm4:
+                is_pos = p_data.get("is_pos", True)
                 pnl_color = "#34d399" if is_pos else "#f87171"
                 st.markdown(f"""
                 <div class="invest-kpi-card">
                     <div class="invest-kpi-label">Estimated Return</div>
-                    <div class="invest-kpi-val" style="color: {pnl_color};">{gain_pct}</div>
-                    <div style="color: {pnl_color}; font-size: 11.5px; margin-top: 4px;">{pos_data.get('amt_str', '')}</div>
+                    <div class="invest-kpi-val" style="color: {pnl_color};">{p_data.get('pnl_str', 'N/A')}</div>
+                    <div style="color: {pnl_color}; font-size: 11.5px; margin-top: 4px;">{p_data.get('amt_str', '')}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-            # Section 1: Profit or Loss Callout
+            # Section 1: Profit or Loss Verdict Box
             st.markdown("""
             <div class="invest-section-box">
                 <div class="invest-section-header">💰 Profit or Loss Analysis</div>
             """, unsafe_allow_html=True)
             
-            pnl_summary = pos_data.get("profit_or_loss_summary", f"Position status: {pos_data.get('pnl_str', '')}")
-            is_pos = pos_data.get("is_pos", True)
+            pnl_summary = p_data.get("profit_or_loss_summary", f"Position status: {p_data.get('pnl_str', '')} ({p_data.get('amt_str', '')})")
             banner_border = "#10b981" if is_pos else "#ef4444"
             banner_bg = "#0b1f16" if is_pos else "#260e13"
             banner_text = "#d1fae5" if is_pos else "#fee2e2"
 
             st.markdown(f"""
-            <div style="background: {banner_bg}; border-left: 4px solid {banner_border}; padding: 14px 16px; border-radius: 0 8px 8px 0; margin-bottom: 14px; color: {banner_text}; font-size: 14px; font-weight: 500;">
+            <div style="background: {banner_bg}; border-left: 4px solid {banner_border}; padding: 14px 16px; border-radius: 0 8px 8px 0; color: {banner_text}; font-size: 14px; line-height: 1.5;">
                 {pnl_summary}
             </div>
-            """, unsafe_allow_html=True)
-
-            l_price = pos_data.get("live_price", 0.0)
-            a_price = pos_data.get("avg_price", 0.0)
-
-            price_table_html = f"""
-            <div class="price-gauge-card">
-                <div style="font-size: 13.5px; font-weight: 750; color: #ffffff; margin-bottom: 12px;">📊 Valuation & Entry Comparison:</div>
-                <div class="gauge-row">
-                    <span style="color: #cbd5e1;">Your Entry Price:</span>
-                    <span style="color: #60a5fa; font-weight: 750;">₹{a_price:,.2f}</span>
-                </div>
-                <div class="gauge-row">
-                    <span style="color: #cbd5e1;">Current Live Market Price (CMP):</span>
-                    <span style="color: {'#34d399' if is_pos else '#f87171'}; font-weight: 750;">₹{l_price:,.2f} ({pos_data.get('pnl_str', '')})</span>
-                </div>
-                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e293b; color: #94a3b8; font-size: 12px;">
-                    💡 <em>Your average cost of ₹{a_price:,.2f} is well supported by the asset backing and cash reserves detailed in this annual report.</em>
-                </div>
             </div>
-            """
-            st.markdown(price_table_html, unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
             # Section 2: Fundamental Safety Pillars
             st.markdown("""
             <div class="invest-section-box">
                 <div class="invest-section-header">🛡️ The Price At Which Stock Is Bought Is Fundamentally Safe</div>
             """, unsafe_allow_html=True)
-            for item in pos_data.get("price_safety_points", []):
+            for item in p_data.get("price_safety_points", []):
                 st.markdown(f"""
                 <div class="invest-subcard">
                     <div class="invest-subcard-title">✓ {item.get('title', '')}</div>
@@ -1620,7 +1534,7 @@ Return ONLY valid JSON with this exact structure:
             <div class="invest-section-box">
                 <div class="invest-section-header">🚀 Outlook For The Next 5 To 8 Years (Long-Term Horizon)</div>
             """, unsafe_allow_html=True)
-            for item in pos_data.get("long_term_outlook_5_to_8_years", []):
+            for item in p_data.get("long_term_outlook_5_to_8_years", []):
                 st.markdown(f"""
                 <div class="invest-subcard" style="border-left-color: #8b5cf6;">
                     <div class="invest-subcard-title">◆ {item.get('title', '')}</div>
@@ -1630,30 +1544,24 @@ Return ONLY valid JSON with this exact structure:
             st.markdown("</div>", unsafe_allow_html=True)
 
 # ========================================================
-# EXPORT MODULE (COMPLETE TXT + CSV DOWNLOADS)
+# EXPORT MODULE (FULL DUAL DOWNLOAD: TXT & CSV)
 # ========================================================
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">📥 Export Financial Dashboard Summary</div>
-    <div class="fintech-banner-desc">Do you want to download the complete summary of the whole report that has been generated in the dashboard?</div>
+    <div class="fintech-banner-desc">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>
 </div>
 """, unsafe_allow_html=True)
 
-export_choice = st.radio(
-    "Select download preference:",
-    options=["No, thank you", "Yes, download dashboard summary report"],
-    index=0,
-    horizontal=True,
-    key="export_rad"
-)
+export_choice = st.radio("Select download preference:", options=["No, thank you", "Yes, download dashboard summary report"], index=0, horizontal=True, key="export_rad")
 
 if export_choice == "Yes, download dashboard summary report":
     comp_name = company.get("company_name", "Company")
-    st.info("💡 **Disclaimer:** Exported files may require minor column width adjustments depending on your spreadsheet editor.")
+    st.info("💡 **Disclaimer:** Exported files may require minor column width adjustments depending on your editor.")
     
-    # 1. Comprehensive Professional Text Dossier
-    detailed_report_txt = f"""======================================================================
-                  FINANCIAL ANALYSIS & INVESTMENT REPORT
+    # 1. Comprehensive Structured TXT Report
+    detailed_txt_report = f"""======================================================================
+               FINANCIAL ANALYSIS & EXECUTIVE REPORT
 ======================================================================
 Company Name    : {company.get('company_name', 'N/A')}
 Stock Ticker    : {company.get('stock_ticker', 'N/A')}
@@ -1664,7 +1572,7 @@ Generated Date  : {datetime.today().strftime('%d %B %Y')}
 Source Document : {st.session_state.uploaded_name}
 
 ----------------------------------------------------------------------
-1. EXECUTIVE BUSINESS PROFILE
+1. EXECUTIVE BUSINESS OVERVIEW
 ----------------------------------------------------------------------
 {company.get('business_type', 'N/A')}
 
@@ -1673,57 +1581,61 @@ Source Document : {st.session_state.uploaded_name}
 ----------------------------------------------------------------------
 """
     for m in metrics:
-        detailed_report_txt += f"  • {m.get('metric', 'Metric')}: {m.get('current_period', 'N/A')} {m.get('unit', '')} (Prior: {m.get('previous_period', 'N/A')}, YoY Growth: {m.get('yoy_growth', 'N/A')}) [{m.get('basis', '')}]\n"
+        detailed_txt_report += f"• {m.get('metric', 'Metric')}: {m.get('current_period', 'N/A')} {m.get('unit', '')} (Previous: {m.get('previous_period', 'N/A')}, YoY Growth: {m.get('yoy_growth', 'N/A')}) [{m.get('basis', '')}]\n"
 
-    detailed_report_txt += """
-----------------------------------------------------------------------
-3. EXECUTIVE STRATEGIC SCORECARD
-----------------------------------------------------------------------
-"""
-    for pillar_k, pillar_v in scorecard.items():
-        pillar_title = pillar_k.replace("_", " ").title()
-        detailed_report_txt += f"\n[{pillar_title}] - Status: {pillar_v.get('badge', 'N/A')}\n"
-        detailed_report_txt += f"Verdict: {pillar_v.get('verdict', 'N/A')}\n"
-        for pt in pillar_v.get("points", []):
-            detailed_report_txt += f"  - {pt}\n"
+    if scorecard:
+        detailed_txt_report += "\n----------------------------------------------------------------------\n3. EXECUTIVE STRATEGIC SCORECARD\n----------------------------------------------------------------------\n"
+        for pillar_key, pillar_title in [
+            ("growth_momentum", "Growth Momentum"),
+            ("profitability_quality", "Profitability & Earnings Quality"),
+            ("balance_sheet_safety", "Balance Sheet Resilience"),
+            ("strategic_execution", "Strategic Execution")
+        ]:
+            p_obj = scorecard.get(pillar_key, {})
+            detailed_txt_report += f"\n[{pillar_title.upper()}] - {p_obj.get('badge', '')}\nVerdict: {p_obj.get('verdict', '')}\n"
+            for pt in p_obj.get("points", []):
+                detailed_txt_report += f"  - {pt}\n"
 
     if st.session_state.position_assessment:
         pos = st.session_state.position_assessment
-        detailed_report_txt += f"""
+        detailed_txt_report += f"""
 ----------------------------------------------------------------------
-4. PERSONALIZED INVESTMENT ASSESSMENT & LIVE MARKET POSITION
+4. PERSONALIZED INVESTMENT ASSESSMENT
 ----------------------------------------------------------------------
-- Current Market Price : {pos.get('cmp_display', 'N/A')} as on {pos.get('live_date', 'N/A')} ({pos.get('exchange_tag', '')})
-- Return / P&L Status  : {pos.get('pnl_str', 'N/A')} ({pos.get('amt_str', 'N/A')})
-- Summary              : {pos.get('profit_or_loss_summary', 'N/A')}
+- Capital Invested     : ₹{pos.get('invested_amt', 0):,.2f} (~{pos.get('calc_shares', 0):,} Shares)
+- Purchase Price Basis : ₹{pos.get('avg_price', 0):,.2f}
+- Current Market Price : {pos.get('cmp_display', 'N/A')} as on {pos.get('live_date', 'N/A')}
+- Estimated Return / P&L: {pos.get('pnl_str', 'N/A')} ({pos.get('amt_str', 'N/A')})
 
-[Fundamental Safety Pillars]
+Summary:
+{pos.get('profit_or_loss_summary', '')}
+
+[Fundamental Price Safety Pillars]
 """
         for pt in pos.get("price_safety_points", []):
-            detailed_report_txt += f"  - {pt.get('title')}\n    {pt.get('explanation')}\n"
+            detailed_txt_report += f"• {pt.get('title')}\n  {pt.get('explanation')}\n"
 
-        detailed_report_txt += "\n[Long-Term Outlook (5 to 8 Years)]\n"
+        detailed_txt_report += "\n[Long-Term Outlook (5 to 8 Years)]\n"
         for pt in pos.get("long_term_outlook_5_to_8_years", []):
-            detailed_report_txt += f"  - {pt.get('title')}\n    {pt.get('explanation')}\n"
+            detailed_txt_report += f"• {pt.get('title')}\n  {pt.get('explanation')}\n"
 
-    detailed_report_txt += """
+    detailed_txt_report += f"""
 ======================================================================
-  Financial Analyst AI • Grounded in Audited Annual Reports
+     Financial Analyst AI • Educational & Institutional Analysis
 ======================================================================
 """
 
-    # 2. Structured Multi-Table CSV File
+    # 2. Comprehensive Structured CSV Report
     csv_rows = []
-    csv_rows.append(["=== EXECUTIVE COMPANY OVERVIEW ===", "", "", "", "", ""])
+    csv_rows.append(["=== COMPANY EXECUTIVE PROFILE ===", "", "", "", "", ""])
     csv_rows.append(["Company Name", company.get('company_name', 'N/A'), "", "", "", ""])
-    csv_rows.append(["Industry / Sector", company.get('industry', 'N/A'), "", "", "", ""])
+    csv_rows.append(["Industry", company.get('industry', 'N/A'), "", "", "", ""])
     csv_rows.append(["Business Profile", company.get('business_type', 'N/A'), "", "", "", ""])
     csv_rows.append(["Reporting Period", company.get('reporting_period', 'N/A'), "", "", "", ""])
-    csv_rows.append(["Report Type", company.get('report_type', 'N/A'), "", "", "", ""])
     csv_rows.append(["", "", "", "", "", ""])
     
     csv_rows.append(["=== KEY FINANCIAL & OPERATING METRICS ===", "", "", "", "", ""])
-    csv_rows.append(["Metric Name", "Current Period", "Previous Period", "YoY Growth", "Unit", "Basis"])
+    csv_rows.append(["Financial Metric", "Current Period", "Previous Period", "YoY Growth", "Unit", "Basis"])
     for m in metrics:
         csv_rows.append([
             m.get('metric', ''),
@@ -1733,43 +1645,45 @@ Source Document : {st.session_state.uploaded_name}
             m.get('unit', ''),
             m.get('basis', '')
         ])
-    
+
     if st.session_state.position_assessment:
         pos = st.session_state.position_assessment
         csv_rows.append(["", "", "", "", "", ""])
-        csv_rows.append(["=== PERSONALIZED INVESTMENT POSITION ASSESSMENT ===", "", "", "", "", ""])
+        csv_rows.append(["=== PERSONALIZED PORTFOLIO POSITION ===", "", "", "", "", ""])
+        csv_rows.append(["Invested Capital", f"Rs. {pos.get('invested_amt', 0):,.2f}", f"~{pos.get('calc_shares', 0)} Shares", "", "", ""])
+        csv_rows.append(["Buy Price Basis", f"Rs. {pos.get('avg_price', 0):,.2f}", "", "", "", ""])
         csv_rows.append(["Current Market Price", pos.get('cmp_display', ''), f"As on {pos.get('live_date', '')}", "", "", ""])
         csv_rows.append(["Estimated Return / P&L", pos.get('pnl_str', ''), pos.get('amt_str', ''), "", "", ""])
         
+        csv_rows.append(["--- Fundamental Safety Pillars ---", "", "", "", "", ""])
         for pt in pos.get("price_safety_points", []):
-            csv_rows.append(["Safety Pillar", pt.get('title', ''), pt.get('explanation', ''), "", "", ""])
+            csv_rows.append([pt.get('title'), pt.get('explanation'), "", "", "", ""])
 
+        csv_rows.append(["--- Long-Term Outlook (5-8 Years) ---", "", "", "", "", ""])
         for pt in pos.get("long_term_outlook_5_to_8_years", []):
-            csv_rows.append(["Long-Term Outlook (5-8 Yrs)", pt.get('title', ''), pt.get('explanation', ''), "", "", ""])
+            csv_rows.append([pt.get('title'), pt.get('explanation'), "", "", "", ""])
 
     if pd is not None:
         df_export = pd.DataFrame(csv_rows)
         csv_bytes = df_export.to_csv(index=False, header=False).encode('utf-8-sig')
     else:
-        csv_buffer = io.StringIO()
-        for r in csv_rows:
-            csv_buffer.write(",".join([f'"{str(c)}"' for c in r]) + "\n")
-        csv_bytes = csv_buffer.getvalue().encode('utf-8-sig')
+        csv_str = "\n".join([",".join([f'"{c}"' for c in row]) for row in csv_rows])
+        csv_bytes = csv_str.encode('utf-8-sig')
 
     col_dl1, col_dl2 = st.columns(2)
     with col_dl1:
         st.download_button(
             label="📄 Download Executive Summary Report (.txt)",
-            data=detailed_report_txt,
-            file_name=f"{comp_name.replace(' ', '_')}_Executive_Summary.txt",
+            data=detailed_txt_report,
+            file_name=f"{comp_name.replace(' ', '_')}_Executive_Report.txt",
             mime="text/plain",
             use_container_width=True
         )
     with col_dl2:
         st.download_button(
-            label="📊 Download Structured Executive Dashboard (.csv / Excel)",
+            label="📊 Download Structured Executive Report (.csv / Excel)",
             data=csv_bytes,
-            file_name=f"{comp_name.replace(' ', '_')}_Executive_Dashboard.csv",
+            file_name=f"{comp_name.replace(' ', '_')}_Structured_Dashboard.csv",
             mime="text/csv",
             use_container_width=True
         )
