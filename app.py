@@ -723,6 +723,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Helper Prompt placed correctly right under the input area when waiting
+if not st.session_state.gemini_file or not st.session_state.analysis:
+    st.info("👆 Upload an annual report PDF or paste a direct PDF link above to begin automatic financial analysis.")
+
 # ============================================================
 # AUTOMATIC GENERATION ON UPLOAD OR URL SUBMISSION
 # ============================================================
@@ -874,7 +878,6 @@ Return ONLY valid JSON with this exact structure:
 # ============================================================
 
 if not st.session_state.gemini_file or not st.session_state.analysis:
-    st.info("👆 Upload an annual report PDF or paste a direct PDF link above to begin automatic financial analysis.")
     st.stop()
 
 # ============================================================
