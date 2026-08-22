@@ -447,26 +447,25 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# RESILIENT PRODUCTION TEXT MODEL POOL
+# PRODUCTION TEXT MODELS
 # ============================================================
 
-PRODUCTION_MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-2.5-pro",
-    "gemini-1.5-pro"
+ACTIVE_MODELS = [
+    "gemini-3.7-flash",
+    "gemini-3.6-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-pro-preview"
 ]
 
 def generate_with_fallback(contents, json_mode=False):
     errors = []
     
-    ordered_models = PRODUCTION_MODELS.copy()
-    if st.session_state.selected_model and st.session_state.selected_model in ordered_models:
-        ordered_models.remove(st.session_state.selected_model)
-        ordered_models.insert(0, st.session_state.selected_model)
+    ordered = ACTIVE_MODELS.copy()
+    if st.session_state.selected_model and st.session_state.selected_model in ordered:
+        ordered.remove(st.session_state.selected_model)
+        ordered.insert(0, st.session_state.selected_model)
 
-    for model in ordered_models:
+    for model in ordered:
         for attempt in range(2):
             try:
                 if json_mode:
@@ -493,7 +492,7 @@ def generate_with_fallback(contents, json_mode=False):
             except Exception as error:
                 err_str = str(error)
                 if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                    time.sleep(2.5)  # Backoff delay to allow quota recovery
+                    time.sleep(2.5)  # Wait for quota replenishment
                     continue
                 errors.append(f"{model}: {err_str}")
                 break
@@ -1300,7 +1299,6 @@ if data:
                     company_name = company.get('company_name', 'this company')
                     ticker_hint = company.get('stock_ticker', '')
 
-                    # 1. Live market price lookup via yfinance
                     with st.spinner(f"Retrieving current stock market quote for {company_name}..."):
                         market_info = fetch_live_stock_price(company_name, ticker_hint)
 
@@ -1308,7 +1306,6 @@ if data:
                     live_date = market_info["as_on"] if market_info else datetime.today().strftime("%d %b %Y")
                     exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "NSE / BSE"
 
-                    # 2. Calculation logic
                     if live_price > 0:
                         cur_val = live_price * calculated_shares
                         pnl_amt = cur_val - total_invested_input
@@ -1375,7 +1372,6 @@ Return ONLY valid JSON with this exact structure:
                     st.markdown("---")
                     st.markdown("### 📋 Analyst Portfolio Assessment")
                     
-                    # 4 Top Visual Metric Cards
                     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
                     with col_m1:
                         st.markdown(f"""
@@ -1415,7 +1411,6 @@ Return ONLY valid JSON with this exact structure:
                         </div>
                         """, unsafe_allow_html=True)
 
-                    # Summary Banner
                     if pos_data.get("position_summary"):
                         st.markdown(f"""
                         <div style="background: #111a26; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 18px; color: #dbeafe; font-size: 14px;">
@@ -1423,7 +1418,6 @@ Return ONLY valid JSON with this exact structure:
                         </div>
                         """, unsafe_allow_html=True)
 
-                    # 3 Distinct Scannable Card Containers
                     col_det1, col_det2 = st.columns(2)
 
                     with col_det1:
