@@ -447,92 +447,59 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# DYNAMIC MODEL DISCOVERY & SMART RANKING
+# RESILIENT PRODUCTION TEXT MODEL POOL
 # ============================================================
 
-def get_available_models():
-    try:
-        available = []
-        for model in client.models.list():
-            name = getattr(model, "name", "")
-            if not name:
-                continue
-            clean_name = name.replace("models/", "")
-            supported_actions = getattr(model, "supported_actions", []) or []
-            if "generateContent" in supported_actions and "gemini" in clean_name.lower():
-                available.append(clean_name)
-        return available
-    except Exception:
-        return []
+PRODUCTION_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-2.5-pro",
+    "gemini-1.5-pro"
+]
 
-def model_score(model_name):
-    name = model_name.lower()
-    score = 0
-    if "flash" in name and "lite" not in name:
-        score += 150
-    elif "pro" in name:
-        score += 100
-    elif "flash-lite" in name or "lite" in name:
-        score += 50
-    if "latest" in name:
-        score += 30
-    return score
-
-def get_ranked_models():
-    live_models = get_available_models()
-    candidate_pool = ["gemini-flash-latest", "gemini-pro-latest"] + live_models
-    unique_models = list(dict.fromkeys(candidate_pool))
-    unique_models.sort(key=model_score, reverse=True)
-    return unique_models
-
-def generate_with_fallback(contents, json_mode=False, use_search=False):
-    available_models = get_ranked_models()
-    selected = st.session_state.selected_model
-
-    ordered_models = []
-    if selected and selected in available_models:
-        ordered_models.append(selected)
-
-    for m in available_models:
-        if m not in ordered_models:
-            ordered_models.append(m)
-
+def generate_with_fallback(contents, json_mode=False):
     errors = []
+    
+    ordered_models = PRODUCTION_MODELS.copy()
+    if st.session_state.selected_model and st.session_state.selected_model in ordered_models:
+        ordered_models.remove(st.session_state.selected_model)
+        ordered_models.insert(0, st.session_state.selected_model)
+
     for model in ordered_models:
-        try:
-            tools = []
-            if use_search:
-                tools.append(types.Tool(google_search=types.GoogleSearch()))
+        for attempt in range(2):
+            try:
+                if json_mode:
+                    config = types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        temperature=0.2,
+                        max_output_tokens=8192
+                    )
+                else:
+                    config = types.GenerateContentConfig(
+                        temperature=0.3,
+                        max_output_tokens=8192
+                    )
 
-            if json_mode:
-                config = types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    temperature=0.2,
-                    max_output_tokens=8192,
-                    tools=tools if tools else None
+                response = client.models.generate_content(
+                    model=model,
+                    contents=contents,
+                    config=config
                 )
-            else:
-                config = types.GenerateContentConfig(
-                    temperature=0.3,
-                    max_output_tokens=8192,
-                    tools=tools if tools else None
-                )
 
-            response = client.models.generate_content(
-                model=model,
-                contents=contents,
-                config=config
-            )
+                st.session_state.selected_model = model
+                return response
 
-            st.session_state.selected_model = model
-            return response
-
-        except Exception as error:
-            errors.append(f"{model}: {str(error)}")
-            continue
+            except Exception as error:
+                err_str = str(error)
+                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                    time.sleep(2.5)  # Backoff delay to allow quota recovery
+                    continue
+                errors.append(f"{model}: {err_str}")
+                break
 
     error_text = "\n\n".join(errors)
-    raise Exception(f"All available models failed.\n\n{error_text}")
+    raise Exception(f"API Rate limit reached. Please wait a few seconds and try again.\n\n{error_text}")
 
 # ============================================================
 # SAFE PARSERS & LIVE MARKET LOOKUP
@@ -586,7 +553,7 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
 
         c_lower = company_name.lower()
         if "jio" in c_lower:
-            candidates.extend(["JIOFIN.NS", "JIOFIN.BO", "543940.BO"])
+            candidates.extend(["JIOFIN.NS", "JIOFIN.BO"])
         elif "tata motors" in c_lower:
             candidates.extend(["TATAMOTORS.NS", "TATAMOTORS.BO"])
         elif "tata power" in c_lower:
@@ -1312,7 +1279,6 @@ if data:
                     format="%.2f"
                 )
 
-            # Check if user has entered valid numbers
             has_valid_inputs = (
                 total_invested_input is not None and 
                 avg_price_input is not None and 
@@ -1334,13 +1300,13 @@ if data:
                     company_name = company.get('company_name', 'this company')
                     ticker_hint = company.get('stock_ticker', '')
 
-                    # 1. Live market price lookup
+                    # 1. Live market price lookup via yfinance
                     with st.spinner(f"Retrieving current stock market quote for {company_name}..."):
                         market_info = fetch_live_stock_price(company_name, ticker_hint)
 
                     live_price = market_info["price"] if market_info else 0.0
                     live_date = market_info["as_on"] if market_info else datetime.today().strftime("%d %b %Y")
-                    exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "Exchange Listed"
+                    exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "NSE / BSE"
 
                     # 2. Calculation logic
                     if live_price > 0:
@@ -1352,7 +1318,7 @@ if data:
                         amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
                         cmp_display = f"₹{live_price:,.2f}"
                     else:
-                        cmp_display = "Market Quote Available"
+                        cmp_display = "Active Trading Quote"
                         pnl_str = "Active"
                         amt_str = ""
 
@@ -1361,14 +1327,13 @@ You are an expert equity research mentor.
 The investor holds {calculated_shares} shares of {company_name} at an average cost of ₹{avg_price_input:.2f} (Total outlay: ₹{total_invested_input:,.2f}).
 Current Market Price context as of {live_date} is {cmp_display} on {exchange_tag} ({pnl_str}).
 
-Using facts strictly from the uploaded PDF annual report and live stock market data:
+Using facts strictly from the uploaded PDF annual report:
 1. Explain how the business's fundamentals (growth in core revenue, AUM, loan security, net worth safety) support this investor's purchase price.
 2. In simple, non-academic words, explain the future market outlook and upcoming growth catalysts.
 3. Provide 3 specific quarterly checkpoints this investor should track (e.g. margin turnaround, loan default trends, deposit scaling).
 
 Return ONLY valid JSON with this exact structure:
 {{
-  "live_price_estimate": "{cmp_display}",
   "position_summary": "1 clear, simple sentence on how this position stands at current market levels.",
   "fundamental_strengths_vs_entry": [
     "Simple strength 1 comparing entry price with actual report growth and numbers",
@@ -1390,13 +1355,10 @@ Return ONLY valid JSON with this exact structure:
                         try:
                             pos_response = generate_with_fallback(
                                 contents=[analysis_req_prompt, st.session_state.gemini_file],
-                                json_mode=True,
-                                use_search=True
+                                json_mode=True
                             )
                             parsed_analysis = clean_json_response(pos_response.text)
-                            
-                            final_cmp = cmp_display if live_price > 0 else parsed_analysis.get("live_price_estimate", "₹244.00")
-                            parsed_analysis["cmp_display"] = final_cmp
+                            parsed_analysis["cmp_display"] = cmp_display
                             parsed_analysis["live_date"] = live_date
                             parsed_analysis["exchange_tag"] = exchange_tag
                             parsed_analysis["pnl_str"] = pnl_str
