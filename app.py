@@ -78,65 +78,99 @@ div[data-testid="stStatusWidget"] {
     100% { transform: translateY(-3px); }
 }
 
-/* Spinner Animation */
+/* Spinner & Pulse Glow Animations */
 @keyframes spinGlow {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-/* Center Engaging Loading Container */
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9), 0 0 25px rgba(59, 130, 246, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+        border-color: rgba(59, 130, 246, 0.45);
+    }
+    50% {
+        box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 40px rgba(96, 165, 250, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.25);
+        border-color: rgba(96, 165, 250, 0.75);
+    }
+}
+
+@keyframes shimmerBar {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Premium Glassmorphic Center Loading Hub */
 .center-loader-box {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0f172a 0%, #090d16 100%);
-    border: 1px solid #1e293b;
-    border-top: 3px solid #3b82f6;
-    border-radius: 16px;
-    padding: 36px 30px;
-    margin: 25px auto;
+    background: rgba(14, 20, 34, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(59, 130, 246, 0.5) !important;
+    border-radius: 20px !important;
+    padding: 40px 36px !important;
+    margin: 30px auto !important;
     text-align: center;
-    max-width: 650px;
-    box-shadow: 0 16px 40px -10px rgba(59, 130, 246, 0.35);
-    animation: fadeInSlide 0.4s ease-out forwards;
+    max-width: 640px;
+    animation: fadeInSlide 0.4s ease-out forwards, pulseGlow 3s infinite ease-in-out !important;
+}
+.loader-status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: #60a5fa;
+    font-size: 11px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 18px;
 }
 .fintech-spinner {
-    width: 52px;
-    height: 52px;
-    border: 4px solid rgba(59, 130, 246, 0.2);
-    border-top: 4px solid #3b82f6;
-    border-right: 4px solid #60a5fa;
+    width: 58px;
+    height: 58px;
+    border: 3.5px solid rgba(59, 130, 246, 0.15);
+    border-top: 3.5px solid #60a5fa;
+    border-right: 3.5px solid #3b82f6;
     border-radius: 50%;
-    animation: spinGlow 0.9s linear infinite;
+    animation: spinGlow 0.85s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
     margin-bottom: 18px;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 .loader-title {
     color: #ffffff;
-    font-size: 20px;
-    font-weight: 750;
+    font-size: 21px;
+    font-weight: 800;
     margin-bottom: 8px;
-    letter-spacing: -0.2px;
+    letter-spacing: -0.3px;
 }
 .loader-subtitle {
     color: #94a3b8;
     font-size: 13.5px;
-    line-height: 1.5;
-    margin-bottom: 18px;
+    line-height: 1.55;
+    margin-bottom: 22px;
+    max-width: 500px;
 }
 .loader-progress-track {
-    background: #172033;
-    border-radius: 10px;
-    height: 6px;
-    width: 80%;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 12px;
+    height: 7px;
+    width: 85%;
     overflow: hidden;
     position: relative;
 }
 .loader-progress-fill {
-    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    background: linear-gradient(90deg, transparent, #38bdf8, #3b82f6, transparent);
     height: 100%;
     width: 100%;
-    animation: floatSubtleA 1.5s ease-in-out infinite alternate;
+    animation: shimmerBar 1.6s infinite ease-in-out;
 }
 
 .hero {
@@ -514,19 +548,6 @@ div[data-testid="stStatusWidget"] {
     font-size: 13px;
     line-height: 1.45;
 }
-.price-gauge-card {
-    background: #070a12;
-    border: 1px solid #1a2234;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 14px;
-}
-.gauge-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 13.5px;
-}
 .chart-box {
     background: #0e131f;
     border: 1px solid #1a2234;
@@ -899,19 +920,20 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
 
 # ============================================================
-# AUTOMATIC GENERATION ON UPLOAD WITH CENTER LOADER
+# AUTOMATIC GENERATION ON UPLOAD WITH ELEVATED GLASS LOADER
 # ============================================================
 
 if uploaded_file:
     is_new_file = (st.session_state.uploaded_name != uploaded_file.name)
 
     if is_new_file or st.session_state.analysis is None:
-        # Display Engaging Center Loading Box
+        # Phase 1: Glassmorphic Popping Loader
         loader_container.markdown("""
         <div class="center-loader-box">
+            <div class="loader-status-tag">⚡ AI Terminal Active • Document Processing</div>
             <div class="fintech-spinner"></div>
             <div class="loader-title">Hang Tight! Reading Financial Report...</div>
-            <div class="loader-subtitle">⚡ Processing dense tables, balance sheets & calculating YoY growth rates across all business segments.</div>
+            <div class="loader-subtitle">Parsing financial statements, balance sheet disclosures & computing segment growths in real time.</div>
             <div class="loader-progress-track">
                 <div class="loader-progress-fill"></div>
             </div>
@@ -923,12 +945,13 @@ if uploaded_file:
             st.session_state.gemini_file = gemini_file
             st.session_state.uploaded_name = uploaded_file.name
 
-            # Dynamic status update during analysis
+            # Phase 2: Dynamic Structuring Status
             loader_container.markdown("""
             <div class="center-loader-box">
+                <div class="loader-status-tag">🎯 Finalizing Synthesis • Executive Scorecard</div>
                 <div class="fintech-spinner"></div>
                 <div class="loader-title">Almost There! Structuring Financial Insights...</div>
-                <div class="loader-subtitle">🎯 Extracting balance sheet safety cushions, executive scorecards & live market fundamentals.</div>
+                <div class="loader-subtitle">Extracting balance sheet cushions, strategic drivers & live market fundamentals.</div>
                 <div class="loader-progress-track">
                     <div class="loader-progress-fill"></div>
                 </div>
