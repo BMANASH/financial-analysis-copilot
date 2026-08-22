@@ -97,6 +97,22 @@ st.markdown("""
     margin-bottom: 18px;
 }
 
+/* Distinct Container Card for Interactive Sections */
+.action-container-card {
+    background: #0e131f;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 26px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+    animation: fadeInSlide 0.4s ease-out forwards;
+}
+.action-container-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 14px 35px -10px rgba(59, 130, 246, 0.2);
+}
+
 /* Glassmorphic Fintech Cards with Hover Glow */
 .company-card, .kpi-card, .scorecard-card, .risk-card, .invest-kpi-card, .invest-section-box, .chart-box {
     animation: fadeInSlide 0.4s ease-out forwards;
@@ -296,14 +312,6 @@ st.markdown("""
     color: #fef3c7;
     font-size: 14px;
     line-height: 1.5;
-}
-.position-box {
-    background: #0e131f;
-    border: 1px solid #1a2234;
-    border-radius: 14px;
-    padding: 22px;
-    margin-top: 15px;
-    margin-bottom: 20px;
 }
 .invest-kpi-card {
     background: #10182b;
@@ -1040,7 +1048,6 @@ with tab_charts:
             })
     
     if chart_records:
-        # Render a gorgeous multi-metric comparison grid instead of a restrictive dropdown
         chart_cols = st.columns(2)
         for idx, item in enumerate(chart_records[:6]):
             c_val, p_val, u_lbl, m_name = item["Current"], item["Previous"], item["Unit"], item["Metric"]
@@ -1092,10 +1099,12 @@ with tab_investor:
             st.markdown(f'<div class="takeaway-weakening">✗ {item}</div>', unsafe_allow_html=True)
 
 # ========================================================
-# INVESTMENT POSITION MODULE
+# INVESTMENT POSITION MODULE (WRAPPED IN CARD CONTAINER)
 # ========================================================
-st.markdown("---")
-st.markdown('<div class="section-title">💼 Personalized Investment Position & Market Analysis</div>', unsafe_allow_html=True)
+st.markdown('<div class="action-container-card">', unsafe_allow_html=True)
+st.markdown('<div class="section-title" style="margin-top:0;">💼 Personalized Investment Position & Market Analysis</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Evaluate your personal investment against live stock market pricing and the financial health in this annual report.</div>', unsafe_allow_html=True)
+
 investor_mcq = st.radio("Are you currently an investor in this company's stock?", options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"], index=0, horizontal=True, key="inv_mcq")
 
 if investor_mcq == "Yes, I hold shares in this company":
@@ -1152,12 +1161,15 @@ if investor_mcq == "Yes, I hold shares in this company":
             with cm2: st.metric("Buy Price", f"₹{avg_price_input:,.2f}", "Cost Basis")
             with cm3: st.metric("Current Market Price", p_data.get('cmp_display', 'N/A'), f"As on {p_data.get('live_date','')}")
             with cm4: st.metric("Estimated Return", p_data.get('pnl_str', 'N/A'), p_data.get('amt_str', ''))
+st.markdown('</div>', unsafe_allow_html=True)
 
 # ========================================================
-# EXPORT MODULE
+# EXPORT MODULE (WRAPPED IN CARD CONTAINER)
 # ========================================================
-st.markdown("---")
-st.markdown('<div class="section-title">📥 Export Financial Dashboard Summary</div>', unsafe_allow_html=True)
+st.markdown('<div class="action-container-card">', unsafe_allow_html=True)
+st.markdown('<div class="section-title" style="margin-top:0;">📥 Export Financial Dashboard Summary</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>', unsafe_allow_html=True)
+
 export_choice = st.radio("Select download preference:", options=["No, thank you", "Yes, download dashboard summary report"], index=0, horizontal=True, key="export_rad")
 
 if export_choice == "Yes, download dashboard summary report":
@@ -1169,12 +1181,14 @@ if export_choice == "Yes, download dashboard summary report":
         report_text += f"• {m.get('metric')}: {m.get('current_period')} {m.get('unit')} (YoY: {m.get('yoy_growth')})\n"
 
     st.download_button("📄 Download Executive Summary Report (.txt)", data=report_text, file_name=f"{comp_name.replace(' ', '_')}_Summary.txt", mime="text/plain", use_container_width=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
 # ========================================================
-# ASK THE ANALYST AI CHATBOT
+# ASK THE ANALYST AI CHATBOT (WRAPPED IN CARD CONTAINER)
 # ========================================================
-st.divider()
-st.markdown('<div class="section-title">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
+st.markdown('<div class="action-container-card">', unsafe_allow_html=True)
+st.markdown('<div class="section-title" style="margin-top:0;">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below.</div>', unsafe_allow_html=True)
 
 chip_cols = st.columns(4)
 suggested_q = None
@@ -1209,6 +1223,7 @@ if active_q:
                 st.session_state.chat_history.append({"role": "assistant", "content": ans})
             except Exception as e:
                 st.error(f"Error: {e}")
+st.markdown('</div>', unsafe_allow_html=True)
 
 # ============================================================
 # FOOTER
