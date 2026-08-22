@@ -1,8 +1,7 @@
-import streamlit as st
 import json
+import os
 import re
 import tempfile
-import os
 import time
 from datetime import datetime
 
@@ -19,6 +18,7 @@ except ImportError:
 
 from google import genai
 from google.genai import types
+import streamlit as st
 
 # ============================================================
 # PAGE CONFIGURATION
@@ -28,14 +28,15 @@ st.set_page_config(
     page_title="Financial Analysis Copilot",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 # ============================================================
 # CUSTOM CSS
 # ============================================================
 
-st.markdown("""
+st.markdown(
+    """
 <style>
 .stApp {
     background: #0e1117;
@@ -306,19 +307,46 @@ st.markdown("""
     border: 1px solid #2a384d;
     border-left: 3px solid #3b82f6;
     border-radius: 8px;
-    padding: 12px 16px;
+    padding: 14px 16px;
     margin-bottom: 10px;
 }
 .invest-subcard-title {
     color: #ffffff;
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 700;
     margin-bottom: 4px;
 }
 .invest-subcard-body {
     color: #cbd5e1;
-    font-size: 13px;
-    line-height: 1.45;
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+.price-gauge-card {
+    background: #161e2c;
+    border: 1px solid #2d3e58;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+}
+.gauge-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13.5px;
+}
+.gauge-bar-track {
+    background: #232d3d;
+    height: 12px;
+    border-radius: 6px;
+    width: 100%;
+    position: relative;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+.gauge-bar-fill {
+    height: 100%;
+    border-radius: 6px;
 }
 .chart-box {
     background: #151a24;
@@ -426,7 +454,9 @@ st.markdown("""
     padding-top: 25px;
 }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # ============================================================
 # SESSION STATE
@@ -439,29 +469,34 @@ defaults = {
     "deep_dive": None,
     "selected_model": None,
     "position_assessment": None,
-    "chat_history": []
+    "chat_history": [],
 }
 
 for key, value in defaults.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
+  if key not in st.session_state:
+    st.session_state[key] = value
 
 # ============================================================
 # API KEY & CLIENT
 # ============================================================
 
 try:
-    API_KEY = st.secrets["GEMINI_API_KEY"]
+  API_KEY = st.secrets["GEMINI_API_KEY"]
 except Exception:
-    API_KEY = None
+  API_KEY = None
 
 if not API_KEY:
-    st.error("Gemini API key was not found. Please add GEMINI_API_KEY to Streamlit Secrets.")
-    st.stop()
+  st.error(
+      "Gemini API key was not found. Please add GEMINI_API_KEY to Streamlit"
+      " Secrets."
+  )
+  st.stop()
+
 
 @st.cache_resource
 def create_client(api_key):
-    return genai.Client(api_key=api_key)
+  return genai.Client(api_key=api_key)
+
 
 client = create_client(API_KEY)
 
@@ -473,271 +508,318 @@ ACTIVE_MODELS = [
     "gemini-3.7-flash",
     "gemini-3.6-flash",
     "gemini-3.5-flash-lite",
-    "gemini-3.1-pro-preview"
+    "gemini-3.1-pro-preview",
 ]
 
+
 def generate_with_fallback(contents, json_mode=False):
-    errors = []
-    ordered = ACTIVE_MODELS.copy()
-    if st.session_state.selected_model and st.session_state.selected_model in ordered:
-        ordered.remove(st.session_state.selected_model)
-        ordered.insert(0, st.session_state.selected_model)
+  errors = []
+  ordered = ACTIVE_MODELS.copy()
+  if (
+      st.session_state.selected_model
+      and st.session_state.selected_model in ordered
+  ):
+    ordered.remove(st.session_state.selected_model)
+    ordered.insert(0, st.session_state.selected_model)
 
-    for model in ordered:
-        for attempt in range(2):
-            try:
-                if json_mode:
-                    config = types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        temperature=0.2,
-                        max_output_tokens=8192
-                    )
-                else:
-                    config = types.GenerateContentConfig(
-                        temperature=0.3,
-                        max_output_tokens=8192
-                    )
+  for model in ordered:
+    for attempt in range(2):
+      try:
+        if json_mode:
+          config = types.GenerateContentConfig(
+              response_mime_type="application/json",
+              temperature=0.2,
+              max_output_tokens=8192,
+          )
+        else:
+          config = types.GenerateContentConfig(
+              temperature=0.3, max_output_tokens=8192
+          )
 
-                response = client.models.generate_content(
-                    model=model,
-                    contents=contents,
-                    config=config
-                )
+        response = client.models.generate_content(
+            model=model, contents=contents, config=config
+        )
 
-                st.session_state.selected_model = model
-                return response
+        st.session_state.selected_model = model
+        return response
 
-            except Exception as error:
-                err_str = str(error)
-                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                    time.sleep(2.5)
-                    continue
-                errors.append(f"{model}: {err_str}")
-                break
+      except Exception as error:
+        err_str = str(error)
+        if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+          time.sleep(2.5)
+          continue
+        errors.append(f"{model}: {err_str}")
+        break
 
-    error_text = "\n\n".join(errors)
-    raise Exception(f"API Rate limit reached. Please wait a few seconds and try again.\n\n{error_text}")
+  error_text = "\n\n".join(errors)
+  raise Exception(
+      "API Rate limit reached. Please wait a few seconds and try"
+      f" again.\n\n{error_text}"
+  )
+
 
 # ============================================================
 # SAFE PARSERS & LIVE MARKET LOOKUP
 # ============================================================
 
+
 def clean_json_response(text):
-    if not text:
-        return {}
-    text = text.strip()
-    text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
-    text = re.sub(r"\s*```$", "", text)
-    text = text.strip()
-
-    try:
-        return json.loads(text)
-    except Exception:
-        pass
-
-    start = text.find("{")
-    end = text.rfind("}")
-    if start != -1 and end != -1 and end > start:
-        candidate = text[start:end + 1]
-        try:
-            return json.loads(candidate)
-        except Exception:
-            pass
-
+  if not text:
     return {}
+  text = text.strip()
+  text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+  text = re.sub(r"\s*```$", "", text)
+  text = text.strip()
+
+  try:
+    return json.loads(text)
+  except Exception:
+    pass
+
+  start = text.find("{")
+  end = text.rfind("}")
+  if start != -1 and end != -1 and end > start:
+    candidate = text[start : end + 1]
+    try:
+      return json.loads(candidate)
+    except Exception:
+      pass
+
+  return {}
+
 
 def parse_clean_float(val):
-    if val is None:
-        return None
-    cleaned = str(val).replace(",", "").replace("₹", "").replace("$", "").replace("%", "").strip()
-    match = re.search(r"[-+]?\d*\.?\d+", cleaned)
-    if match:
-        try:
-            return float(match.group())
-        except Exception:
-            return None
+  if val is None:
     return None
+  cleaned = (
+      str(val)
+      .replace(",", "")
+      .replace("₹", "")
+      .replace("$", "")
+      .replace("%", "")
+      .strip()
+  )
+  match = re.search(r"[-+]?\d*\.?\d+", cleaned)
+  if match:
+    try:
+      return float(match.group())
+    except Exception:
+      return None
+  return None
+
 
 def fetch_live_stock_price(company_name, ticker_hint=""):
-    """Pulls live stock quote from NSE/BSE using yfinance or falls back cleanly"""
-    if not yf:
-        return None
-
-    try:
-        candidates = []
-        if ticker_hint:
-            candidates.extend([f"{ticker_hint}.NS", f"{ticker_hint}.BO", ticker_hint])
-
-        c_lower = company_name.lower()
-        if "jio" in c_lower:
-            candidates.extend(["JIOFIN.NS", "JIOFIN.BO"])
-        elif "tata motors" in c_lower:
-            candidates.extend(["TATAMOTORS.NS", "TATAMOTORS.BO"])
-        elif "tata power" in c_lower:
-            candidates.extend(["TATAPOWER.NS", "TATAPOWER.BO"])
-        elif "varun beverages" in c_lower:
-            candidates.extend(["VBL.NS", "VBL.BO"])
-        elif "hudco" in c_lower:
-            candidates.extend(["HUDCO.NS", "HUDCO.BO"])
-        elif "nhpc" in c_lower:
-            candidates.extend(["NHPC.NS", "NHPC.BO"])
-
-        for sym in candidates:
-            try:
-                tk = yf.Ticker(sym)
-                hist = tk.history(period="5d")
-                if not hist.empty:
-                    last_price = float(hist["Close"].iloc[-1])
-                    last_date = hist.index[-1].strftime("%d %b %Y")
-                    return {
-                        "is_listed": True,
-                        "ticker": sym.replace(".NS", "").replace(".BO", ""),
-                        "price": last_price,
-                        "as_on": last_date,
-                        "exchange": "NSE" if ".NS" in sym else ("BSE" if ".BO" in sym else "Exchange")
-                    }
-            except Exception:
-                continue
-    except Exception:
-        pass
+  """Pulls live stock quote from NSE/BSE using yfinance or falls back cleanly"""
+  if not yf:
     return None
+
+  try:
+    candidates = []
+    if ticker_hint:
+      candidates.extend([f"{ticker_hint}.NS", f"{ticker_hint}.BO", ticker_hint])
+
+    c_lower = company_name.lower()
+    if "jio" in c_lower:
+      candidates.extend(["JIOFIN.NS", "JIOFIN.BO"])
+    elif "tata motors" in c_lower:
+      candidates.extend(["TATAMOTORS.NS", "TATAMOTORS.BO"])
+    elif "tata power" in c_lower:
+      candidates.extend(["TATAPOWER.NS", "TATAPOWER.BO"])
+    elif "varun beverages" in c_lower:
+      candidates.extend(["VBL.NS", "VBL.BO"])
+    elif "hudco" in c_lower:
+      candidates.extend(["HUDCO.NS", "HUDCO.BO"])
+    elif "nhpc" in c_lower:
+      candidates.extend(["NHPC.NS", "NHPC.BO"])
+
+    for sym in candidates:
+      try:
+        tk = yf.Ticker(sym)
+        hist = tk.history(period="5d")
+        if not hist.empty:
+          last_price = float(hist["Close"].iloc[-1])
+          last_date = hist.index[-1].strftime("%d %b %Y")
+          return {
+              "is_listed": True,
+              "ticker": sym.replace(".NS", "").replace(".BO", ""),
+              "price": last_price,
+              "as_on": last_date,
+              "exchange": (
+                  "NSE"
+                  if ".NS" in sym
+                  else ("BSE" if ".BO" in sym else "Exchange")
+              ),
+          }
+      except Exception:
+        continue
+  except Exception:
+    pass
+  return None
+
 
 # ============================================================
 # PDF UPLOAD TO GEMINI
 # ============================================================
 
+
 def upload_pdf_to_gemini(uploaded_file):
-    temp_path = None
-    try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-            temp_file.write(uploaded_file.getbuffer())
-            temp_path = temp_file.name
+  temp_path = None
+  try:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+      temp_file.write(uploaded_file.getbuffer())
+      temp_path = temp_file.name
 
-        gemini_file = client.files.upload(file=temp_path)
+    gemini_file = client.files.upload(file=temp_path)
 
-        for _ in range(60):
-            state = getattr(gemini_file, "state", None)
-            state_name = getattr(state, "name", "")
+    for _ in range(60):
+      state = getattr(gemini_file, "state", None)
+      state_name = getattr(state, "name", "")
 
-            if state_name == "ACTIVE":
-                return gemini_file
+      if state_name == "ACTIVE":
+        return gemini_file
 
-            if state_name == "FAILED":
-                raise Exception("Gemini failed while processing the PDF.")
+      if state_name == "FAILED":
+        raise Exception("Gemini failed while processing the PDF.")
 
-            time.sleep(1)
-            gemini_file = client.files.get(name=gemini_file.name)
+      time.sleep(1)
+      gemini_file = client.files.get(name=gemini_file.name)
 
-        raise Exception("PDF processing took too long. Please try uploading again.")
-    finally:
-        if temp_path:
-            try:
-                os.remove(temp_path)
-            except Exception:
-                pass
+    raise Exception(
+        "PDF processing took too long. Please try uploading again."
+    )
+  finally:
+    if temp_path:
+      try:
+        os.remove(temp_path)
+      except Exception:
+        pass
+
 
 # ============================================================
 # SIDEBAR
 # ============================================================
 
 with st.sidebar:
-    st.title("Financial Analysis Copilot")
-    st.write("Upload an annual report or financial PDF and let Gemini analyse it.")
+  st.title("Financial Analysis Copilot")
+  st.write("Upload an annual report or financial PDF and let Gemini analyse it.")
+  st.markdown("---")
+
+  uploaded_file = st.file_uploader(
+      "Upload Financial Report",
+      type=["pdf"],
+      help="Upload an annual report or financial statement PDF.",
+  )
+
+  if uploaded_file:
+    is_new_file = st.session_state.uploaded_name != uploaded_file.name
+
+    if is_new_file:
+      with st.spinner("Uploading and processing PDF..."):
+        try:
+          gemini_file = upload_pdf_to_gemini(uploaded_file)
+          st.session_state.gemini_file = gemini_file
+          st.session_state.uploaded_name = uploaded_file.name
+          st.session_state.analysis = None
+          st.session_state.deep_dive = None
+          st.session_state.position_assessment = None
+          st.session_state.chat_history = []
+          st.session_state.selected_model = None
+          st.success("Financial report ready for analysis.")
+        except Exception as error:
+          st.error(f"Could not process PDF:\n\n{error}")
+    else:
+      st.success("Financial report active.")
+
+  if st.session_state.gemini_file:
     st.markdown("---")
+    st.caption("Active Document:")
+    st.write(f"📄 **{st.session_state.uploaded_name}**")
+    if st.session_state.selected_model:
+      st.caption(f"Engine: `{st.session_state.selected_model}`")
 
-    uploaded_file = st.file_uploader(
-        "Upload Financial Report",
-        type=["pdf"],
-        help="Upload an annual report or financial statement PDF."
-    )
+  # ========================================================
+  # SIDEBAR INTERACTIVE GLOSSARY (PDF-GROUNDED)
+  # ========================================================
+  if (
+      st.session_state.analysis
+      and "terms_cheat_sheet" in st.session_state.analysis
+  ):
+    cheat_terms = st.session_state.analysis.get("terms_cheat_sheet", [])
+    if cheat_terms:
+      st.markdown("---")
+      st.markdown("### 📌 Financial Glossary")
+      st.caption(
+          "Choose a term from this report to see a simple, one-sentence"
+          " explanation:"
+      )
 
-    if uploaded_file:
-        is_new_file = (st.session_state.uploaded_name != uploaded_file.name)
+      term_map = {
+          item.get("term", "").strip(): item.get("meaning", "").strip()
+          for item in cheat_terms
+          if item.get("term")
+      }
+      term_names = list(term_map.keys())
 
-        if is_new_file:
-            with st.spinner("Uploading and processing PDF..."):
-                try:
-                    gemini_file = upload_pdf_to_gemini(uploaded_file)
-                    st.session_state.gemini_file = gemini_file
-                    st.session_state.uploaded_name = uploaded_file.name
-                    st.session_state.analysis = None
-                    st.session_state.deep_dive = None
-                    st.session_state.position_assessment = None
-                    st.session_state.chat_history = []
-                    st.session_state.selected_model = None
-                    st.success("Financial report ready for analysis.")
-                except Exception as error:
-                    st.error(f"Could not process PDF:\n\n{error}")
-        else:
-            st.success("Financial report active.")
+      if term_names:
+        selected_jargon = st.selectbox(
+            "Select a financial term:",
+            options=term_names,
+            index=0,
+            key="sidebar_jargon_slicer",
+            label_visibility="collapsed",
+        )
 
-    if st.session_state.gemini_file:
-        st.markdown("---")
-        st.caption("Active Document:")
-        st.write(f"📄 **{st.session_state.uploaded_name}**")
-        if st.session_state.selected_model:
-            st.caption(f"Engine: `{st.session_state.selected_model}`")
-
-    # ========================================================
-    # SIDEBAR INTERACTIVE GLOSSARY (PDF-GROUNDED)
-    # ========================================================
-    if st.session_state.analysis and "terms_cheat_sheet" in st.session_state.analysis:
-        cheat_terms = st.session_state.analysis.get("terms_cheat_sheet", [])
-        if cheat_terms:
-            st.markdown("---")
-            st.markdown("### 📌 Financial Glossary")
-            st.caption("Choose a term from this report to see a simple, one-sentence explanation:")
-
-            term_map = {item.get("term", "").strip(): item.get("meaning", "").strip() for item in cheat_terms if item.get("term")}
-            term_names = list(term_map.keys())
-
-            if term_names:
-                selected_jargon = st.selectbox(
-                    "Select a financial term:",
-                    options=term_names,
-                    index=0,
-                    key="sidebar_jargon_slicer",
-                    label_visibility="collapsed"
-                )
-
-                selected_definition = term_map[selected_jargon]
-                st.markdown(f"""
+        selected_definition = term_map[selected_jargon]
+        st.markdown(
+            f"""
                 <div class="slicer-card">
                     <div style="color: #60a5fa; font-weight: 700; font-size: 13px; margin-bottom: 4px;">💡 {selected_jargon}</div>
                     <div class="slicer-meaning">{selected_definition}</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
 
 # ============================================================
 # HERO SECTION
 # ============================================================
 
-st.markdown("""
+st.markdown(
+    """
 <div class="hero">
     <div class="hero-title">Financial Analysis Copilot</div>
     <div class="hero-subtitle">AI-powered financial analysis from annual reports</div>
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # ============================================================
 # NO PDF STATE
 # ============================================================
 
 if not st.session_state.gemini_file:
-    st.info("Upload a financial report from the sidebar to begin.")
-    st.stop()
+  st.info("Upload a financial report from the sidebar to begin.")
+  st.stop()
 
 # ============================================================
 # GENERATE ANALYSIS SECTION
 # ============================================================
 
-st.markdown('<div class="section-title">Generate Financial Analysis</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Gemini will read the uploaded report and create a complete, easy-to-understand financial dashboard.</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-title">Generate Financial Analysis</div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="section-description">Gemini will read the uploaded report and'
+    " create a complete, easy-to-understand financial dashboard.</div>",
+    unsafe_allow_html=True,
+)
 
 generate_button = st.button("Generate Financial Analysis", type="primary")
 
 if generate_button:
-    analysis_prompt = """
+  analysis_prompt = """
 You are an expert financial mentor explaining an annual report to everyday investors and finance students in simple, clean, professional English without textbook jargon.
 
 Analyze ONLY the uploaded PDF. It can belong to ANY company.
@@ -835,26 +917,32 @@ Return ONLY valid JSON with this exact structure:
 }
 """
 
-    with st.spinner("Gemini is reading the complete report and generating simple, professional analysis..."):
-        try:
-            response = generate_with_fallback(
-                contents=[analysis_prompt, st.session_state.gemini_file],
-                json_mode=True
-            )
-            data = clean_json_response(response.text)
+  with st.spinner(
+      "Gemini is reading the complete report and generating simple,"
+      " professional analysis..."
+  ):
+    try:
+      response = generate_with_fallback(
+          contents=[analysis_prompt, st.session_state.gemini_file],
+          json_mode=True,
+      )
+      data = clean_json_response(response.text)
 
-            if not data or "company_overview" not in data:
-                st.error("Gemini returned an incomplete response. Please click 'Generate Financial Analysis' again.")
-            else:
-                st.session_state.analysis = data
-                st.session_state.deep_dive = None
-                st.session_state.position_assessment = None
-                st.success("Financial analysis generated successfully.")
-                st.rerun()
+      if not data or "company_overview" not in data:
+        st.error(
+            "Gemini returned an incomplete response. Please click 'Generate"
+            " Financial Analysis' again."
+        )
+      else:
+        st.session_state.analysis = data
+        st.session_state.deep_dive = None
+        st.session_state.position_assessment = None
+        st.success("Financial analysis generated successfully.")
+        st.rerun()
 
-        except Exception as error:
-            st.error("Gemini could not complete the analysis.")
-            st.code(str(error))
+    except Exception as error:
+      st.error("Gemini could not complete the analysis.")
+      st.code(str(error))
 
 # ============================================================
 # DISPLAY ANALYSIS DASHBOARD
@@ -863,74 +951,109 @@ Return ONLY valid JSON with this exact structure:
 data = st.session_state.analysis
 
 if data:
-    company = data.get("company_overview", {})
-    metrics = data.get("key_metrics", [])
-    scorecard = data.get("investor_scorecard", {})
-    management = data.get("management_commentary", [])
-    risks = data.get("risks", [])
-    takeaway = data.get("analyst_takeaway", {})
+  company = data.get("company_overview", {})
+  metrics = data.get("key_metrics", [])
+  scorecard = data.get("investor_scorecard", {})
+  management = data.get("management_commentary", [])
+  risks = data.get("risks", [])
+  takeaway = data.get("analyst_takeaway", {})
 
-    # Company Overview
-    st.markdown('<div class="section-title">Company Overview</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-description">A quick snapshot of the company and what it does.</div>', unsafe_allow_html=True)
+  # Company Overview
+  st.markdown(
+      '<div class="section-title">Company Overview</div>',
+      unsafe_allow_html=True,
+  )
+  st.markdown(
+      '<div class="section-description">A quick snapshot of the company and'
+      " what it does.</div>",
+      unsafe_allow_html=True,
+  )
 
-    overview_items = [
-        ("Company", company.get("company_name", "Not available")),
-        ("Industry", company.get("industry", "Not available")),
-        ("What They Do", company.get("business_type", "Not available")),
-        ("Reporting Period", company.get("reporting_period", "Not available")),
-        ("Report Type", company.get("report_type", "Not available"))
-    ]
+  overview_items = [
+      ("Company", company.get("company_name", "Not available")),
+      ("Industry", company.get("industry", "Not available")),
+      ("What They Do", company.get("business_type", "Not available")),
+      ("Reporting Period", company.get("reporting_period", "Not available")),
+      ("Report Type", company.get("report_type", "Not available")),
+  ]
 
-    overview_columns = st.columns([1.2, 1.2, 2.2, 1, 1])
-    for column, item in zip(overview_columns, overview_items):
-        with column:
-            column_html = f"""<div class="company-card"><div class="company-label">{item[0]}</div><div class="company-value">{item[1]}</div></div>"""
-            st.markdown(column_html, unsafe_allow_html=True)
+  overview_columns = st.columns([1.2, 1.2, 2.2, 1, 1])
+  for column, item in zip(overview_columns, overview_items):
+    with column:
+      column_html = f"""<div class="company-card"><div class="company-label">{item[0]}</div><div class="company-value">{item[1]}</div></div>"""
+      st.markdown(column_html, unsafe_allow_html=True)
 
-    # Key Financial Metrics Cards
-    st.markdown('<div class="section-title">Key Financial Metrics</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-description">The main headline numbers extracted from the financial report.</div>', unsafe_allow_html=True)
+  # Key Financial Metrics Cards
+  st.markdown(
+      '<div class="section-title">Key Financial Metrics</div>',
+      unsafe_allow_html=True,
+  )
+  st.markdown(
+      '<div class="section-description">The main headline numbers extracted'
+      " from the financial report.</div>",
+      unsafe_allow_html=True,
+  )
 
-    headline_metrics = []
-    priority_words = ["total income", "revenue", "profit after tax", "pat", "net profit", "ebitda", "assets under management", "aum", "total client"]
+  headline_metrics = []
+  priority_words = [
+      "total income",
+      "revenue",
+      "profit after tax",
+      "pat",
+      "net profit",
+      "ebitda",
+      "assets under management",
+      "aum",
+      "total client",
+  ]
 
-    for metric in metrics:
-        metric_name = str(metric.get("metric", "")).lower()
-        if any(word in metric_name for word in priority_words):
-            if metric not in headline_metrics:
-                headline_metrics.append(metric)
+  for metric in metrics:
+    metric_name = str(metric.get("metric", "")).lower()
+    if any(word in metric_name for word in priority_words):
+      if metric not in headline_metrics:
+        headline_metrics.append(metric)
 
-    for metric in metrics:
-        if metric not in headline_metrics:
-            headline_metrics.append(metric)
+  for metric in metrics:
+    if metric not in headline_metrics:
+      headline_metrics.append(metric)
 
-    headline_metrics = headline_metrics[:4]
+  headline_metrics = headline_metrics[:4]
 
-    if headline_metrics:
-        metric_columns = st.columns(len(headline_metrics))
-        for column, metric in zip(metric_columns, headline_metrics):
-            with column:
-                m_name = metric.get("metric", "Metric")
-                current = metric.get("current_period", "N/A")
-                unit = metric.get("unit", "")
-                growth = str(metric.get("yoy_growth", "")).strip()
-                basis = metric.get("basis", "")
-                value_display = f"{current} {unit}".strip()
+  if headline_metrics:
+    metric_columns = st.columns(len(headline_metrics))
+    for column, metric in zip(metric_columns, headline_metrics):
+      with column:
+        m_name = metric.get("metric", "Metric")
+        current = metric.get("current_period", "N/A")
+        unit = metric.get("unit", "")
+        growth = str(metric.get("yoy_growth", "")).strip()
+        basis = metric.get("basis", "")
+        value_display = f"{current} {unit}".strip()
 
-                badge_html = ""
-                if growth and growth.lower() not in ["n/a", "not available", "not applicable", ""]:
-                    if growth.startswith("-") or "decline" in growth.lower():
-                        badge_html = f"""<div class="kpi-badge-neg">▼ {growth}</div>"""
-                    elif growth.startswith("+") or not growth.startswith("-"):
-                        clean_growth = growth if growth.startswith("+") else f"+{growth}"
-                        badge_html = f"""<div class="kpi-badge-pos">▲ {clean_growth} YoY</div>"""
-                else:
-                    badge_html = """<div class="kpi-badge-neutral">Current Level</div>"""
+        badge_html = ""
+        if growth and growth.lower() not in [
+            "n/a",
+            "not available",
+            "not applicable",
+            "",
+        ]:
+          if growth.startswith("-") or "decline" in growth.lower():
+            badge_html = f"""<div class="kpi-badge-neg">▼ {growth}</div>"""
+          elif growth.startswith("+") or not growth.startswith("-"):
+            clean_growth = growth if growth.startswith("+") else f"+{growth}"
+            badge_html = (
+                f"""<div class="kpi-badge-pos">▲ {clean_growth} YoY</div>"""
+            )
+        else:
+          badge_html = (
+              """<div class="kpi-badge-neutral">Current Level</div>"""
+          )
 
-                basis_html = f"""<div class="kpi-basis">Basis: {basis}</div>""" if basis else ""
+        basis_html = (
+            f"""<div class="kpi-basis">Basis: {basis}</div>""" if basis else ""
+        )
 
-                kpi_card_html = f"""
+        kpi_card_html = f"""
                 <div class="kpi-card">
                     <div>
                         <div class="kpi-label">{m_name}</div>
@@ -940,175 +1063,237 @@ if data:
                     {basis_html}
                 </div>
                 """
-                st.markdown(kpi_card_html, unsafe_allow_html=True)
+        st.markdown(kpi_card_html, unsafe_allow_html=True)
 
-    # Consolidated Tabs
-    tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.tabs([
-        "⭐ Report Overview & Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks", "Investor Takeaway"
-    ])
+  # Consolidated Tabs
+  (
+      tab_scorecard,
+      tab_metrics,
+      tab_charts,
+      tab_mgmt,
+      tab_risks,
+      tab_investor,
+  ) = st.tabs([
+      "⭐ Report Overview & Scorecard",
+      "Financial Metrics Table",
+      "📊 Visual Charts",
+      "Management Plans",
+      "Risks",
+      "Investor Takeaway",
+  ])
 
-    with tab_scorecard:
-        st.subheader("Executive Strategic Scorecard")
-        st.write("A structured 4-pillar evaluation matrix explained in simple, practical terms:")
+  with tab_scorecard:
+    st.subheader("Executive Strategic Scorecard")
+    st.write(
+        "A structured 4-pillar evaluation matrix explained in simple,"
+        " practical terms:"
+    )
 
-        if scorecard:
-            growth_info = scorecard.get("growth_momentum", {})
-            prof_info = scorecard.get("profitability_quality", {})
-            safety_info = scorecard.get("balance_sheet_safety", {})
-            exec_info = scorecard.get("strategic_execution", {})
+    if scorecard:
+      growth_info = scorecard.get("growth_momentum", {})
+      prof_info = scorecard.get("profitability_quality", {})
+      safety_info = scorecard.get("balance_sheet_safety", {})
+      exec_info = scorecard.get("strategic_execution", {})
 
-            col_s1, col_s2 = st.columns(2)
+      col_s1, col_s2 = st.columns(2)
 
-            with col_s1:
-                st.markdown(f"""
+      with col_s1:
+        st.markdown(
+            f"""
                 <div class="scorecard-card">
                     <div class="scorecard-header">
                         <div class="scorecard-title">🚀 Growth Momentum</div>
                         <div class="scorecard-badge">{growth_info.get('badge', 'Expanding')}</div>
                     </div>
                     <div class="scorecard-verdict">{growth_info.get('verdict', '')}</div>
-                """, unsafe_allow_html=True)
-                for pt in growth_info.get("points", []):
-                    st.markdown(f"• {pt}")
-                st.markdown("</div>", unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
+        for pt in growth_info.get("points", []):
+          st.markdown(f"• {pt}")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            with col_s2:
-                st.markdown(f"""
+      with col_s2:
+        st.markdown(
+            f"""
                 <div class="scorecard-card">
                     <div class="scorecard-header">
                         <div class="scorecard-title">💰 Profitability & Earnings Quality</div>
                         <div class="scorecard-badge">{prof_info.get('badge', 'Operating Profit')}</div>
                     </div>
                     <div class="scorecard-verdict">{prof_info.get('verdict', '')}</div>
-                """, unsafe_allow_html=True)
-                for pt in prof_info.get("points", []):
-                    st.markdown(f"• {pt}")
-                st.markdown("</div>", unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
+        for pt in prof_info.get("points", []):
+          st.markdown(f"• {pt}")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            col_s3, col_s4 = st.columns(2)
+      col_s3, col_s4 = st.columns(2)
 
-            with col_s3:
-                st.markdown(f"""
+      with col_s3:
+        st.markdown(
+            f"""
                 <div class="scorecard-card">
                     <div class="scorecard-header">
                         <div class="scorecard-title">🛡️ Balance Sheet Resilience</div>
                         <div class="scorecard-badge">{safety_info.get('badge', 'Capital Cushion')}</div>
                     </div>
                     <div class="scorecard-verdict">{safety_info.get('verdict', '')}</div>
-                """, unsafe_allow_html=True)
-                for pt in safety_info.get("points", []):
-                    st.markdown(f"• {pt}")
-                st.markdown("</div>", unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
+        for pt in safety_info.get("points", []):
+          st.markdown(f"• {pt}")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            with col_s4:
-                st.markdown(f"""
+      with col_s4:
+        st.markdown(
+            f"""
                 <div class="scorecard-card">
                     <div class="scorecard-header">
                         <div class="scorecard-title">⚙️ Strategic & Commercial Scale</div>
                         <div class="scorecard-badge">{exec_info.get('badge', 'Executing')}</div>
                     </div>
                     <div class="scorecard-verdict">{exec_info.get('verdict', '')}</div>
-                """, unsafe_allow_html=True)
-                for pt in exec_info.get("points", []):
-                    st.markdown(f"• {pt}")
-                st.markdown("</div>", unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
+        for pt in exec_info.get("points", []):
+          st.markdown(f"• {pt}")
+        st.markdown("</div>", unsafe_allow_html=True)
+    else:
+      st.info(
+          "Scorecard will automatically appear once the report is analysed."
+      )
+
+  with tab_metrics:
+    st.subheader("All Financial & Operating Numbers")
+    st.write(
+        "Search and filter the numbers reported in the financial statements:"
+    )
+
+    if metrics:
+      col_search, col_filter = st.columns([2, 1])
+      with col_search:
+        search_query = st.text_input(
+            "🔍 Search line item...",
+            placeholder="e.g. Revenue, Profit, Loan, Expenses",
+            key="metric_search",
+        ).lower()
+      with col_filter:
+        all_bases = list(
+            set([
+                m.get("basis", "").strip()
+                for m in metrics
+                if m.get("basis", "").strip()
+            ])
+        )
+        basis_filter = st.selectbox(
+            "Filter by Basis", options=["All"] + all_bases, key="basis_filter"
+        )
+
+      filtered_rows = []
+      for m in metrics:
+        metric_name = m.get("metric", "")
+        basis_val = m.get("basis", "")
+
+        match_search = (not search_query) or (
+            search_query in metric_name.lower()
+        )
+        match_basis = (basis_filter == "All") or (
+            basis_val.lower() == basis_filter.lower()
+        )
+
+        if match_search and match_basis:
+          filtered_rows.append({
+              "Metric Name": metric_name,
+              "Current Period": m.get("current_period", ""),
+              "Previous Period": m.get("previous_period", ""),
+              "YoY Growth": m.get("yoy_growth", ""),
+              "Unit": m.get("unit", ""),
+              "Basis": basis_val,
+          })
+
+      if filtered_rows:
+        if pd is not None:
+          st.dataframe(
+              filtered_rows,
+              use_container_width=True,
+              hide_index=True,
+              height=450,
+          )
         else:
-            st.info("Scorecard will automatically appear once the report is analysed.")
+          for row in filtered_rows:
+            st.write(
+                f"**{row['Metric Name']}**: {row['Current Period']}"
+                f" {row['Unit']} (YoY: {row['YoY Growth']})"
+            )
+      else:
+        st.info("No metrics matching your search.")
+    else:
+      st.info("No financial metrics found.")
 
-    with tab_metrics:
-        st.subheader("All Financial & Operating Numbers")
-        st.write("Search and filter the numbers reported in the financial statements:")
+  with tab_charts:
+    st.subheader("Visual Financial Comparisons")
+    st.write("Clean graphical views to help compare performance at a glance:")
 
-        if metrics:
-            col_search, col_filter = st.columns([2, 1])
-            with col_search:
-                search_query = st.text_input("🔍 Search line item...", placeholder="e.g. Revenue, Profit, Loan, Expenses", key="metric_search").lower()
-            with col_filter:
-                all_bases = list(set([m.get("basis", "").strip() for m in metrics if m.get("basis", "").strip()]))
-                basis_filter = st.selectbox("Filter by Basis", options=["All"] + all_bases, key="basis_filter")
+    chart_records = []
+    for m in metrics:
+      curr_val = parse_clean_float(m.get("current_period"))
+      prev_val = parse_clean_float(m.get("previous_period"))
+      growth_val = parse_clean_float(m.get("yoy_growth"))
+      m_name = m.get("metric", "").strip()
 
-            filtered_rows = []
-            for m in metrics:
-                metric_name = m.get("metric", "")
-                basis_val = m.get("basis", "")
+      if curr_val is not None and prev_val is not None:
+        chart_records.append({
+            "Metric": m_name,
+            "Previous": prev_val,
+            "Current": curr_val,
+            "Growth (%)": growth_val if growth_val is not None else 0.0,
+            "Unit": m.get("unit", "").strip(),
+        })
 
-                match_search = (not search_query) or (search_query in metric_name.lower())
-                match_basis = (basis_filter == "All") or (basis_val.lower() == basis_filter.lower())
+    if chart_records:
+      col_v1, col_v2 = st.columns(2)
 
-                if match_search and match_basis:
-                    filtered_rows.append({
-                        "Metric Name": metric_name,
-                        "Current Period": m.get("current_period", ""),
-                        "Previous Period": m.get("previous_period", ""),
-                        "YoY Growth": m.get("yoy_growth", ""),
-                        "Unit": m.get("unit", ""),
-                        "Basis": basis_val
-                    })
-
-            if filtered_rows:
-                if pd is not None:
-                    st.dataframe(filtered_rows, use_container_width=True, hide_index=True, height=450)
-                else:
-                    for row in filtered_rows:
-                        st.write(f"**{row['Metric Name']}**: {row['Current Period']} {row['Unit']} (YoY: {row['YoY Growth']})")
-            else:
-                st.info("No metrics matching your search.")
-        else:
-            st.info("No financial metrics found.")
-
-    with tab_charts:
-        st.subheader("Visual Financial Comparisons")
-        st.write("Clean graphical views to help compare performance at a glance:")
-
-        chart_records = []
-        for m in metrics:
-            curr_val = parse_clean_float(m.get("current_period"))
-            prev_val = parse_clean_float(m.get("previous_period"))
-            growth_val = parse_clean_float(m.get("yoy_growth"))
-            m_name = m.get("metric", "").strip()
-
-            if curr_val is not None and prev_val is not None:
-                chart_records.append({
-                    "Metric": m_name,
-                    "Previous": prev_val,
-                    "Current": curr_val,
-                    "Growth (%)": growth_val if growth_val is not None else 0.0,
-                    "Unit": m.get("unit", "").strip()
-                })
-
-        if chart_records:
-            col_v1, col_v2 = st.columns(2)
-
-            with col_v1:
-                st.markdown("""
+      with col_v1:
+        st.markdown(
+            """
                 <div class="chart-box">
                     <div class="chart-title">🔍 Metric Visual Comparison</div>
                     <div class="chart-desc">Select any metric to see its Previous vs. Current value side-by-side:</div>
-                """, unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
 
-                metric_options = [r["Metric"] for r in chart_records]
-                chosen_metric_name = st.selectbox(
-                    "Choose metric to inspect:",
-                    options=metric_options,
-                    index=0,
-                    key="visual_metric_selector"
-                )
+        metric_options = [r["Metric"] for r in chart_records]
+        chosen_metric_name = st.selectbox(
+            "Choose metric to inspect:",
+            options=metric_options,
+            index=0,
+            key="visual_metric_selector",
+        )
 
-                selected_item = next(r for r in chart_records if r["Metric"] == chosen_metric_name)
-                c_val = selected_item["Current"]
-                p_val = selected_item["Previous"]
-                u_lbl = selected_item["Unit"]
-                g_val = selected_item["Growth (%)"]
+        selected_item = next(
+            r for r in chart_records if r["Metric"] == chosen_metric_name
+        )
+        c_val = selected_item["Current"]
+        p_val = selected_item["Previous"]
+        u_lbl = selected_item["Unit"]
+        g_val = selected_item["Growth (%)"]
 
-                max_val = max(abs(c_val), abs(p_val)) if max(abs(c_val), abs(p_val)) > 0 else 1
-                prev_pct = max(int((abs(p_val) / max_val) * 100), 10)
-                curr_pct = max(int((abs(c_val) / max_val) * 100), 10)
+        max_val = (
+            max(abs(c_val), abs(p_val)) if max(abs(c_val), abs(p_val)) > 0 else 1
+        )
+        prev_pct = max(int((abs(p_val) / max_val) * 100), 10)
+        curr_pct = max(int((abs(c_val) / max_val) * 100), 10)
 
-                diff_amt = c_val - p_val
-                growth_sign = "+" if diff_amt >= 0 else ""
-                growth_color = "#34d399" if diff_amt >= 0 else "#f87171"
+        diff_amt = c_val - p_val
+        growth_sign = "+" if diff_amt >= 0 else ""
+        growth_color = "#34d399" if diff_amt >= 0 else "#f87171"
 
-                compare_card_html = f"""
+        compare_card_html = f"""
                 <div style="background: #111722; padding: 18px; border-radius: 12px; border: 1px solid #233145; margin-top: 10px;">
                     <div class="vis-row">
                         <div class="vis-label">
@@ -1137,29 +1322,36 @@ if data:
                 </div>
                 </div>
                 """
-                st.markdown(compare_card_html, unsafe_allow_html=True)
+        st.markdown(compare_card_html, unsafe_allow_html=True)
 
-            with col_v2:
-                st.markdown("""
+      with col_v2:
+        st.markdown(
+            """
                 <div class="chart-box">
                     <div class="chart-title">📈 Year-over-Year Growth Leaders</div>
                     <div class="chart-desc">Horizontal performance bars with exact percentages:</div>
-                """, unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
 
-                growth_items = [r for r in chart_records if r["Growth (%)"] != 0.0]
-                growth_items.sort(key=lambda x: abs(x["Growth (%)"]), reverse=True)
-                top_growers = growth_items[:6]
+        growth_items = [r for r in chart_records if r["Growth (%)"] != 0.0]
+        growth_items.sort(key=lambda x: abs(x["Growth (%)"]), reverse=True)
+        top_growers = growth_items[:6]
 
-                if top_growers:
-                    max_growth = max(abs(r["Growth (%)"]) for r in top_growers) if top_growers else 100
-                    
-                    for item in top_growers:
-                        g_pct = item["Growth (%)"]
-                        bar_w = min(max(int((abs(g_pct) / max_growth) * 100), 12), 100)
-                        bar_class = "vis-fill-pos" if g_pct >= 0 else "vis-fill-neg"
-                        g_tag = f"+{g_pct:,.1f}%" if g_pct >= 0 else f"{g_pct:,.1f}%"
+        if top_growers:
+          max_growth = (
+              max(abs(r["Growth (%)"]) for r in top_growers)
+              if top_growers
+              else 100
+          )
 
-                        growth_row_html = f"""
+          for item in top_growers:
+            g_pct = item["Growth (%)"]
+            bar_w = min(max(int((abs(g_pct) / max_growth) * 100), 12), 100)
+            bar_class = "vis-fill-pos" if g_pct >= 0 else "vis-fill-neg"
+            g_tag = f"+{g_pct:,.1f}%" if g_pct >= 0 else f"{g_pct:,.1f}%"
+
+            growth_row_html = f"""
                         <div class="vis-row">
                             <div class="vis-label">
                                 <span>{item['Metric']}</span>
@@ -1170,36 +1362,42 @@ if data:
                             </div>
                         </div>
                         """
-                        st.markdown(growth_row_html, unsafe_allow_html=True)
-                else:
-                    st.info("No comparative growth items found.")
-
-                st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown(growth_row_html, unsafe_allow_html=True)
         else:
-            st.info("💡 Charts will appear as soon as numerical values are recorded in the report.")
+          st.info("No comparative growth items found.")
 
-    with tab_mgmt:
-        st.subheader("Management Strategy & Outlook")
-        st.write("What company leadership says about future plans and technology in everyday language:")
-        if management:
-            for item in management:
-                title = item.get("title", "Management View")
-                summary = item.get("summary", "")
-                with st.expander(title, expanded=False):
-                    st.write(summary)
-        else:
-            st.info("No management commentary identified.")
+        st.markdown("</div>", unsafe_allow_html=True)
+    else:
+      st.info(
+          "💡 Charts will appear as soon as numerical values are recorded in"
+          " the report."
+      )
 
-    with tab_risks:
-        st.subheader("Potential Risks & Challenges")
-        st.write("Key risks explained in plain English:")
-        if risks:
-            for r in risks:
-                title = r.get("title", "Risk")
-                desc = r.get("what_is_the_risk", "")
-                why = r.get("why_it_matters", "")
+  with tab_mgmt:
+    st.subheader("Management Strategy & Outlook")
+    st.write(
+        "What company leadership says about future plans and technology in"
+        " everyday language:"
+    )
+    if management:
+      for item in management:
+        title = item.get("title", "Management View")
+        summary = item.get("summary", "")
+        with st.expander(title, expanded=False):
+          st.write(summary)
+    else:
+      st.info("No management commentary identified.")
 
-                risk_html = f"""
+  with tab_risks:
+    st.subheader("Potential Risks & Challenges")
+    st.write("Key risks explained in plain English:")
+    if risks:
+      for r in risks:
+        title = r.get("title", "Risk")
+        desc = r.get("what_is_the_risk", "")
+        why = r.get("why_it_matters", "")
+
+        risk_html = f"""
                 <div class="risk-card">
                     <div class="risk-title">⚠️ {title}</div>
                     <div class="insight-text">{desc}</div>
@@ -1209,325 +1407,430 @@ if data:
                     </div>
                 </div>
                 """
-                st.markdown(risk_html, unsafe_allow_html=True)
+        st.markdown(risk_html, unsafe_allow_html=True)
 
-    with tab_investor:
-        st.subheader("Analyst Takeaway")
-        st.write("Simplified summary for investors and analysts:")
+  with tab_investor:
+    st.subheader("Analyst Takeaway")
+    st.write("Simplified summary for investors and analysts:")
 
-        improving = takeaway.get("improving", [])
-        weakening = takeaway.get("weakening", [])
-        growth_drivers = takeaway.get("growth_drivers", [])
-        investor_watch = takeaway.get("investor_watch", [])
+    improving = takeaway.get("improving", [])
+    weakening = takeaway.get("weakening", [])
+    growth_drivers = takeaway.get("growth_drivers", [])
+    investor_watch = takeaway.get("investor_watch", [])
 
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("### 🟢 What is improving?")
-            if improving:
-                for item in improving:
-                    card_html = f"""<div class="takeaway-improving">✓ {item}</div>"""
-                    st.markdown(card_html, unsafe_allow_html=True)
-            else:
-                st.info("No specific improvement points identified.")
+    col1, col2 = st.columns(2)
+    with col1:
+      st.markdown("### 🟢 What is improving?")
+      if improving:
+        for item in improving:
+          card_html = f"""<div class="takeaway-improving">✓ {item}</div>"""
+          st.markdown(card_html, unsafe_allow_html=True)
+      else:
+        st.info("No specific improvement points identified.")
 
-        with col2:
-            st.markdown("### 🔴 What is weakening?")
-            if weakening:
-                for item in weakening:
-                    card_html = f"""<div class="takeaway-weakening">✗ {item}</div>"""
-                    st.markdown(card_html, unsafe_allow_html=True)
-            else:
-                st.info("No specific weakening points identified.")
+    with col2:
+      st.markdown("### 🔴 What is weakening?")
+      if weakening:
+        for item in weakening:
+          card_html = f"""<div class="takeaway-weakening">✗ {item}</div>"""
+          st.markdown(card_html, unsafe_allow_html=True)
+      else:
+        st.info("No specific weakening points identified.")
 
-        st.markdown("### 🚀 Main Growth Drivers")
-        if growth_drivers:
-            for item in growth_drivers:
-                card_html = f"""<div class="takeaway-driver">◆ {item}</div>"""
-                st.markdown(card_html, unsafe_allow_html=True)
+    st.markdown("### 🚀 Main Growth Drivers")
+    if growth_drivers:
+      for item in growth_drivers:
+        card_html = f"""<div class="takeaway-driver">◆ {item}</div>"""
+        st.markdown(card_html, unsafe_allow_html=True)
 
-        st.markdown("### 🔍 What Should an Investor Watch?")
-        if investor_watch:
-            for item in investor_watch:
-                card_html = f"""<div class="takeaway-watch">◉ {item}</div>"""
-                st.markdown(card_html, unsafe_allow_html=True)
+    st.markdown("### 🔍 What Should an Investor Watch?")
+    if investor_watch:
+      for item in investor_watch:
+        card_html = f"""<div class="takeaway-watch">◉ {item}</div>"""
+        st.markdown(card_html, unsafe_allow_html=True)
 
-    # ========================================================
-    # DYNAMIC INVESTMENT POSITION & ACCURATE LIVE CMP MODULE
-    # ========================================================
-    st.markdown("---")
-    st.markdown('<div class="section-title">💼 Personalized Investment Position & Market Analysis</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-description">Evaluate your personal investment against live stock market pricing and the financial health in this annual report.</div>', unsafe_allow_html=True)
+  # ========================================================
+  # DYNAMIC INVESTMENT POSITION & ACCURATE LIVE CMP MODULE
+  # ========================================================
+  st.markdown("---")
+  st.markdown(
+      '<div class="section-title">💼 Personalized Investment Position & Market'
+      " Analysis</div>",
+      unsafe_allow_html=True,
+  )
+  st.markdown(
+      '<div class="section-description">Evaluate your personal investment'
+      " against live stock market pricing and the financial health in this"
+      " annual report.</div>",
+      unsafe_allow_html=True,
+  )
 
-    investor_mcq = st.radio(
-        "Are you currently an investor in this company's stock?",
-        options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"],
-        index=0,
-        horizontal=True,
-        key="investor_position_mcq"
+  investor_mcq = st.radio(
+      "Are you currently an investor in this company's stock?",
+      options=[
+          "Select an option...",
+          "Yes, I hold shares in this company",
+          "No, I am just studying / evaluating",
+      ],
+      index=0,
+      horizontal=True,
+      key="investor_position_mcq",
+  )
+
+  if investor_mcq == "No, I am just studying / evaluating":
+    st.info(
+        "💡 Thank you! Feel free to explore the annual report and dashboard"
+        " above to evaluate the business."
     )
 
-    if investor_mcq == "No, I am just studying / evaluating":
-        st.info("💡 Thank you! Feel free to explore the annual report and dashboard above to evaluate the business.")
-
-    elif investor_mcq == "Yes, I hold shares in this company":
-        with st.container():
-            st.markdown("""
+  elif investor_mcq == "Yes, I hold shares in this company":
+    with st.container():
+      st.markdown(
+          """
             <div class="position-box">
                 <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 14px;">📊 Enter Your Investment Details:</div>
-            """, unsafe_allow_html=True)
+            """,
+          unsafe_allow_html=True,
+      )
 
-            col_inv1, col_inv2 = st.columns(2)
-            with col_inv1:
-                total_invested_input = st.number_input(
-                    "Total Amount Invested (₹)", 
-                    min_value=0.0, 
-                    value=None, 
-                    placeholder="e.g. 50000.00", 
-                    step=500.0, 
-                    format="%.2f"
-                )
-            with col_inv2:
-                avg_price_input = st.number_input(
-                    "Average Buying Price per Share (₹)", 
-                    min_value=0.0, 
-                    value=None, 
-                    placeholder="e.g. 250.00", 
-                    step=1.0, 
-                    format="%.2f"
-                )
+      col_inv1, col_inv2 = st.columns(2)
+      with col_inv1:
+        total_invested_input = st.number_input(
+            "Total Amount Invested (₹)",
+            min_value=0.0,
+            value=None,
+            placeholder="e.g. 50000.00",
+            step=500.0,
+            format="%.2f",
+        )
+      with col_inv2:
+        avg_price_input = st.number_input(
+            "Average Buying Price per Share (₹)",
+            min_value=0.0,
+            value=None,
+            placeholder="e.g. 250.00",
+            step=1.0,
+            format="%.2f",
+        )
 
-            has_valid_inputs = (
-                total_invested_input is not None and 
-                avg_price_input is not None and 
-                total_invested_input > 0 and 
-                avg_price_input > 0
-            )
+      has_valid_inputs = (
+          total_invested_input is not None
+          and avg_price_input is not None
+          and total_invested_input > 0
+          and avg_price_input > 0
+      )
 
-            calculated_shares = int(total_invested_input // avg_price_input) if has_valid_inputs else 0
+      calculated_shares = (
+          int(total_invested_input // avg_price_input)
+          if has_valid_inputs
+          else 0
+      )
 
-            if has_valid_inputs:
-                st.markdown(f"""
+      if has_valid_inputs:
+        st.markdown(
+            f"""
                 <div style="background: #192231; border: 1px solid #2e3e57; border-radius: 8px; padding: 10px 14px; margin-top: 10px; margin-bottom: 14px; display: flex; justify-content: space-between;">
                     <span style="color: #94a3b8; font-size: 13.5px;">Calculated Holding:</span>
                     <span style="color: #60a5fa; font-weight: 700; font-size: 14px;">~{calculated_shares:,} Shares</span>
                 </div>
-                """, unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
 
-                if st.button("⚡ Analyse The Investment", type="primary"):
-                    company_name = company.get('company_name', 'this company')
-                    ticker_hint = company.get('stock_ticker', '')
+        if st.button("⚡ Analyse The Investment", type="primary"):
+          company_name = company.get("company_name", "this company")
+          ticker_hint = company.get("stock_ticker", "")
 
-                    with st.spinner(f"Retrieving current stock market quote for {company_name}..."):
-                        market_info = fetch_live_stock_price(company_name, ticker_hint)
+          with st.spinner(
+              f"Retrieving current stock market quote for {company_name}..."
+          ):
+            market_info = fetch_live_stock_price(company_name, ticker_hint)
 
-                    live_price = market_info["price"] if market_info else 0.0
-                    live_date = market_info["as_on"] if market_info else datetime.today().strftime("%d %b %Y")
-                    exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "NSE / BSE"
+          live_price = market_info["price"] if market_info else 0.0
+          live_date = (
+              market_info["as_on"]
+              if market_info
+              else datetime.today().strftime("%d %b %Y")
+          )
+          exchange_tag = (
+              f"{market_info['exchange']}: {market_info['ticker']}"
+              if market_info
+              else "NSE / BSE"
+          )
 
-                    if live_price > 0:
-                        cur_val = live_price * calculated_shares
-                        pnl_amt = cur_val - total_invested_input
-                        pnl_pct = (pnl_amt / total_invested_input) * 100
-                        pnl_sign = "+" if pnl_amt >= 0 else ""
-                        pnl_str = f"{pnl_sign}{pnl_pct:.2f}%"
-                        amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
-                        cmp_display = f"₹{live_price:,.2f}"
-                    else:
-                        cmp_display = "Active Trading Quote"
-                        pnl_str = "Active"
-                        amt_str = ""
+          if live_price > 0:
+            cur_val = live_price * calculated_shares
+            pnl_amt = cur_val - total_invested_input
+            pnl_pct = (pnl_amt / total_invested_input) * 100
+            pnl_sign = "+" if pnl_amt >= 0 else ""
+            pnl_str = f"{pnl_sign}{pnl_pct:.2f}%"
+            amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
+            cmp_display = f"₹{live_price:,.2f}"
+            gain_per_share = live_price - avg_price_input
+            gain_sign = "+" if gain_per_share >= 0 else ""
+            per_share_str = f"{gain_sign}₹{gain_per_share:,.2f} per share"
+          else:
+            cmp_display = "Active Trading Quote"
+            pnl_str = "Active"
+            amt_str = ""
+            per_share_str = "Active"
 
-                    analysis_req_prompt = f"""
-You are a senior equity research analyst talking to an everyday investor who owns shares of {company_name}.
-The user invested ₹{total_invested_input:,.2f} at an average price of ₹{avg_price_input:.2f} (~{calculated_shares:,} shares).
-The current live market price context is {cmp_display} on {exchange_tag} as of {live_date}.
+          analysis_req_prompt = f"""
+You are a senior equity research analyst explaining an investment in {company_name} to a regular investor in plain, everyday English.
 
-============================================================
-COMMUNICATION STYLE REQUIREMENTS:
-============================================================
-- Explain things in plain, clear English so a normal person or finance student understands immediately.
-- Use visual structured sub-items instead of long dense paragraphs.
-- Keep each point punchy (1-2 clear sentences).
+INVESTMENT NUMBERS:
+- Capital Invested: ₹{total_invested_input:,.2f}
+- Purchase Price: ₹{avg_price_input:.2f} (~{calculated_shares:,} shares)
+- Current Market Price: {cmp_display} as of {live_date} on {exchange_tag}
+- Exact Return: {pnl_str} ({amt_str}, {per_share_str})
 
-============================================================
-OUTPUT FORMAT (JSON ONLY):
-============================================================
+STRUCTURE YOUR ANALYSIS STRICTLY INTO 3 DIRECT SECTIONS:
+1. "Profit or Loss": Clear 1-sentence verdict on whether the position is in profit or loss right now, the exact rupee difference per share between purchase price and market price, and what that means today.
+2. "The Price At Which Stock Is Bought Is Fundamentally Safe": Explain in 3 simple points why this buying price is safe by comparing it directly against the company's asset backing, net worth cushion, loan safety, and promoter benchmark.
+3. "Outlook for Next 5 to 8 Years": Explain in 3 clear long-term points how the business model, digital scale, and global joint ventures compound value over a 5 to 8 year horizon.
+
 Return ONLY valid JSON with this exact structure:
 {{
-  "position_summary": "1 punchy, clear sentence summarizing how this position stands at current market levels.",
-  "fundamental_strengths": [
+  "profit_or_loss_summary": "You are currently in profit by {pnl_str} ({amt_str}), having gained {per_share_str} from your entry price of ₹{avg_price_input:.2f} to the current market price of {cmp_display}.",
+  "price_safety_points": [
     {{
-      "title": "Strong Core Revenue Growth",
-      "explanation": "Core operational revenue grew 272% to ₹1,390 Cr, showing the actual business is scaling rapidly beneath your buying price."
+      "title": "Below Promoter & Institutional Valuation",
+      "explanation": "Clear explanation comparing purchase price to promoter warrants or market valuation bands in simple words."
     }},
     {{
-      "title": "Fortress Balance Sheet Protection",
-      "explanation": "With a net worth of ₹1,33,854 Cr and nearly zero debt, your investment has exceptional long-term downside safety."
+      "title": "Massive Net Worth & Zero Debt Cushion",
+      "explanation": "Clear explanation of how the company's total net worth and debt-free balance sheet protects capital."
     }},
     {{
-      "title": "Setup Costs vs Real Loss",
-      "explanation": "The small dip in net profit is purely due to temporary setup costs for new businesses (like mutual funds and payments bank), not business weakness."
+      "title": "Core Business Engine Growing Behind Price",
+      "explanation": "Explanation of core revenue growth and secured lending safety supporting the entry price."
     }}
   ],
-  "market_outlook": [
+  "long_term_outlook_5_to_8_years": [
     {{
-      "title": "Digital Finance Growth Runway",
-      "explanation": "India is moving rapidly toward digital mutual funds, digital loans, and insurance, giving the company massive expansion potential."
+      "title": "Massive Digital Ecosystem Monetisation",
+      "explanation": "How millions of active app users convert into compounding fee streams across 5 to 8 years."
     }},
     {{
-      "title": "Tier-1 Global Partnerships",
-      "explanation": "Strategic joint ventures with global giants like BlackRock and Allianz give the company world-class products and trust."
-    }}
-  ],
-  "action_plan": [
-    {{
-      "title": "Track Quarterly Margin Turnaround",
-      "explanation": "Watch how setup costs gradually turn into recurring fee profits in upcoming quarterly financial statements."
+      "title": "Global Joint Venture Scale (BlackRock & Allianz)",
+      "explanation": "How mutual fund assets and insurance distribution build high-margin recurring income over 5 to 8 years."
     }},
     {{
-      "title": "Monitor Loan Book Quality",
-      "explanation": "Ensure bad loans remain negligible as the total loan book expands past ₹25,000 Cr."
-    }},
-    {{
-      "title": "Long-Term Patience",
-      "explanation": "Hold with a multi-year horizon as the platform transforms from building infrastructure into high-margin monetisation."
+      "title": "Transformation into Financial Super-Platform",
+      "explanation": "Long-term investor takeaway on holding through setup phases into full operational maturity."
     }}
   ]
 }}
 """
-                    with st.spinner("Analyzing portfolio fundamentals & live market position..."):
-                        try:
-                            pos_response = generate_with_fallback(
-                                contents=[analysis_req_prompt, st.session_state.gemini_file],
-                                json_mode=True
-                            )
-                            parsed_analysis = clean_json_response(pos_response.text)
-                            parsed_analysis["cmp_display"] = cmp_display
-                            parsed_analysis["live_date"] = live_date
-                            parsed_analysis["exchange_tag"] = exchange_tag
-                            parsed_analysis["pnl_str"] = pnl_str
-                            parsed_analysis["amt_str"] = amt_str
-                            parsed_analysis["is_pos"] = not str(pnl_str).startswith("-")
+          with st.spinner(
+              "Analyzing portfolio fundamentals & live market position..."
+          ):
+            try:
+              pos_response = generate_with_fallback(
+                  contents=[analysis_req_prompt, st.session_state.gemini_file],
+                  json_mode=True,
+              )
+              parsed_analysis = clean_json_response(pos_response.text)
+              parsed_analysis["cmp_display"] = cmp_display
+              parsed_analysis["live_date"] = live_date
+              parsed_analysis["exchange_tag"] = exchange_tag
+              parsed_analysis["pnl_str"] = pnl_str
+              parsed_analysis["amt_str"] = amt_str
+              parsed_analysis["is_pos"] = not str(pnl_str).startswith("-")
+              parsed_analysis["live_price"] = live_price
+              parsed_analysis["avg_price"] = avg_price_input
 
-                            st.session_state.position_assessment = parsed_analysis
-                        except Exception as e:
-                            st.error(f"Could not complete investment analysis: {e}")
+              st.session_state.position_assessment = parsed_analysis
+            except Exception as e:
+              st.error(f"Could not complete investment analysis: {e}")
 
-                if st.session_state.position_assessment:
-                    pos_data = st.session_state.position_assessment
-                    
-                    st.markdown("---")
-                    st.markdown("### 📋 Analyst Portfolio Assessment")
-                    
-                    # 4 Top Visual Metric Cards
-                    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-                    with col_m1:
-                        st.markdown(f"""
+        if st.session_state.position_assessment:
+          pos_data = st.session_state.position_assessment
+
+          st.markdown("---")
+          st.markdown("### 📋 Analyst Portfolio Assessment")
+
+          # 4 Top Visual Metric Cards
+          col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+          with col_m1:
+            st.markdown(
+                f"""
                         <div class="invest-kpi-card">
                             <div class="invest-kpi-label">Invested Capital</div>
                             <div class="invest-kpi-val">₹{total_invested_input:,.2f}</div>
                             <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">~{calculated_shares:,} Shares</div>
                         </div>
-                        """, unsafe_allow_html=True)
-                    with col_m2:
-                        st.markdown(f"""
+                        """,
+                unsafe_allow_html=True,
+            )
+          with col_m2:
+            st.markdown(
+                f"""
                         <div class="invest-kpi-card">
                             <div class="invest-kpi-label">Your Buy Price</div>
                             <div class="invest-kpi-val">₹{avg_price_input:,.2f}</div>
                             <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">Cost Basis</div>
                         </div>
-                        """, unsafe_allow_html=True)
-                    with col_m3:
-                        mkt_price = pos_data.get("cmp_display", "N/A")
-                        as_on_date = pos_data.get("live_date", "")
-                        st.markdown(f"""
+                        """,
+                unsafe_allow_html=True,
+            )
+          with col_m3:
+            mkt_price = pos_data.get("cmp_display", "N/A")
+            as_on_date = pos_data.get("live_date", "")
+            st.markdown(
+                f"""
                         <div class="invest-kpi-card">
                             <div class="invest-kpi-label">Current Market Price (CMP)</div>
                             <div class="invest-kpi-val" style="color: #60a5fa;">{mkt_price}</div>
                             <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">As on {as_on_date} ({pos_data.get('exchange_tag', 'NSE/BSE')})</div>
                         </div>
-                        """, unsafe_allow_html=True)
-                    with col_m4:
-                        gain_pct = pos_data.get("pnl_str", "N/A")
-                        is_pos = pos_data.get("is_pos", True)
-                        pnl_color = "#34d399" if is_pos else "#f87171"
-                        st.markdown(f"""
+                        """,
+                unsafe_allow_html=True,
+            )
+          with col_m4:
+            gain_pct = pos_data.get("pnl_str", "N/A")
+            is_pos = pos_data.get("is_pos", True)
+            pnl_color = "#34d399" if is_pos else "#f87171"
+            st.markdown(
+                f"""
                         <div class="invest-kpi-card">
                             <div class="invest-kpi-label">Estimated Return</div>
                             <div class="invest-kpi-val" style="color: {pnl_color};">{gain_pct}</div>
                             <div style="color: {pnl_color}; font-size: 11.5px; margin-top: 4px;">{pos_data.get('amt_str', '')}</div>
                         </div>
-                        """, unsafe_allow_html=True)
+                        """,
+                unsafe_allow_html=True,
+            )
 
-                    if pos_data.get("position_summary"):
-                        st.markdown(f"""
-                        <div style="background: #111a26; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 18px; color: #dbeafe; font-size: 14px;">
-                            <strong>Summary:</strong> {pos_data.get('position_summary')}
-                        </div>
-                        """, unsafe_allow_html=True)
-
-                    # Section 1: Fundamental Strengths
-                    st.markdown("""
+          # ========================================================
+          # SECTION 1: PROFIT OR LOSS & PRICE COMPARISON GAUGE
+          # ========================================================
+          st.markdown(
+              """
                     <div class="invest-section-box">
-                        <div class="invest-section-header">🛡️ Fundamental Strengths vs. Your Purchase Price</div>
-                    """, unsafe_allow_html=True)
-                    for item in pos_data.get("fundamental_strengths", []):
-                        st.markdown(f"""
+                        <div class="invest-section-header">💰 Profit or Loss</div>
+                    """,
+              unsafe_allow_html=True,
+          )
+
+          pnl_summary = pos_data.get(
+              "profit_or_loss_summary",
+              f"Position status: {pos_data.get('pnl_str', '')}",
+          )
+          is_pos = pos_data.get("is_pos", True)
+          banner_border = "#10b981" if is_pos else "#ef4444"
+          banner_bg = "#121d19" if is_pos else "#201417"
+          banner_text = "#d1fae5" if is_pos else "#fee2e2"
+
+          st.markdown(
+              f"""
+                    <div style="background: {banner_bg}; border-left: 4px solid {banner_border}; padding: 14px 16px; border-radius: 0 8px 8px 0; margin-bottom: 14px; color: {banner_text}; font-size: 14px; font-weight: 500;">
+                        {pnl_summary}
+                    </div>
+                    """,
+              unsafe_allow_html=True,
+          )
+
+          # Visual Price Comparison Table
+          l_price = pos_data.get("live_price", 0.0)
+          a_price = pos_data.get("avg_price", 0.0)
+          promoter_benchmark = 316.50  # Preferential warrant benchmark
+
+          price_table_html = f"""
+                    <div class="price-gauge-card">
+                        <div style="font-size: 13.5px; font-weight: 700; color: #ffffff; margin-bottom: 12px;">📊 Price Level Comparison Table:</div>
+                        <div class="gauge-row">
+                            <span style="color: #cbd5e1;">Your Purchase Price:</span>
+                            <span style="color: #60a5fa; font-weight: 700;">₹{a_price:,.2f}</span>
+                        </div>
+                        <div class="gauge-row">
+                            <span style="color: #cbd5e1;">Current Live Market Price:</span>
+                            <span style="color: {'#34d399' if is_pos else '#f87171'}; font-weight: 700;">₹{l_price:,.2f} ({pos_data.get('pnl_str', '')})</span>
+                        </div>
+                        <div class="gauge-row">
+                            <span style="color: #cbd5e1;">Promoter Warrant Benchmark:</span>
+                            <span style="color: #f59e0b; font-weight: 700;">₹{promoter_benchmark:,.2f}</span>
+                        </div>
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #233145; color: #94a3b8; font-size: 12px;">
+                            💡 <em>Your buying price of ₹{a_price:,.2f} sits below the market price (₹{l_price:,.2f}) and represents a substantial discount to the ₹{promoter_benchmark:,.2f} promoter capital infusion level.</em>
+                        </div>
+                    </div>
+                    """
+          st.markdown(price_table_html, unsafe_allow_html=True)
+          st.markdown("</div>", unsafe_allow_html=True)
+
+          # ========================================================
+          # SECTION 2: IS MY BUYING PRICE FUNDAMENTALLY SAFE?
+          # ========================================================
+          st.markdown(
+              """
+                    <div class="invest-section-box">
+                        <div class="invest-section-header">🛡️ The Price At Which Stock Is Bought Is Fundamentally Safe</div>
+                    """,
+              unsafe_allow_html=True,
+          )
+          for item in pos_data.get("price_safety_points", []):
+            st.markdown(
+                f"""
                         <div class="invest-subcard">
                             <div class="invest-subcard-title">✓ {item.get('title', '')}</div>
                             <div class="invest-subcard-body">{item.get('explanation', '')}</div>
                         </div>
-                        """, unsafe_allow_html=True)
-                    st.markdown("</div>", unsafe_allow_html=True)
+                        """,
+                unsafe_allow_html=True,
+            )
+          st.markdown("</div>", unsafe_allow_html=True)
 
-                    # Section 2: Future Market Outlook
-                    st.markdown("""
+          # ========================================================
+          # SECTION 3: OUTLOOK FOR NEXT 5 TO 8 YEARS
+          # ========================================================
+          st.markdown(
+              """
                     <div class="invest-section-box">
-                        <div class="invest-section-header">🚀 Future Market Outlook & Catalysts</div>
-                    """, unsafe_allow_html=True)
-                    for item in pos_data.get("market_outlook", []):
-                        st.markdown(f"""
+                        <div class="invest-section-header">🚀 Outlook For The Next 5 To 8 Years (Long-Term Horizon)</div>
+                    """,
+              unsafe_allow_html=True,
+          )
+          for item in pos_data.get("long_term_outlook_5_to_8_years", []):
+            st.markdown(
+                f"""
                         <div class="invest-subcard" style="border-left-color: #8b5cf6;">
                             <div class="invest-subcard-title">◆ {item.get('title', '')}</div>
                             <div class="invest-subcard-body">{item.get('explanation', '')}</div>
                         </div>
-                        """, unsafe_allow_html=True)
-                    st.markdown("</div>", unsafe_allow_html=True)
+                        """,
+                unsafe_allow_html=True,
+            )
+          st.markdown("</div>", unsafe_allow_html=True)
 
-                    # Section 3: Action Plan Checklist
-                    st.markdown("""
-                    <div class="invest-section-box">
-                        <div class="invest-section-header">📌 Strategic Investor Action Plan (What to Track)</div>
-                    """, unsafe_allow_html=True)
-                    for item in pos_data.get("action_plan", []):
-                        st.markdown(f"""
-                        <div class="invest-subcard" style="border-left-color: #10b981;">
-                            <div class="invest-subcard-title">◉ {item.get('title', '')}</div>
-                            <div class="invest-subcard-body">{item.get('explanation', '')}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    st.markdown("</div>", unsafe_allow_html=True)
+      st.markdown("</div>", unsafe_allow_html=True)
 
-            st.markdown("</div>", unsafe_allow_html=True)
+  # ========================================================
+  # USER-CONTROLLED DEEP-DIVE (MCQ SELECTION)
+  # ========================================================
+  st.markdown("---")
+  st.markdown(
+      '<div class="section-title">🔬 Deep-Dive Financial Analysis</div>',
+      unsafe_allow_html=True,
+  )
+  st.markdown(
+      '<div class="section-description">Would you like to view an in-depth'
+      " financial investigation covering profitability margins, debt & balance"
+      " sheet safety, and operating efficiency?</div>",
+      unsafe_allow_html=True,
+  )
 
-    # ========================================================
-    # USER-CONTROLLED DEEP-DIVE (MCQ SELECTION)
-    # ========================================================
-    st.markdown("---")
-    st.markdown('<div class="section-title">🔬 Deep-Dive Financial Analysis</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-description">Would you like to view an in-depth financial investigation covering profitability margins, debt & balance sheet safety, and operating efficiency?</div>', unsafe_allow_html=True)
+  mcq_choice = st.radio(
+      "Select the given option:",
+      options=["Yes", "No"],
+      index=None,
+      horizontal=True,
+      key="deep_dive_mcq",
+  )
 
-    mcq_choice = st.radio(
-        "Select the given option:",
-        options=["Yes", "No"],
-        index=None,
-        horizontal=True,
-        key="deep_dive_mcq"
-    )
-
-    if mcq_choice == "Yes":
-        if st.session_state.deep_dive is None:
-            deep_prompt = """
+  if mcq_choice == "Yes":
+    if st.session_state.deep_dive is None:
+      deep_prompt = """
 You are a senior financial analyst providing a specialized deep-dive assessment of the uploaded annual report in plain, everyday English.
 
 Extract and analyze three core financial pillars from the uploaded PDF:
@@ -1556,68 +1859,91 @@ RULES:
   }
 }
 """
-            with st.spinner("Gemini is conducting an in-depth financial investigation..."):
-                try:
-                    deep_res = generate_with_fallback(
-                        contents=[deep_prompt, st.session_state.gemini_file],
-                        json_mode=True
-                    )
-                    deep_data = clean_json_response(deep_res.text)
-                    if deep_data and "profitability_depth" in deep_data:
-                        st.session_state.deep_dive = deep_data
-                    else:
-                        st.warning("Could not structure deep-dive data. Please try again.")
-                except Exception as e:
-                    st.error(f"Deep-dive analysis error: {e}")
+      with st.spinner(
+          "Gemini is conducting an in-depth financial investigation..."
+      ):
+        try:
+          deep_res = generate_with_fallback(
+              contents=[deep_prompt, st.session_state.gemini_file],
+              json_mode=True,
+          )
+          deep_data = clean_json_response(deep_res.text)
+          if deep_data and "profitability_depth" in deep_data:
+            st.session_state.deep_dive = deep_data
+          else:
+            st.warning("Could not structure deep-dive data. Please try again.")
+        except Exception as e:
+          st.error(f"Deep-dive analysis error: {e}")
 
-        if st.session_state.deep_dive:
-            dd = st.session_state.deep_dive
-            prof = dd.get("profitability_depth", {})
-            debt = dd.get("debt_and_liquidity", {})
-            eff = dd.get("operating_efficiency", {})
+    if st.session_state.deep_dive:
+      dd = st.session_state.deep_dive
+      prof = dd.get("profitability_depth", {})
+      debt = dd.get("debt_and_liquidity", {})
+      eff = dd.get("operating_efficiency", {})
 
-            col_d1, col_d2, col_d3 = st.columns(3)
+      col_d1, col_d2, col_d3 = st.columns(3)
 
-            with col_d1:
-                st.markdown(f"""
+      with col_d1:
+        st.markdown(
+            f"""
                 <div class="deep-card">
                     <div class="deep-card-title">📊 Profitability & Margins</div>
                     <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{prof.get('headline', '')}</div>
-                """, unsafe_allow_html=True)
-                for pt in prof.get("insights", []):
-                    st.markdown(f"• {pt}")
-                st.markdown("</div>", unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
+        for pt in prof.get("insights", []):
+          st.markdown(f"• {pt}")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            with col_d2:
-                st.markdown(f"""
+      with col_d2:
+        st.markdown(
+            f"""
                 <div class="deep-card">
                     <div class="deep-card-title">🛡️ Debt & Balance Sheet Safety</div>
                     <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{debt.get('headline', '')}</div>
-                """, unsafe_allow_html=True)
-                for pt in debt.get("insights", []):
-                    st.markdown(f"• {pt}")
-                st.markdown("</div>", unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
+        for pt in debt.get("insights", []):
+          st.markdown(f"• {pt}")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            with col_d3:
-                st.markdown(f"""
+      with col_d3:
+        st.markdown(
+            f"""
                 <div class="deep-card">
                     <div class="deep-card-title">⚙️ Operating Efficiency & Scale</div>
                     <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{eff.get('headline', '')}</div>
-                """, unsafe_allow_html=True)
-                for pt in eff.get("insights", []):
-                    st.markdown(f"• {pt}")
-                st.markdown("</div>", unsafe_allow_html=True)
+                """,
+            unsafe_allow_html=True,
+        )
+        for pt in eff.get("insights", []):
+          st.markdown(f"• {pt}")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    elif mcq_choice == "No":
-        st.info("💡 Feel free to explore the tabs above or ask any question below if you have any doubts!")
+  elif mcq_choice == "No":
+    st.info(
+        "💡 Feel free to explore the tabs above or ask any question below if"
+        " you have any doubts!"
+    )
 
 # ============================================================
 # ASK GEMINI EXPERIENCE
 # ============================================================
 
 st.divider()
-st.markdown('<div class="section-title">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below. Gemini answers strictly using the uploaded PDF.</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-title">💬 Ask Questions About This Financial'
+    " Report</div>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="section-description">Ask any custom question in plain English,'
+    " or click one of the suggested prompts below. Gemini answers strictly using"
+    " the uploaded PDF.</div>",
+    unsafe_allow_html=True,
+)
 
 # Quick Prompts / Chips
 st.markdown("**Suggested Questions:**")
@@ -1625,30 +1951,44 @@ chip_cols = st.columns(4)
 suggested_question = None
 
 with chip_cols[0]:
-    if st.button("📈 Why did profits change YoY?", use_container_width=True):
-        suggested_question = "Why did profits change compared with the previous year? Break down key drivers of the profit change in simple terms."
+  if st.button("📈 Why did profits change YoY?", use_container_width=True):
+    suggested_question = (
+        "Why did profits change compared with the previous year? Break down"
+        " key drivers of the profit change in simple terms."
+    )
 with chip_cols[1]:
-    if st.button("🚀 What are the biggest growth drivers?", use_container_width=True):
-        suggested_question = "What are the company's major growth drivers and biggest future expansion opportunities based on this report?"
+  if st.button(
+      "🚀 What are the biggest growth drivers?", use_container_width=True
+  ):
+    suggested_question = (
+        "What are the company's major growth drivers and biggest future"
+        " expansion opportunities based on this report?"
+    )
 with chip_cols[2]:
-    if st.button("💰 Explain debt & cash position", use_container_width=True):
-        suggested_question = "How is the company's debt, borrowings, and overall cash/liquidity position? Is its financial footing strong?"
+  if st.button("💰 Explain debt & cash position", use_container_width=True):
+    suggested_question = (
+        "How is the company's debt, borrowings, and overall cash/liquidity"
+        " position? Is its financial footing strong?"
+    )
 with chip_cols[3]:
-    if st.button("⚠️ Key risks for investors", use_container_width=True):
-        suggested_question = "What are the primary operational, financial, and market risks an investor should know about?"
+  if st.button("⚠️ Key risks for investors", use_container_width=True):
+    suggested_question = (
+        "What are the primary operational, financial, and market risks an"
+        " investor should know about?"
+    )
 
 # Header row with clear button
 chat_header_left, chat_header_right = st.columns([4, 1])
 with chat_header_right:
-    if st.session_state.chat_history:
-        if st.button("🗑️ Clear History", use_container_width=True):
-            st.session_state.chat_history = []
-            st.rerun()
+  if st.session_state.chat_history:
+    if st.button("🗑️ Clear History", use_container_width=True):
+      st.session_state.chat_history = []
+      st.rerun()
 
 # Display Conversation History
 for chat in st.session_state.chat_history:
-    with st.chat_message(chat["role"]):
-        st.markdown(chat["content"])
+  with st.chat_message(chat["role"]):
+    st.markdown(chat["content"])
 
 # Text Input Bar
 user_input = st.chat_input("Ask a question about this financial report...")
@@ -1656,15 +1996,14 @@ user_input = st.chat_input("Ask a question about this financial report...")
 active_query = user_input or suggested_question
 
 if active_query:
-    st.session_state.chat_history.append({
-        "role": "user",
-        "content": active_query
-    })
-    
-    with st.chat_message("user"):
-        st.markdown(active_query)
+  st.session_state.chat_history.append(
+      {"role": "user", "content": active_query}
+  )
 
-    question_prompt = f"""
+  with st.chat_message("user"):
+    st.markdown(active_query)
+
+  question_prompt = f"""
 You are a helpful, clear financial guide talking to a regular investor or finance student.
 Answer the user's question using ONLY facts from the uploaded financial report.
 
@@ -1694,35 +2033,42 @@ RULES FOR ANSWERING
    (1-2 specific future checkpoints or indicators)
 """
 
-    with st.chat_message("assistant"):
-        with st.spinner("Gemini is reading the report and preparing your answer..."):
-            try:
-                response = generate_with_fallback(
-                    contents=[question_prompt, st.session_state.gemini_file],
-                    json_mode=False
-                )
-                answer = response.text.strip() if response.text else "Gemini returned an empty response. Please try asking again."
-                st.markdown(answer)
-                
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": answer
-                })
-            except Exception as error:
-                error_msg = f"Could not generate answer: {str(error)}"
-                st.error(error_msg)
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": error_msg
-                })
+  with st.chat_message("assistant"):
+    with st.spinner("Gemini is reading the report and preparing your answer..."):
+      try:
+        response = generate_with_fallback(
+            contents=[question_prompt, st.session_state.gemini_file],
+            json_mode=False,
+        )
+        answer = (
+            response.text.strip()
+            if response.text
+            else (
+                "Gemini returned an empty response. Please try asking again."
+            )
+        )
+        st.markdown(answer)
+
+        st.session_state.chat_history.append(
+            {"role": "assistant", "content": answer}
+        )
+      except Exception as error:
+        error_msg = f"Could not generate answer: {str(error)}"
+        st.error(error_msg)
+        st.session_state.chat_history.append(
+            {"role": "assistant", "content": error_msg}
+        )
 
 # ============================================================
 # FOOTER
 # ============================================================
 
 st.divider()
-st.markdown("""
+st.markdown(
+    """
 <div class="footer">
     Financial Analysis Copilot • AI analysis grounded in uploaded financial reports. For analytical and educational purposes only.
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
