@@ -442,14 +442,11 @@ st.markdown("""
 </style>
 
 <script>
-// Force disable browser autocomplete and autofill popups on all inputs
 document.addEventListener("DOMContentLoaded", function() {
     setInterval(() => {
         const inputs = window.parent.document.querySelectorAll('input');
         inputs.forEach(input => {
             input.setAttribute('autocomplete', 'new-password');
-            input.setAttribute('readonly', 'true');
-            setTimeout(() => input.removeAttribute('readonly'), 100);
         });
     }, 1000);
 });
@@ -705,50 +702,6 @@ with st.sidebar:
         st.write(f"📄 **{st.session_state.uploaded_name}**")
         if st.session_state.selected_model:
             st.caption(f"Engine: `{st.session_state.selected_model}`")
-
-    # ========================================================
-    # SIDEBAR EXPORT SECTION (CSV - ZERO DEPENDENCY)
-    # ========================================================
-    if st.session_state.analysis and pd is not None:
-        st.markdown("---")
-        st.markdown("### 📥 Export Dashboard")
-        
-        metrics_list = st.session_state.analysis.get("key_metrics", [])
-        if metrics_list:
-            df_export = pd.DataFrame(metrics_list)
-            csv_data = df_export.to_csv(index=False).encode('utf-8')
-
-            st.download_button(
-                label="Download Metrics CSV (.csv)",
-                data=csv_data,
-                file_name=f"{st.session_state.uploaded_name.replace('.pdf', '')}_Financial_Metrics.csv",
-                mime="text/csv",
-                use_container_width=True
-            )
-
-        comp_name = st.session_state.analysis.get("company_overview", {}).get("company_name", "Financial_Report")
-        summary_text = f"FINANCIAL ANALYSIS SUMMARY: {comp_name}\n" + "="*50 + "\n\n"
-        summary_text += f"Report File: {st.session_state.uploaded_name}\n"
-        summary_text += f"Generated Date: {datetime.today().strftime('%d %b %Y')}\n\n"
-        
-        overview = st.session_state.analysis.get("company_overview", {})
-        summary_text += f"Industry: {overview.get('industry', 'N/A')}\n"
-        summary_text += f"Business: {overview.get('business_type', 'N/A')}\n\n"
-        
-        if st.session_state.position_assessment:
-            pos = st.session_state.position_assessment
-            summary_text += "PERSONALIZED INVESTMENT ASSESSMENT:\n" + "-"*35 + "\n"
-            summary_text += f"Status: {pos.get('position_summary', '')}\n"
-            summary_text += f"Return: {pos.get('pnl_str', '')} ({pos.get('amt_str', '')})\n"
-            summary_text += f"Market Price: {pos.get('cmp_display', '')} as on {pos.get('live_date', '')}\n\n"
-
-        st.download_button(
-            label="Download Report Summary (.txt)",
-            data=summary_text,
-            file_name=f"{comp_name.replace(' ', '_')}_Summary_Report.txt",
-            mime="text/plain",
-            use_container_width=True
-        )
 
     # ========================================================
     # SIDEBAR INTERACTIVE GLOSSARY (PDF-GROUNDED)
@@ -1805,6 +1758,85 @@ RULES FOR ANSWERING
                     "role": "assistant",
                     "content": error_msg
                 })
+
+# ============================================================
+# END-OF-DASHBOARD EXPORT SECTION (PROFESSIONAL & DETAILED)
+# ============================================================
+
+st.markdown("---")
+st.markdown('<div class="section-title">📥 Export Financial Dashboard Summary</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>', unsafe_allow_html=True)
+
+export_decision = st.radio(
+    "Select download preference:",
+    options=["No, thank you", "Yes, download dashboard summary report"],
+    index=0,
+    horizontal=True,
+    key="end_dashboard_export_choice"
+)
+
+if export_decision == "Yes, download dashboard summary report":
+    comp_name = company.get("company_name", "Company")
+    
+    # Build professional detailed summary text
+    detailed_report = f"""============================================================
+FINANCIAL ANALYSIS & INVESTMENT REPORT: {comp_name.upper()}
+============================================================
+Report File: {st.session_state.uploaded_name}
+Generated Date: {datetime.today().strftime('%d %b %Y')}
+Platform: Financial Analysis Copilot
+
+1. COMPANY OVERVIEW
+------------------------------------------------------------
+- Company Name: {company.get('company_name', 'N/A')}
+- Industry: {company.get('industry', 'N/A')}
+- Reporting Period: {company.get('reporting_period', 'N/A')}
+- Report Type: {company.get('report_type', 'N/A')}
+- Business Model: {company.get('business_type', 'N/A')}
+
+2. KEY FINANCIAL METRICS EXTRACTED
+------------------------------------------------------------
+"""
+    for m in metrics:
+        detailed_report += f"- {m.get('metric', 'Metric')}: {m.get('current_period', 'N/A')} {m.get('unit', '')} (Prior: {m.get('previous_period', 'N/A')}, YoY Growth: {m.get('yoy_growth', 'N/A')}) [{m.get('basis', '')}]\n"
+
+    if st.session_state.position_assessment:
+        pos = st.session_state.position_assessment
+        detailed_report += f"""
+3. PERSONALIZED INVESTMENT POSITION ASSESSMENT
+------------------------------------------------------------
+- Position Status: {pos.get('position_summary', 'N/A')}
+- Current Market Price: {pos.get('cmp_display', 'N/A')} as on {pos.get('live_date', 'N/A')} ({pos.get('exchange_tag', '')})
+- Estimated Return: {pos.get('pnl_str', 'N/A')} ({pos.get('amt_str', '')})
+"""
+
+    detailed_report += f"""
+============================================================
+End of Report • Prepared for Analytical & Educational Use Only
+============================================================
+"""
+
+    col_dl1, col_dl2 = st.columns(2)
+    with col_dl1:
+        st.download_button(
+            label="📄 Download Detailed Summary Report (.txt)",
+            data=detailed_report,
+            file_name=f"{comp_name.replace(' ', '_')}_Financial_Dashboard_Report.txt",
+            mime="text/plain",
+            use_container_width=True
+        )
+
+    with col_dl2:
+        if pd is not None and metrics:
+            df_metrics = pd.DataFrame(metrics)
+            csv_export_bytes = df_metrics.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📊 Download Financial Metrics Data (.csv)",
+                data=csv_export_bytes,
+                file_name=f"{comp_name.replace(' ', '_')}_Financial_Metrics.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
 
 # ============================================================
 # FOOTER
