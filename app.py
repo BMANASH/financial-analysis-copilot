@@ -85,10 +85,10 @@ st.markdown("""
     letter-spacing: 0.3px;
 }
 .section-title {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 750;
     color: #f8fafc;
-    margin-top: 10px;
+    margin-top: 30px;
     margin-bottom: 4px;
 }
 .section-description {
@@ -97,21 +97,32 @@ st.markdown("""
     margin-bottom: 18px;
 }
 
-/* Elegant Card Containers for Interactive Sections */
-.card-container {
-    background: #0e131f;
+/* Sleek Thin Fintech Banner Cards for Key Sections */
+.fintech-banner {
+    background: linear-gradient(135deg, #0e131f 0%, #0a0e17 100%);
     border: 1px solid #1a2234;
-    border-radius: 16px;
-    padding: 28px;
-    margin-top: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+    border-left: 4px solid #3b82f6;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-top: 35px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.5);
     animation: fadeInSlide 0.4s ease-out forwards;
     transition: all 0.3s ease;
 }
-.card-container:hover {
+.fintech-banner:hover {
     border-color: #3b82f6;
-    box-shadow: 0 14px 35px -10px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.25);
+}
+.fintech-banner-title {
+    font-size: 20px;
+    font-weight: 750;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+.fintech-banner-desc {
+    font-size: 13.5px;
+    color: #94a3b8;
 }
 
 /* Glassmorphic Fintech Cards with Hover Glow */
@@ -384,7 +395,7 @@ st.markdown("""
     font-size: 13.5px;
 }
 .chart-box {
-    background: #070a12;
+    background: #0e131f;
     border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 20px;
@@ -1100,11 +1111,14 @@ with tab_investor:
             st.markdown(f'<div class="takeaway-weakening">✗ {item}</div>', unsafe_allow_html=True)
 
 # ========================================================
-# INVESTMENT POSITION MODULE (WRAPPED IN CARD CONTAINER)
+# INVESTMENT POSITION MODULE (SLEEK FINTECH BANNER CARD)
 # ========================================================
-st.markdown('<div class="card-container">', unsafe_allow_html=True)
-st.markdown('<div class="section-title" style="margin-top:0;">💼 Personalized Investment Position & Market Analysis</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Evaluate your personal investment against live stock market pricing and the financial health in this annual report.</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="fintech-banner">
+    <div class="fintech-banner-title">💼 Personalized Investment Position & Market Analysis</div>
+    <div class="fintech-banner-desc">Evaluate your personal investment against live stock market pricing and the financial health in this annual report.</div>
+</div>
+""", unsafe_allow_html=True)
 
 investor_mcq = st.radio("Are you currently an investor in this company's stock?", options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"], index=0, horizontal=True, key="inv_mcq")
 
@@ -1162,14 +1176,16 @@ if investor_mcq == "Yes, I hold shares in this company":
             with cm2: st.metric("Buy Price", f"₹{avg_price_input:,.2f}", "Cost Basis")
             with cm3: st.metric("Current Market Price", p_data.get('cmp_display', 'N/A'), f"As on {p_data.get('live_date','')}")
             with cm4: st.metric("Estimated Return", p_data.get('pnl_str', 'N/A'), p_data.get('amt_str', ''))
-st.markdown('</div>', unsafe_allow_html=True)
 
 # ========================================================
-# EXPORT MODULE (WRAPPED IN CARD CONTAINER)
+# EXPORT MODULE (SLEEK FINTECH BANNER CARD)
 # ========================================================
-st.markdown('<div class="card-container">', unsafe_allow_html=True)
-st.markdown('<div class="section-title" style="margin-top:0;">📥 Export Financial Dashboard Summary</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="fintech-banner">
+    <div class="fintech-banner-title">📥 Export Financial Dashboard Summary</div>
+    <div class="fintech-banner-desc">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>
+</div>
+""", unsafe_allow_html=True)
 
 export_choice = st.radio("Select download preference:", options=["No, thank you", "Yes, download dashboard summary report"], index=0, horizontal=True, key="export_rad")
 
@@ -1182,14 +1198,16 @@ if export_choice == "Yes, download dashboard summary report":
         report_text += f"• {m.get('metric')}: {m.get('current_period')} {m.get('unit')} (YoY: {m.get('yoy_growth')})\n"
 
     st.download_button("📄 Download Executive Summary Report (.txt)", data=report_text, file_name=f"{comp_name.replace(' ', '_')}_Summary.txt", mime="text/plain", use_container_width=True)
-st.markdown('</div>', unsafe_allow_html=True)
 
 # ========================================================
-# ASK THE ANALYST AI CHATBOT (WRAPPED IN CARD CONTAINER)
+# ASK THE ANALYST AI CHATBOT (SLEEK FINTECH BANNER CARD)
 # ========================================================
-st.markdown('<div class="card-container">', unsafe_allow_html=True)
-st.markdown('<div class="section-title" style="margin-top:0;">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below.</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="fintech-banner">
+    <div class="fintech-banner-title">💬 Ask Questions About This Financial Report</div>
+    <div class="fintech-banner-desc">Ask any custom question in plain English, or click one of the suggested prompts below.</div>
+</div>
+""", unsafe_allow_html=True)
 
 chip_cols = st.columns(4)
 suggested_q = None
@@ -1224,7 +1242,6 @@ if active_q:
                 st.session_state.chat_history.append({"role": "assistant", "content": ans})
             except Exception as e:
                 st.error(f"Error: {e}")
-st.markdown('</div>', unsafe_allow_html=True)
 
 # ============================================================
 # FOOTER
