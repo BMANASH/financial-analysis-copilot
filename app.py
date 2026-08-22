@@ -1294,13 +1294,35 @@ if data:
 
             col_inv1, col_inv2 = st.columns(2)
             with col_inv1:
-                total_invested_input = st.number_input("Total Amount Invested (₹)", min_value=0.0, value=4860.87, step=500.0, format="%.2f")
+                total_invested_input = st.number_input(
+                    "Total Amount Invested (₹)", 
+                    min_value=0.0, 
+                    value=None, 
+                    placeholder="e.g. 50000.00", 
+                    step=500.0, 
+                    format="%.2f"
+                )
             with col_inv2:
-                avg_price_input = st.number_input("Average Buying Price per Share (₹)", min_value=0.0, value=231.47, step=1.0, format="%.2f")
+                avg_price_input = st.number_input(
+                    "Average Buying Price per Share (₹)", 
+                    min_value=0.0, 
+                    value=None, 
+                    placeholder="e.g. 250.00", 
+                    step=1.0, 
+                    format="%.2f"
+                )
 
-            calculated_shares = int(total_invested_input // avg_price_input) if (avg_price_input > 0 and total_invested_input > 0) else 0
+            # Check if user has entered valid numbers
+            has_valid_inputs = (
+                total_invested_input is not None and 
+                avg_price_input is not None and 
+                total_invested_input > 0 and 
+                avg_price_input > 0
+            )
 
-            if total_invested_input > 0 and avg_price_input > 0:
+            calculated_shares = int(total_invested_input // avg_price_input) if has_valid_inputs else 0
+
+            if has_valid_inputs:
                 st.markdown(f"""
                 <div style="background: #192231; border: 1px solid #2e3e57; border-radius: 8px; padding: 10px 14px; margin-top: 10px; margin-bottom: 14px; display: flex; justify-content: space-between;">
                     <span style="color: #94a3b8; font-size: 13.5px;">Calculated Holding:</span>
@@ -1320,7 +1342,7 @@ if data:
                     live_date = market_info["as_on"] if market_info else datetime.today().strftime("%d %b %Y")
                     exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "Exchange Listed"
 
-                    # 2. Grounded calculation
+                    # 2. Calculation logic
                     if live_price > 0:
                         cur_val = live_price * calculated_shares
                         pnl_amt = cur_val - total_invested_input
@@ -1373,7 +1395,6 @@ Return ONLY valid JSON with this exact structure:
                             )
                             parsed_analysis = clean_json_response(pos_response.text)
                             
-                            # Use verified yfinance price if available, else Gemini's search estimate
                             final_cmp = cmp_display if live_price > 0 else parsed_analysis.get("live_price_estimate", "₹244.00")
                             parsed_analysis["cmp_display"] = final_cmp
                             parsed_analysis["live_date"] = live_date
