@@ -3,3 +3,4 @@ pypdf
 pandas
 yfinance
 google-genai
+openpyxl
