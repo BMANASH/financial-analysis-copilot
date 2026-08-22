@@ -5,7 +5,6 @@ import tempfile
 import os
 import time
 import io
-import requests
 from datetime import datetime
 
 # Safe imports for data handling
@@ -65,7 +64,7 @@ st.markdown("""
     border-top: 3px solid #3b82f6;
     border-radius: 16px;
     padding: 32px 36px;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
     animation: fadeInSlide 0.4s ease-out forwards;
 }
@@ -85,6 +84,56 @@ st.markdown("""
     line-height: 1.5;
     letter-spacing: 0.3px;
 }
+
+/* Feature Grid on Welcome Screen */
+.fintech-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+.fintech-pill {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid #334155;
+    color: #93c5fd;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.feature-card {
+    background: #0e131f;
+    border: 1px solid #1a2234;
+    border-radius: 14px;
+    padding: 20px;
+    height: 100%;
+    transition: all 0.3s ease;
+    animation: fadeInSlide 0.4s ease-out forwards;
+}
+.feature-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.25);
+}
+.feature-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+.feature-title {
+    color: #ffffff;
+    font-size: 15.5px;
+    font-weight: 750;
+    margin-bottom: 6px;
+}
+.feature-desc {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
 .section-title {
     font-size: 24px;
     font-weight: 750;
@@ -657,43 +706,12 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
         pass
     return None
 
-def download_pdf_from_url(url):
-    """Downloads PDF using requests with full browser simulation to prevent 403 Forbidden errors"""
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/pdf',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Referer': 'https://www.google.com/',
-        'Sec-Ch-Ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'cross-site',
-        'Sec-Fetch-User': '?1',
-        'Upgrade-Insecure-Requests': '1'
-    }
-    
-    session = requests.Session()
-    response = session.get(url, headers=headers, timeout=45, stream=True, allow_redirects=True)
-    response.raise_for_status()
-
-    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    with open(temp_pdf.name, 'wb') as f:
-        for chunk in response.iter_content(chunk_size=32768):
-            if chunk:
-                f.write(chunk)
-    return temp_pdf.name
-
-def upload_pdf_to_gemini(pdf_source):
+def upload_pdf_to_gemini(uploaded_file):
     temp_path = None
     try:
-        if isinstance(pdf_source, str):
-            temp_path = pdf_source
-        else:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-                temp_file.write(pdf_source.getbuffer())
-                temp_path = temp_file.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+            temp_file.write(uploaded_file.getbuffer())
+            temp_path = temp_file.name
 
         gemini_file = client.files.upload(file=temp_path)
 
@@ -712,27 +730,33 @@ def upload_pdf_to_gemini(pdf_source):
 
         raise Exception("PDF processing took too long. Please try uploading again.")
     finally:
-        if not isinstance(pdf_source, str) and temp_path:
+        if temp_path:
             try:
                 os.remove(temp_path)
             except Exception:
                 pass
 
 # ============================================================
-# HERO SECTION & UPLOAD / URL INPUT OPTIONS
+# HERO SECTION & WELCOME DASHBOARD
 # ============================================================
 
 st.markdown("""
 <div class="hero">
     <div class="hero-title">Financial Analyst AI</div>
     <div class="hero-subtitle">Institutional-grade AI financial analysis & portfolio intelligence from annual reports</div>
+    <div class="fintech-badge-row">
+        <span class="fintech-pill">📈 Real-Time Equity Tracking</span>
+        <span class="fintech-pill">📊 Balance Sheet Auditing</span>
+        <span class="fintech-pill">⚡ Institutional LLM Intelligence</span>
+        <span class="fintech-pill">🛡️ Risk & Solvency Assessment</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="section-title">Upload Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Upload your annual report PDF or provide a direct PDF link URL below to automatically start the analysis.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Drag and drop your company annual report PDF below to automatically start the analysis.</div>', unsafe_allow_html=True)
 
-# Option 1: File Uploader
+# Main Direct PDF Uploader
 uploaded_file = st.file_uploader(
     "Upload Financial Report (PDF)",
     type=["pdf"],
@@ -740,54 +764,61 @@ uploaded_file = st.file_uploader(
     key="main_pdf_uploader"
 )
 
-# Helper Prompt placed directly below the file uploader
+# Interactive Fintech Feature Grid shown when waiting for upload
 if not st.session_state.gemini_file or not st.session_state.analysis:
-    st.info("👆 Upload an annual report PDF or paste a direct PDF link below to begin automatic financial analysis.")
-
-st.markdown("<div style='text-align: center; color: #64748b; margin: 18px 0 10px 0; font-size: 13px; font-weight: 600;'>— OR PROVIDE DIRECT PDF LINK —</div>", unsafe_allow_html=True)
-
-# Option 2: Direct PDF URL Input Box
-pdf_url_input = st.text_input(
-    "Upload the direct PDF link in this box for the financial analyst to analyze it for you.",
-    placeholder="https://example.com/path/to/annual-report.pdf",
-    key="pdf_url_box"
-)
-
-st.markdown("""
-<div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 10px 14px; margin-top: 6px; margin-bottom: 20px; color: #93c5fd; font-size: 12.5px;">
-    💡 <strong>Disclaimer:</strong> Please provide a <strong>direct link to a PDF file</strong> (ending in <code>.pdf</code>). General website or investor relations portal links will not work and will result in a broken analysis.
-</div>
-""", unsafe_allow_html=True)
+    st.info("👆 Upload an annual report PDF above to begin automatic financial analysis.")
+    
+    st.markdown("---")
+    st.markdown('<div class="section-title" style="margin-top:0;">⚡ Analysis Engines & Terminal Capabilities</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">What this AI analyst generates once your PDF report is uploaded:</div>', unsafe_allow_html=True)
+    
+    c_feat1, c_feat2, c_feat3, c_feat4 = st.columns(4)
+    with c_feat1:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Financial Extraction</div>
+            <div class="feature-desc">Extracts 12–18 core balance sheet, revenue, loan book, and PAT numbers with exact YoY growth percentages.</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with c_feat2:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <div class="feature-title">Portfolio Intelligence</div>
+            <div class="feature-desc">Pulls live exchange quotes (NSE/BSE) to compute exact P&L, fundamental purchase safety, and 5–8 year outlooks.</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with c_feat3:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-title">Executive Scorecard</div>
+            <div class="feature-desc">4-pillar evaluation matrix analyzing Growth Momentum, Profit Quality, Balance Sheet Cushion, and Execution.</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with c_feat4:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">💬</div>
+            <div class="feature-title">Grounded Research Copilot</div>
+            <div class="feature-desc">Interactive institutional Q&A answering custom financial queries strictly using facts from the uploaded report.</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ============================================================
-# AUTOMATIC GENERATION ON UPLOAD OR URL SUBMISSION
+# AUTOMATIC GENERATION ON UPLOAD
 # ============================================================
-
-active_source = None
-active_name = None
 
 if uploaded_file:
-    active_source = uploaded_file
-    active_name = uploaded_file.name
-elif pdf_url_input and pdf_url_input.strip().startswith("http"):
-    url_str = pdf_url_input.strip()
-    if url_str.lower().endswith(".pdf") or ".pdf" in url_str.lower():
-        active_name = url_str.split("/")[-1].split("?")[0] or "report_from_url.pdf"
-        try:
-            with st.spinner("Downloading PDF from URL securely..."):
-                active_source = download_pdf_from_url(url_str)
-        except Exception as e:
-            st.error(f"Could not retrieve PDF from URL: {e}")
+    is_new_file = (st.session_state.uploaded_name != uploaded_file.name)
 
-if active_source:
-    is_new_source = (st.session_state.uploaded_name != active_name)
-
-    if is_new_source or st.session_state.analysis is None:
-        with st.spinner("Processing document and running automatic financial analysis..."):
+    if is_new_file or st.session_state.analysis is None:
+        with st.spinner("Processing PDF and running automatic financial analysis..."):
             try:
-                gemini_file = upload_pdf_to_gemini(active_source)
+                gemini_file = upload_pdf_to_gemini(uploaded_file)
                 st.session_state.gemini_file = gemini_file
-                st.session_state.uploaded_name = active_name
+                st.session_state.uploaded_name = uploaded_file.name
 
                 analysis_prompt = """
 You are an expert financial mentor explaining an annual report to everyday investors and finance students in simple, clean, professional English without textbook jargon.
@@ -899,7 +930,7 @@ Return ONLY valid JSON with this exact structure:
                     st.success("Financial analysis generated automatically!")
                     st.rerun()
                 else:
-                    st.error("Could not parse response. Please re-upload or check URL.")
+                    st.error("Could not parse response. Please re-upload.")
             except Exception as e:
                 st.error(f"Error processing document: {e}")
 
