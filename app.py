@@ -47,6 +47,12 @@ st.markdown("""
     padding-bottom: 4rem;
 }
 
+/* Hide Default Streamlit Top-Right Running Man / Status Widget */
+div[data-testid="stStatusWidget"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
 /* Entry Animation */
 @keyframes fadeInSlide {
     from {
@@ -70,6 +76,67 @@ st.markdown("""
     0% { transform: translateY(-3px); }
     50% { transform: translateY(3px); }
     100% { transform: translateY(-3px); }
+}
+
+/* Spinner Animation */
+@keyframes spinGlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Center Engaging Loading Container */
+.center-loader-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f172a 0%, #090d16 100%);
+    border: 1px solid #1e293b;
+    border-top: 3px solid #3b82f6;
+    border-radius: 16px;
+    padding: 36px 30px;
+    margin: 25px auto;
+    text-align: center;
+    max-width: 650px;
+    box-shadow: 0 16px 40px -10px rgba(59, 130, 246, 0.35);
+    animation: fadeInSlide 0.4s ease-out forwards;
+}
+.fintech-spinner {
+    width: 52px;
+    height: 52px;
+    border: 4px solid rgba(59, 130, 246, 0.2);
+    border-top: 4px solid #3b82f6;
+    border-right: 4px solid #60a5fa;
+    border-radius: 50%;
+    animation: spinGlow 0.9s linear infinite;
+    margin-bottom: 18px;
+}
+.loader-title {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 750;
+    margin-bottom: 8px;
+    letter-spacing: -0.2px;
+}
+.loader-subtitle {
+    color: #94a3b8;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin-bottom: 18px;
+}
+.loader-progress-track {
+    background: #172033;
+    border-radius: 10px;
+    height: 6px;
+    width: 80%;
+    overflow: hidden;
+    position: relative;
+}
+.loader-progress-fill {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    height: 100%;
+    width: 100%;
+    animation: floatSubtleA 1.5s ease-in-out infinite alternate;
 }
 
 .hero {
@@ -447,6 +514,19 @@ st.markdown("""
     font-size: 13px;
     line-height: 1.45;
 }
+.price-gauge-card {
+    background: #070a12;
+    border: 1px solid #1a2234;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+}
+.gauge-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13.5px;
+}
 .chart-box {
     background: #0e131f;
     border: 1px solid #1a2234;
@@ -772,63 +852,90 @@ uploaded_file = st.file_uploader(
     key="main_pdf_uploader"
 )
 
+# Placeholder for center dynamic loader
+loader_container = st.empty()
+
 # Interactive Floating Feature Grid shown when waiting for upload
 if not st.session_state.gemini_file or not st.session_state.analysis:
-    st.info("👆 Upload an annual report PDF above to begin automatic financial analysis.")
-    
-    st.markdown("---")
-    st.markdown('<div class="section-title" style="margin-top:0;">⚡ Analysis Engines & Terminal Capabilities</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-description">What this AI analyst generates once your PDF report is uploaded:</div>', unsafe_allow_html=True)
-    
-    c_feat1, c_feat2, c_feat3, c_feat4 = st.columns(4)
-    with c_feat1:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <div class="feature-title">Financial Extraction</div>
-            <div class="feature-desc">Extracts 12–18 core balance sheet, revenue, loan book, and PAT numbers with exact YoY growth percentages.</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with c_feat2:
-        st.markdown("""
-        <div class="feature-card feature-card-alt">
-            <div class="feature-icon">📈</div>
-            <div class="feature-title">Portfolio Intelligence</div>
-            <div class="feature-desc">Pulls live exchange quotes (NSE/BSE) to compute exact P&L, fundamental purchase safety, and 5–8 year outlooks.</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with c_feat3:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🛡️</div>
-            <div class="feature-title">Executive Scorecard</div>
-            <div class="feature-desc">4-pillar evaluation matrix analyzing Growth Momentum, Profit Quality, Balance Sheet Cushion, and Execution.</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with c_feat4:
-        st.markdown("""
-        <div class="feature-card feature-card-alt">
-            <div class="feature-icon">💬</div>
-            <div class="feature-title">Grounded Research Copilot</div>
-            <div class="feature-desc">Interactive institutional Q&A answering custom financial queries strictly using facts from the uploaded report.</div>
-        </div>
-        """, unsafe_allow_html=True)
+    if not uploaded_file:
+        st.info("👆 Upload an annual report PDF above to begin automatic financial analysis.")
+        
+        st.markdown("---")
+        st.markdown('<div class="section-title" style="margin-top:0;">⚡ Analysis Engines & Terminal Capabilities</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-description">What this AI analyst generates once your PDF report is uploaded:</div>', unsafe_allow_html=True)
+        
+        c_feat1, c_feat2, c_feat3, c_feat4 = st.columns(4)
+        with c_feat1:
+            st.markdown("""
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Financial Extraction</div>
+                <div class="feature-desc">Extracts 12–18 core balance sheet, revenue, loan book, and PAT numbers with exact YoY growth percentages.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c_feat2:
+            st.markdown("""
+            <div class="feature-card feature-card-alt">
+                <div class="feature-icon">📈</div>
+                <div class="feature-title">Portfolio Intelligence</div>
+                <div class="feature-desc">Pulls live exchange quotes (NSE/BSE) to compute exact P&L, fundamental purchase safety, and 5–8 year outlooks.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c_feat3:
+            st.markdown("""
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <div class="feature-title">Executive Scorecard</div>
+                <div class="feature-desc">4-pillar evaluation matrix analyzing Growth Momentum, Profit Quality, Balance Sheet Cushion, and Execution.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c_feat4:
+            st.markdown("""
+            <div class="feature-card feature-card-alt">
+                <div class="feature-icon">💬</div>
+                <div class="feature-title">Grounded Research Copilot</div>
+                <div class="feature-desc">Interactive institutional Q&A answering custom financial queries strictly using facts from the uploaded report.</div>
+            </div>
+            """, unsafe_allow_html=True)
 
 # ============================================================
-# AUTOMATIC GENERATION ON UPLOAD
+# AUTOMATIC GENERATION ON UPLOAD WITH CENTER LOADER
 # ============================================================
 
 if uploaded_file:
     is_new_file = (st.session_state.uploaded_name != uploaded_file.name)
 
     if is_new_file or st.session_state.analysis is None:
-        with st.spinner("Processing PDF and running automatic financial analysis..."):
-            try:
-                gemini_file = upload_pdf_to_gemini(uploaded_file)
-                st.session_state.gemini_file = gemini_file
-                st.session_state.uploaded_name = uploaded_file.name
+        # Display Engaging Center Loading Box
+        loader_container.markdown("""
+        <div class="center-loader-box">
+            <div class="fintech-spinner"></div>
+            <div class="loader-title">Hang Tight! Reading Financial Report...</div>
+            <div class="loader-subtitle">⚡ Processing dense tables, balance sheets & calculating YoY growth rates across all business segments.</div>
+            <div class="loader-progress-track">
+                <div class="loader-progress-fill"></div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-                analysis_prompt = """
+        try:
+            gemini_file = upload_pdf_to_gemini(uploaded_file)
+            st.session_state.gemini_file = gemini_file
+            st.session_state.uploaded_name = uploaded_file.name
+
+            # Dynamic status update during analysis
+            loader_container.markdown("""
+            <div class="center-loader-box">
+                <div class="fintech-spinner"></div>
+                <div class="loader-title">Almost There! Structuring Financial Insights...</div>
+                <div class="loader-subtitle">🎯 Extracting balance sheet safety cushions, executive scorecards & live market fundamentals.</div>
+                <div class="loader-progress-track">
+                    <div class="loader-progress-fill"></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            analysis_prompt = """
 You are an expert financial mentor explaining an annual report to everyday investors and finance students in simple, clean, professional English without textbook jargon.
 
 Analyze ONLY the uploaded PDF. It can belong to ANY company.
@@ -925,22 +1032,24 @@ Return ONLY valid JSON with this exact structure:
   }
 }
 """
-                response = generate_with_fallback(
-                    contents=[analysis_prompt, gemini_file],
-                    json_mode=True
-                )
-                data = clean_json_response(response.text)
-                if data and "company_overview" in data:
-                    st.session_state.analysis = data
-                    st.session_state.deep_dive = None
-                    st.session_state.position_assessment = None
-                    st.session_state.chat_history = []
-                    st.success("Financial analysis generated automatically!")
-                    st.rerun()
-                else:
-                    st.error("Could not parse response. Please re-upload.")
-            except Exception as e:
-                st.error(f"Error processing document: {e}")
+            response = generate_with_fallback(
+                contents=[analysis_prompt, gemini_file],
+                json_mode=True
+            )
+            data = clean_json_response(response.text)
+            loader_container.empty()
+            if data and "company_overview" in data:
+                st.session_state.analysis = data
+                st.session_state.deep_dive = None
+                st.session_state.position_assessment = None
+                st.session_state.chat_history = []
+                st.success("Financial analysis generated automatically!")
+                st.rerun()
+            else:
+                st.error("Could not parse response. Please re-upload.")
+        except Exception as e:
+            loader_container.empty()
+            st.error(f"Error processing document: {e}")
 
 # ============================================================
 # NO PDF STATE
