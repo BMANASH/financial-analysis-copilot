@@ -699,7 +699,7 @@ with st.sidebar:
             st.caption(f"Engine: `{st.session_state.selected_model}`")
 
     # ========================================================
-    # SIDEBAR EXPORT SECTION
+    # SIDEBAR EXPORT SECTION (CSV - ZERO DEPENDENCY)
     # ========================================================
     if st.session_state.analysis and pd is not None:
         st.markdown("---")
@@ -708,16 +708,13 @@ with st.sidebar:
         metrics_list = st.session_state.analysis.get("key_metrics", [])
         if metrics_list:
             df_export = pd.DataFrame(metrics_list)
-            output = io.BytesIO()
-            with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                df_export.to_excel(writer, index=False, sheet_name='Key Financial Metrics')
-            excel_data = output.getvalue()
+            csv_data = df_export.to_csv(index=False).encode('utf-8')
 
             st.download_button(
-                label="Download Metrics Excel (.xlsx)",
-                data=excel_data,
-                file_name=f"{st.session_state.uploaded_name.replace('.pdf', '')}_Financial_Metrics.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                label="Download Metrics CSV (.csv)",
+                data=csv_data,
+                file_name=f"{st.session_state.uploaded_name.replace('.pdf', '')}_Financial_Metrics.csv",
+                mime="text/csv",
                 use_container_width=True
             )
 
@@ -1798,7 +1795,7 @@ RULES FOR ANSWERING
                 st.error(error_msg)
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": error_msg
+                    "content": answer
                 })
 
 # ============================================================
