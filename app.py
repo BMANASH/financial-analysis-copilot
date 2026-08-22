@@ -183,6 +183,41 @@ st.markdown("""
     font-size: 13.5px;
     line-height: 1.5;
 }
+.scorecard-card {
+    background: #151a24;
+    border: 1px solid #283648;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    min-height: 240px;
+}
+.scorecard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.scorecard-title {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+}
+.scorecard-badge {
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.scorecard-verdict {
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
 .risk-card {
     background: #19161a;
     border: 1px solid #483438;
@@ -246,41 +281,6 @@ st.markdown("""
     color: #fef3c7;
     font-size: 14px;
     line-height: 1.5;
-}
-.scorecard-card {
-    background: #151a24;
-    border: 1px solid #283648;
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-    min-height: 230px;
-}
-.scorecard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-.scorecard-title {
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 700;
-}
-.scorecard-badge {
-    background: rgba(59, 130, 246, 0.18);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.35);
-    padding: 3px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 700;
-}
-.scorecard-verdict {
-    color: #cbd5e1;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    line-height: 1.4;
 }
 .deep-card {
     background: #161c28;
@@ -638,7 +638,7 @@ with st.sidebar:
             st.caption(f"Engine: `{st.session_state.selected_model}`")
 
     # ========================================================
-    # SIDEBAR INTERACTIVE JARGON SLICER (PDF-GROUNDED)
+    # SIDEBAR INTERACTIVE GLOSSARY (PDF-GROUNDED)
     # ========================================================
     if st.session_state.analysis and "terms_cheat_sheet" in st.session_state.analysis:
         cheat_terms = st.session_state.analysis.get("terms_cheat_sheet", [])
@@ -706,20 +706,19 @@ Identify the company name, industry, reporting period, report type, and provide 
 STRICT CONTENT DEPTH & COUNT REQUIREMENTS
 ============================================================
 1. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, margin, loan, asset, and profit metrics found in the report. Keep the metric name clean and concise.
-2. BUSINESS_PERFORMANCE: Provide exactly 5 to 7 major developments. For each, give a clear 2-sentence summary and a 1-sentence explanation of why it matters.
+2. INVESTOR_SCORECARD: Evaluate 4 strategic pillars based strictly on report data:
+   - "growth_momentum": badge (e.g. "Robust Expansion" / "Moderate Growth"), verdict (1-sentence summary), and 3 specific bullet points with figures.
+   - "profitability_quality": badge (e.g. "Solid Margin Expansion" / "Under Incubation Cost Pressure"), verdict (1-sentence summary), and 3 specific bullet points with figures.
+   - "balance_sheet_safety": badge (e.g. "Extremely Well-Capitalized" / "Conservative Leverage"), verdict (1-sentence summary), and 3 specific bullet points with figures.
+   - "strategic_execution": badge (e.g. "Rapid Scaling & Execution" / "Milestones Achieved"), verdict (1-sentence summary), and 3 specific bullet points with figures.
 3. MANAGEMENT_COMMENTARY: Provide exactly 4 to 6 strategic management themes or plans.
 4. RISKS: Provide exactly 5 to 6 distinct risk factors. Explain the risk clearly and explain what it means for an investor in everyday terms.
-5. INVESTOR_SCORECARD: Evaluate 4 strategic financial pillars based strictly on report data:
-   - "growth_momentum": badge (e.g. "Strong Expansion" / "Moderate Growth" / "Contracting"), verdict (1-sentence summary), and 2-3 specific bullet points.
-   - "profitability_quality": badge (e.g. "Solid Margin Expansion" / "Near-term Cost Pressure" / "Lower Margins"), verdict (1-sentence summary), and 2-3 specific bullet points.
-   - "balance_sheet_safety": badge (e.g. "Extremely Low Debt" / "Moderate Leverage" / "High Debt Burden"), verdict (1-sentence summary), and 2-3 specific bullet points.
-   - "strategic_execution": badge (e.g. "Rapid Scale & Expansion" / "Steady Progress" / "Delayed Rollout"), verdict (1-sentence summary), and 2-3 specific bullet points.
-6. ANALYST_TAKEAWAY:
+5. ANALYST_TAKEAWAY:
    - "improving": exactly 4 to 6 clear positive points with specific numbers/facts.
    - "weakening": exactly 4 to 6 challenges, drops, or concerns with specific numbers/facts.
    - "growth_drivers": exactly 4 to 6 key factors that could drive future revenue.
    - "investor_watch": exactly 4 to 6 specific checkpoints an investor should track next.
-7. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF (e.g. Consolidated, Standalone, AUM, Net Interest Margin, Operating Margin, Gross NPA, CASA, Capital Adequacy, Solvency, Stage 3 Loans, etc. depending on the company type). Provide a clear 1-line plain English explanation of what it means for this company.
+6. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF (e.g. Consolidated, Standalone, AUM, Net Interest Margin, Operating Margin, Gross NPA, CASA, Capital Adequacy, Solvency, Stage 3 Loans, etc. depending on the company type). Provide a clear 1-line plain English explanation of what it means for this company.
 
 ============================================================
 LANGUAGE STYLE RULES
@@ -761,31 +760,24 @@ Return ONLY valid JSON with this exact structure:
     "growth_momentum": {
       "badge": "e.g. Robust Expansion",
       "verdict": "1-sentence plain English summary",
-      "points": ["Point 1 with numbers", "Point 2 with numbers"]
+      "points": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
     },
     "profitability_quality": {
       "badge": "e.g. Under Near-term Cost Pressure",
       "verdict": "1-sentence plain English summary",
-      "points": ["Point 1 with numbers", "Point 2 with numbers"]
+      "points": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
     },
     "balance_sheet_safety": {
       "badge": "e.g. Extremely Well-Capitalized",
       "verdict": "1-sentence plain English summary",
-      "points": ["Point 1 with numbers", "Point 2 with numbers"]
+      "points": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
     },
     "strategic_execution": {
       "badge": "e.g. Scaling Rapidly",
       "verdict": "1-sentence plain English summary",
-      "points": ["Point 1 with numbers", "Point 2 with numbers"]
+      "points": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
     }
   },
-  "business_performance": [
-    {
-      "title": "Clear development title",
-      "summary": "2 simple sentences on what happened with exact numbers",
-      "why_it_matters": "1 sentence on why this matters to the business"
-    }
-  ],
   "management_commentary": [
     {
       "title": "Strategy or Theme Title",
@@ -838,7 +830,6 @@ if data:
     company = data.get("company_overview", {})
     metrics = data.get("key_metrics", [])
     scorecard = data.get("investor_scorecard", {})
-    performance = data.get("business_performance", [])
     management = data.get("management_commentary", [])
     risks = data.get("risks", [])
     takeaway = data.get("analyst_takeaway", {})
@@ -915,38 +906,17 @@ if data:
                 """
                 st.markdown(kpi_card_html, unsafe_allow_html=True)
 
-    # Tabs (Now with Step 23 Investor Scorecard)
-    tab_overview, tab_scorecard, tab_metrics, tab_charts, tab_business, tab_mgmt, tab_risks, tab_investor = st.tabs([
-        "Overview", "⭐ Investor Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Business Updates", "Management Plans", "Risks", "Investor Takeaway"
+    # Clean Tabs (Consolidated & Non-Redundant)
+    tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.tabs([
+        "⭐ Strategic Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks", "Investor Takeaway"
     ])
 
-    with tab_overview:
-        st.subheader("Financial Snapshot")
-        st.write("The main business developments from this report:")
-        if performance:
-            for item in performance:
-                title = item.get("title", "Business Development")
-                summary = item.get("summary", "")
-                why = item.get("why_it_matters", "")
-
-                card_html = f"""
-                <div class="insight-card">
-                    <div class="insight-title">{title}</div>
-                    <div class="insight-text">{summary}</div>
-                    <div class="why-box">
-                        <div class="why-title">Why it matters</div>
-                        <div class="why-content">{why}</div>
-                    </div>
-                </div>
-                """
-                st.markdown(card_html, unsafe_allow_html=True)
-
     # ========================================================
-    # STEP 23: INVESTOR SCORECARD & STRATEGIC OVERVIEW TAB
+    # STRATEGIC SCORECARD TAB (REPLACES ACCORDION LIST)
     # ========================================================
     with tab_scorecard:
-        st.subheader("Executive Investor Scorecard")
-        st.write("A multi-pillar strategic assessment extracted directly from this report:")
+        st.subheader("Executive Strategic Scorecard")
+        st.write("A structured 4-pillar evaluation matrix extracted directly from this report:")
 
         if scorecard:
             growth_info = scorecard.get("growth_momentum", {})
@@ -1001,7 +971,7 @@ if data:
                 st.markdown(f"""
                 <div class="scorecard-card">
                     <div class="scorecard-header">
-                        <div class="scorecard-title">⚙️ Strategic Execution</div>
+                        <div class="scorecard-title">⚙️ Strategic & Commercial Scale</div>
                         <div class="scorecard-badge">{exec_info.get('badge', 'Executing')}</div>
                     </div>
                     <div class="scorecard-verdict">{exec_info.get('verdict', '')}</div>
@@ -1010,7 +980,7 @@ if data:
                     st.markdown(f"• {pt}")
                 st.markdown("</div>", unsafe_allow_html=True)
         else:
-            st.info("Investor scorecard is generated automatically when processing the report.")
+            st.info("Strategic Scorecard is generated automatically when processing the report.")
 
     with tab_metrics:
         st.subheader("All Financial & Operating Numbers")
@@ -1170,25 +1140,6 @@ if data:
                 st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.info("💡 Charts will appear as soon as numerical values are recorded in the report.")
-
-    with tab_business:
-        st.subheader("Business Updates")
-        st.write("How different parts of the business performed:")
-        if performance:
-            for idx, item in enumerate(performance, start=1):
-                title = item.get("title", f"Update {idx}")
-                summary = item.get("summary", "")
-                why = item.get("why_it_matters", "")
-
-                with st.expander(f"{idx}. {title}", expanded=(idx <= 2)):
-                    st.write(summary)
-                    if why:
-                        st.markdown(f"""
-                        <div class="why-box">
-                            <div class="why-title">Why it matters</div>
-                            <div class="why-content">{why}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
 
     with tab_mgmt:
         st.subheader("Management Strategy & Outlook")
