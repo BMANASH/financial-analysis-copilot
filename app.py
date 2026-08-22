@@ -4,6 +4,7 @@ import re
 import tempfile
 import os
 import time
+import pandas as pd
 from google import genai
 from google.genai import types
 
@@ -251,24 +252,42 @@ st.markdown("""
     margin-top: 15px;
     margin-bottom: 20px;
 }
-.stat-card {
-    background: #171e2c;
-    border: 1px solid #2c3c54;
-    border-radius: 10px;
-    padding: 14px;
+.invest-kpi-card {
+    background: #171f2d;
+    border: 1px solid #2e405a;
+    border-radius: 12px;
+    padding: 16px;
     text-align: center;
+    margin-bottom: 14px;
 }
-.stat-label {
-    color: #8f9aaa;
-    font-size: 12px;
+.invest-kpi-label {
+    color: #94a3b8;
+    font-size: 11.5px;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
-.stat-val {
+.invest-kpi-val {
     color: #ffffff;
-    font-size: 19px;
+    font-size: 21px;
     font-weight: 750;
-    margin-top: 4px;
+    margin-top: 5px;
+}
+.invest-detail-card {
+    background: #151a24;
+    border: 1px solid #283648;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+}
+.invest-detail-title {
+    color: #60a5fa;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 .chart-box {
     background: #151a24;
@@ -1225,50 +1244,135 @@ if data:
                 if st.button("⚡ Analyse The Investment", type="primary"):
                     company_name = company.get('company_name', 'this company')
                     analysis_req_prompt = f"""
-You are a top-tier equity research and technical/fundamental market analyst.
-The user has invested in {company_name}.
+You are a senior equity research and fundamental market analyst.
+Evaluate this user's personal investment position in {company_name}.
 
-INVESTMENT POSITION:
-- Total Capital Invested: ₹{total_invested_input:,.2f}
-- Average Purchase Price: ₹{avg_price_input:.2f}
-- Estimated Shares Held: {calculated_shares:,}
+INVESTMENT DATA:
+- Capital Invested: ₹{total_invested_input:,.2f}
+- Purchase Price: ₹{avg_price_input:.2f}
+- Shares Held: ~{calculated_shares:,}
 
 TASK:
 1. SCREEN STOCK EXCHANGE LISTING:
-   - Check if {company_name} is actively listed on public stock exchanges (NSE / BSE / NASDAQ, etc.).
-   - If NOT listed, clearly start by stating:
-     "**Listing Status:** This company is currently unlisted on public stock exchanges." and explain its private valuation context.
-   - If LISTED, provide its approximate current trading price context on Indian/Global exchanges, compute unrealized gain/loss context against ₹{avg_price_input:.2f}, and review recent market trading sentiments.
+   - Determine if {company_name} is listed on public stock exchanges (NSE / BSE / NASDAQ).
+   - If LISTED: Estimate recent market price context (~₹ per share), compute gain/loss percentage against ₹{avg_price_input:.2f}, and note ticker.
+   - If UNLISTED: State clearly that the company is private/unlisted.
 
-2. STRATEGIC & FUNDAMENTAL ASSESSMENT (GROUNDED IN THE REPORT):
-   - Compare the investor's entry price against the core strengths found in the report (AUM growth, debt safety, revenue trajectory, cost pressures).
-   - Clarify whether profit variations are temporary expansion setup costs or structural issues.
-
-3. FUTURE STOCK MARKET OUTLOOK & WHAT THE INVESTOR SHOULD DO:
-   - What is the market's medium-to-long-term growth outlook for this business sector?
-   - How should an investor manage this position (e.g. strategic patience, watching specific quarterly milestones, tracking loan quality or margin expansion)?
-   - Write in clean, professional, simple English without academic jargon. (No direct Buy/Sell/Hold mandate).
-
-Format cleanly with Markdown:
-### 1. Market Listing & Price Overview
-### 2. Fundamental Health vs. Your Entry Price
-### 3. Future Market Outlook for this Stock
-### 4. Strategic Investor Action Plan (What to Track)
+2. RETURN VALID JSON ONLY with this exact clean structure (no dense walls of text, use concise punchy bullet points):
+{{
+  "is_listed": true,
+  "listing_status": "e.g. Listed on NSE (JIOFIN) / BSE (543940)",
+  "market_price_context": "₹320.00",
+  "gain_loss_percent": "+38.2%",
+  "gain_loss_amount": "+₹1,850.00",
+  "position_summary": "1 punchy sentence summarizing how this position stands today.",
+  "fundamental_strengths_vs_entry": [
+    "Clear strength 1 comparing entry price with actual report growth/AUM/net worth",
+    "Clear strength 2 on loan security, balance sheet cushion or profit transition",
+    "Clear strength 3 explaining why recent cost increases are normal startup rollout costs"
+  ],
+  "future_market_outlook": [
+    "Sector growth runway in India and digital adoption momentum",
+    "Key strategic catalysts (partnerships, tech platforms, new licenses) over next 2-3 years"
+  ],
+  "investor_action_plan": [
+    "Milestone 1 to track in upcoming quarterly results",
+    "Milestone 2 on margins / credit quality to monitor",
+    "Actionable mindset for long-term holders"
+  ]
+}}
 """
                     with st.spinner(f"Screening stock market for {company_name} and analyzing fundamentals..."):
                         try:
                             pos_response = generate_with_fallback(
                                 contents=[analysis_req_prompt, st.session_state.gemini_file],
-                                json_mode=False
+                                json_mode=True
                             )
-                            st.session_state.position_assessment = pos_response.text.strip()
+                            st.session_state.position_assessment = clean_json_response(pos_response.text)
                         except Exception as e:
                             st.error(f"Could not complete investment analysis: {e}")
 
                 if st.session_state.position_assessment:
+                    pos_data = st.session_state.position_assessment
+                    
                     st.markdown("---")
-                    st.markdown("### 📋 Analyst Investment Perspective & Future Outlook")
-                    st.markdown(st.session_state.position_assessment)
+                    st.markdown("### 📋 Analyst Portfolio Assessment")
+                    
+                    # 4 Top Visual Metrics Cards
+                    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+                    with col_m1:
+                        st.markdown(f"""
+                        <div class="invest-kpi-card">
+                            <div class="invest-kpi-label">Invested Capital</div>
+                            <div class="invest-kpi-val">₹{total_invested_input:,.2f}</div>
+                            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">~{calculated_shares:,} Shares</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with col_m2:
+                        st.markdown(f"""
+                        <div class="invest-kpi-card">
+                            <div class="invest-kpi-label">Your Buy Price</div>
+                            <div class="invest-kpi-val">₹{avg_price_input:,.2f}</div>
+                            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">Cost Basis</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with col_m3:
+                        mkt_price = pos_data.get("market_price_context", "N/A")
+                        st.markdown(f"""
+                        <div class="invest-kpi-card">
+                            <div class="invest-kpi-label">Market Price Context</div>
+                            <div class="invest-kpi-val" style="color: #60a5fa;">{mkt_price}</div>
+                            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">{pos_data.get('listing_status', 'Exchange Listed')}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with col_m4:
+                        gain_pct = pos_data.get("gain_loss_percent", "N/A")
+                        is_pos = not str(gain_pct).startswith("-")
+                        pnl_color = "#34d399" if is_pos else "#f87171"
+                        st.markdown(f"""
+                        <div class="invest-kpi-card">
+                            <div class="invest-kpi-label">Estimated Return</div>
+                            <div class="invest-kpi-val" style="color: {pnl_color};">{gain_pct}</div>
+                            <div style="color: {pnl_color}; font-size: 11.5px; margin-top: 4px;">{pos_data.get('gain_loss_amount', '')}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                    # Summary Banner
+                    if pos_data.get("position_summary"):
+                        st.markdown(f"""
+                        <div style="background: #111a26; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 18px; color: #dbeafe; font-size: 14px;">
+                            <strong>Summary:</strong> {pos_data.get('position_summary')}
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                    # 3 Distinct Card Containers
+                    col_det1, col_det2 = st.columns(2)
+
+                    with col_det1:
+                        st.markdown("""
+                        <div class="invest-detail-card">
+                            <div class="invest-detail-title">🛡️ Fundamental Strengths vs. Your Entry</div>
+                        """, unsafe_allow_html=True)
+                        for pt in pos_data.get("fundamental_strengths_vs_entry", []):
+                            st.markdown(f"• {pt}")
+                        st.markdown("</div>", unsafe_allow_html=True)
+
+                    with col_det2:
+                        st.markdown("""
+                        <div class="invest-detail-card">
+                            <div class="invest-detail-title">🚀 Future Market Outlook & Catalysts</div>
+                        """, unsafe_allow_html=True)
+                        for pt in pos_data.get("future_market_outlook", []):
+                            st.markdown(f"• {pt}")
+                        st.markdown("</div>", unsafe_allow_html=True)
+
+                    st.markdown("""
+                    <div class="invest-detail-card">
+                        <div class="invest-detail-title">📌 Strategic Investor Action Plan (What to Track)</div>
+                    """, unsafe_allow_html=True)
+                    for pt in pos_data.get("investor_action_plan", []):
+                        st.markdown(f"• {pt}")
+                    st.markdown("</div>", unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
 
