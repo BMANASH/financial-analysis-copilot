@@ -26,7 +26,7 @@ from google.genai import types
 # ============================================================
 
 st.set_page_config(
-    page_title="Financial Analysis Copilot",
+    page_title="Financial Analyst AI",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -517,7 +517,7 @@ except Exception:
     API_KEY = None
 
 if not API_KEY:
-    st.error("Gemini API key was not found. Please add GEMINI_API_KEY to Streamlit Secrets.")
+    st.error("API key was not found. Please add GEMINI_API_KEY to Streamlit Secrets.")
     st.stop()
 
 @st.cache_resource
@@ -684,7 +684,7 @@ def upload_pdf_to_gemini(uploaded_file):
                 return gemini_file
 
             if state_name == "FAILED":
-                raise Exception("Gemini failed while processing the PDF.")
+                raise Exception("Professional Financial Analyst AI failed while processing the PDF.")
 
             time.sleep(1)
             gemini_file = client.files.get(name=gemini_file.name)
@@ -702,8 +702,8 @@ def upload_pdf_to_gemini(uploaded_file):
 # ============================================================
 
 with st.sidebar:
-    st.title("Financial Analysis Copilot")
-    st.write("Upload an annual report or financial PDF and let Gemini analyse it.")
+    st.title("Financial Analyst AI")
+    st.write("Upload an annual report or financial PDF and let the AI analyst examine it.")
     st.markdown("---")
 
     uploaded_file = st.file_uploader(
@@ -737,7 +737,7 @@ with st.sidebar:
         st.caption("Active Document:")
         st.write(f"📄 **{st.session_state.uploaded_name}**")
         if st.session_state.selected_model:
-            st.caption(f"Engine: `{st.session_state.selected_model}`")
+            st.caption(f"Engine: Professional Financial Analyst AI")
 
     # ========================================================
     # SIDEBAR INTERACTIVE GLOSSARY (PDF-GROUNDED)
@@ -775,7 +775,7 @@ with st.sidebar:
 
 st.markdown("""
 <div class="hero">
-    <div class="hero-title">Financial Analysis Copilot</div>
+    <div class="hero-title">Financial Analyst AI</div>
     <div class="hero-subtitle">Institutional-grade AI financial analysis & portfolio intelligence from annual reports</div>
 </div>
 """, unsafe_allow_html=True)
@@ -793,7 +793,7 @@ if not st.session_state.gemini_file:
 # ============================================================
 
 st.markdown('<div class="section-title">Generate Financial Analysis</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Gemini will read the uploaded report and create a complete, easy-to-understand financial dashboard.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Professional Financial Analyst AI will read the uploaded report and create a complete, easy-to-understand financial dashboard.</div>', unsafe_allow_html=True)
 
 generate_button = st.button("Generate Financial Analysis", type="primary")
 
@@ -896,7 +896,7 @@ Return ONLY valid JSON with this exact structure:
 }
 """
 
-    with st.spinner("Gemini is reading the complete report and generating simple, professional analysis..."):
+    with st.spinner("Professional Financial Analyst AI is reading the complete report and generating simple, professional analysis..."):
         try:
             response = generate_with_fallback(
                 contents=[analysis_prompt, st.session_state.gemini_file],
@@ -905,7 +905,7 @@ Return ONLY valid JSON with this exact structure:
             data = clean_json_response(response.text)
 
             if not data or "company_overview" not in data:
-                st.error("Gemini returned an incomplete response. Please click 'Generate Financial Analysis' again.")
+                st.error("Professional Financial Analyst AI returned an incomplete response. Please click 'Generate Financial Analysis' again.")
             else:
                 st.session_state.analysis = data
                 st.session_state.deep_dive = None
@@ -914,7 +914,7 @@ Return ONLY valid JSON with this exact structure:
                 st.rerun()
 
         except Exception as error:
-            st.error("Gemini could not complete the analysis.")
+            st.error("Professional Financial Analyst AI could not complete the analysis.")
             st.code(str(error))
 
 # ============================================================
@@ -1635,7 +1635,7 @@ RULES:
   }
 }
 """
-            with st.spinner("Gemini is conducting an in-depth financial investigation..."):
+            with st.spinner("Professional Financial Analyst AI is conducting an in-depth financial investigation..."):
                 try:
                     deep_res = generate_with_fallback(
                         contents=[deep_prompt, st.session_state.gemini_file],
@@ -1756,7 +1756,7 @@ Source File     : {st.session_state.uploaded_name}
 
         detailed_report += f"""
 ======================================================================
-    Financial Analysis Copilot • For Educational & Analytical Use Only
+    Financial Analyst AI • For Educational & Analytical Use Only
 ======================================================================
 """
 
@@ -1821,11 +1821,11 @@ Source File     : {st.session_state.uploaded_name}
             )
 
     # ========================================================
-    # STEP 3: ASK GEMINI EXPERIENCE (SHOWN AT THE VERY END)
+    # STEP 3: ASK THE ANALYST AI EXPERIENCE (SHOWN AT THE VERY END)
     # ========================================================
     st.divider()
     st.markdown('<div class="section-title">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below. Gemini answers strictly using the uploaded PDF.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below. The AI analyst answers strictly using the uploaded PDF.</div>', unsafe_allow_html=True)
 
     # Quick Prompts / Chips
     st.markdown("**Suggested Questions:**")
@@ -1903,13 +1903,13 @@ RULES FOR ANSWERING
 """
 
         with st.chat_message("assistant"):
-            with st.spinner("Gemini is reading the report and preparing your answer..."):
+            with st.spinner("Professional Financial Analyst AI is reading the report and preparing your answer..."):
                 try:
                     response = generate_with_fallback(
                         contents=[question_prompt, st.session_state.gemini_file],
                         json_mode=False
                     )
-                    answer = response.text.strip() if response.text else "Gemini returned an empty response. Please try asking again."
+                    answer = response.text.strip() if response.text else "Professional Financial Analyst AI returned an empty response. Please try asking again."
                     st.markdown(answer)
                     
                     st.session_state.chat_history.append({
@@ -1931,6 +1931,6 @@ RULES FOR ANSWERING
 st.divider()
 st.markdown("""
 <div class="footer">
-    Financial Analysis Copilot • AI analysis grounded in uploaded financial reports. For analytical and educational purposes only.
+    Financial Analyst AI • AI analysis grounded in uploaded financial reports. For analytical and educational purposes only.
 </div>
 """, unsafe_allow_html=True)
