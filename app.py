@@ -1778,64 +1778,62 @@ export_decision = st.radio(
 if export_decision == "Yes, download dashboard summary report":
     comp_name = company.get("company_name", "Company")
     
-    # Professional formatting for the summary report
-    detailed_report = f"""######################################################################
-# FINANCIAL ANALYSIS & INVESTMENT SUMMARY REPORT
-# Company: {comp_name.upper()}
-######################################################################
-Report File    : {st.session_state.uploaded_name}
+    # Highly polished, professional executive layout for .txt
+    detailed_report = f"""======================================================================
+                  FINANCIAL ANALYSIS & INVESTMENT REPORT
+======================================================================
+Company Name   : {company.get('company_name', 'N/A')}
+Stock Ticker   : {company.get('stock_ticker', 'N/A')}
+Industry       : {company.get('industry', 'N/A')}
+Reporting Period: {company.get('reporting_period', 'N/A')}
+Report Type    : {company.get('report_type', 'N/A')}
 Generated Date : {datetime.today().strftime('%d %B %Y')}
-Platform       : Financial Analysis Copilot
+Source File    : {st.session_state.uploaded_name}
 
-======================================================================
-1. EXECUTIVE COMPANY OVERVIEW
-======================================================================
-- Company Name    : {company.get('company_name', 'N/A')}
-- Stock Ticker    : {company.get('stock_ticker', 'N/A')}
-- Industry        : {company.get('industry', 'N/A')}
-- Reporting Period: {company.get('reporting_period', 'N/A')}
-- Report Type     : {company.get('report_type', 'N/A')}
-- Business Profile: {company.get('business_type', 'N/A')}
+----------------------------------------------------------------------
+1. EXECUTIVE BUSINESS PROFILE
+----------------------------------------------------------------------
+{company.get('business_type', 'N/A')}
 
-======================================================================
+----------------------------------------------------------------------
 2. KEY FINANCIAL & OPERATING METRICS
-======================================================================
+----------------------------------------------------------------------
 """
     for m in metrics:
-        detailed_report += f"• {m.get('metric', 'Metric')}: {m.get('current_period', 'N/A')} {m.get('unit', '')} (Prior: {m.get('previous_period', 'N/A')}, YoY Growth: {m.get('yoy_growth', 'N/A')}) [{m.get('basis', '')}]\n"
+        detailed_report += f"  • {m.get('metric', 'Metric')}: {m.get('current_period', 'N/A')} {m.get('unit', '')} (Prior: {m.get('previous_period', 'N/A')}, YoY Growth: {m.get('yoy_growth', 'N/A')}) [{m.get('basis', '')}]\n"
 
     if st.session_state.position_assessment:
         pos = st.session_state.position_assessment
         detailed_report += f"""
-======================================================================
-3. PERSONALIZED INVESTMENT POSITION ASSESSMENT
-======================================================================
+----------------------------------------------------------------------
+3. PERSONALIZED INVESTMENT POSITION & MARKET ANALYSIS
+----------------------------------------------------------------------
 - Position Status      : {pos.get('position_summary', 'N/A')}
 - Current Market Price : {pos.get('cmp_display', 'N/A')} as on {pos.get('live_date', 'N/A')} ({pos.get('exchange_tag', '')})
 - Estimated Return / P&L: {pos.get('pnl_str', 'N/A')} ({pos.get('amt_str', 'N/A')})
 """
         if "price_safety_points" in pos:
-            detailed_report += "\n[Fundamental Safety Highlights]\n"
+            detailed_report += "\n[Fundamental Price Safety Pillars]\n"
             for pt in pos["price_safety_points"]:
-                detailed_report += f"  - {pt.get('title')}: {pt.get('explanation')}\n"
+                detailed_report += f"  - {pt.get('title')}\n    {pt.get('explanation')}\n"
 
         if "long_term_outlook_5_to_8_years" in pos:
-            detailed_report += "\n[Long-Term Outlook (5-8 Years)]\n"
+            detailed_report += "\n[Long-Term Outlook (5 to 8 Years)]\n"
             for pt in pos["long_term_outlook_5_to_8_years"]:
-                detailed_report += f"  - {pt.get('title')}: {pt.get('explanation')}\n"
+                detailed_report += f"  - {pt.get('title')}\n    {pt.get('explanation')}\n"
 
     detailed_report += f"""
 ======================================================================
-End of Report • Prepared for Analytical & Educational Use Only
+    Financial Analysis Copilot • For Educational & Analytical Use Only
 ======================================================================
 """
 
     col_dl1, col_dl2 = st.columns(2)
     with col_dl1:
         st.download_button(
-            label="📄 Download Professional Summary Report (.txt)",
+            label="📄 Download Executive Summary Report (.txt)",
             data=detailed_report,
-            file_name=f"{comp_name.replace(' ', '_')}_Financial_Summary_Report.txt",
+            file_name=f"{comp_name.replace(' ', '_')}_Executive_Summary_Report.txt",
             mime="text/plain",
             use_container_width=True
         )
@@ -1851,10 +1849,10 @@ End of Report • Prepared for Analytical & Educational Use Only
                 "unit": "Unit",
                 "basis": "Basis"
             })
-            # utf-8-sig ensures Excel correctly interprets rupee symbols (₹) without character errors
+            # Clean export bytes with utf-8-sig for proper Excel rendering of ₹
             csv_export_bytes = df_metrics.to_csv(index=False).encode('utf-8-sig')
             st.download_button(
-                label="📊 Download Formatted Metrics Data (.csv)",
+                label="📊 Download Formatted Financial Data (.csv)",
                 data=csv_export_bytes,
                 file_name=f"{comp_name.replace(' ', '_')}_Financial_Metrics.csv",
                 mime="text/csv",
