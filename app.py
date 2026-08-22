@@ -882,7 +882,7 @@ Return ONLY valid JSON with this exact structure:
             st.code(str(error))
 
 # ============================================================
-# DISPLAY ANALYSIS DASHBOARD (ONLY AFTER GENERATION)
+# DISPLAY ANALYSIS DASHBOARD & SUB-SECTIONS (ONLY AFTER GENERATION)
 # ============================================================
 
 data = st.session_state.analysis
@@ -1797,23 +1797,23 @@ Source File     : {st.session_state.uploaded_name}
     suggested_question = None
 
     with chip_cols[0]:
-        if st.button("📈 Why did profits change YoY?", use_container_width=True):
+        if st.button("📈 Why did profits change YoY?", key="chip_profit_change"):
             suggested_question = "Why did profits change compared with the previous year? Break down key drivers of the profit change in simple terms."
     with chip_cols[1]:
-        if st.button("🚀 What are the biggest growth drivers?", use_container_width=True):
+        if st.button("🚀 What are the biggest growth drivers?", key="chip_growth_drivers"):
             suggested_question = "What are the company's major growth drivers and biggest future expansion opportunities based on this report?"
     with chip_cols[2]:
-        if st.button("💰 Explain debt & cash position", use_container_width=True):
+        if st.button("💰 Explain debt & cash position", key="chip_debt_pos"):
             suggested_question = "How is the company's debt, borrowings, and overall cash/liquidity position? Is its financial footing strong?"
     with chip_cols[3]:
-        if st.button("⚠️ Key risks for investors", use_container_width=True):
+        if st.button("⚠️ Key risks for investors", key="chip_key_risks"):
             suggested_question = "What are the primary operational, financial, and market risks an investor should know about?"
 
     # Header row with clear button
     chat_header_left, chat_header_right = st.columns([4, 1])
     with chat_header_right:
         if st.session_state.chat_history:
-            if st.button("🗑️ Clear History", use_container_width=True):
+            if st.button("🗑️ Clear History", key="clear_chat_history_btn"):
                 st.session_state.chat_history = []
                 st.rerun()
 
@@ -1823,9 +1823,9 @@ Source File     : {st.session_state.uploaded_name}
             st.markdown(chat["content"])
 
     # Text Input Bar
-    user_input = st.chat_input("Ask a question about this financial report...")
+    user_input = st.chat_input("Ask a question about this financial report...", key="chat_input_box")
 
-    active_query = user_input or suggested_question
+    active_query = user_input if user_input else suggested_question
 
     if active_query:
         st.session_state.chat_history.append({
@@ -1866,27 +1866,27 @@ RULES FOR ANSWERING
    (1-2 specific future checkpoints or indicators)
 """
 
-    with st.chat_message("assistant"):
-        with st.spinner("Gemini is reading the report and preparing your answer..."):
-            try:
-                response = generate_with_fallback(
-                    contents=[question_prompt, st.session_state.gemini_file],
-                    json_mode=False
-                )
-                answer = response.text.strip() if response.text else "Gemini returned an empty response. Please try asking again."
-                st.markdown(answer)
-                
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": answer
-                })
-            except Exception as error:
-                error_msg = f"Could not generate answer: {str(error)}"
-                st.error(error_msg)
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": error_msg
-                })
+        with st.chat_message("assistant"):
+            with st.spinner("Gemini is reading the report and preparing your answer..."):
+                try:
+                    response = generate_with_fallback(
+                        contents=[question_prompt, st.session_state.gemini_file],
+                        json_mode=False
+                    )
+                    answer = response.text.strip() if response.text else "Gemini returned an empty response. Please try asking again."
+                    st.markdown(answer)
+                    
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": answer
+                    })
+                except Exception as error:
+                    error_msg = f"Could not generate answer: {str(error)}"
+                    st.error(error_msg)
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": error_msg
+                    })
 
 # ============================================================
 # FOOTER
