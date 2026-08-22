@@ -247,6 +247,41 @@ st.markdown("""
     font-size: 14px;
     line-height: 1.5;
 }
+.scorecard-card {
+    background: #151a24;
+    border: 1px solid #283648;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    min-height: 230px;
+}
+.scorecard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.scorecard-title {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+}
+.scorecard-badge {
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.scorecard-verdict {
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
 .deep-card {
     background: #161c28;
     border: 1px solid #2e3d54;
@@ -674,12 +709,17 @@ STRICT CONTENT DEPTH & COUNT REQUIREMENTS
 2. BUSINESS_PERFORMANCE: Provide exactly 5 to 7 major developments. For each, give a clear 2-sentence summary and a 1-sentence explanation of why it matters.
 3. MANAGEMENT_COMMENTARY: Provide exactly 4 to 6 strategic management themes or plans.
 4. RISKS: Provide exactly 5 to 6 distinct risk factors. Explain the risk clearly and explain what it means for an investor in everyday terms.
-5. ANALYST_TAKEAWAY:
+5. INVESTOR_SCORECARD: Evaluate 4 strategic financial pillars based strictly on report data:
+   - "growth_momentum": badge (e.g. "Strong Expansion" / "Moderate Growth" / "Contracting"), verdict (1-sentence summary), and 2-3 specific bullet points.
+   - "profitability_quality": badge (e.g. "Solid Margin Expansion" / "Near-term Cost Pressure" / "Lower Margins"), verdict (1-sentence summary), and 2-3 specific bullet points.
+   - "balance_sheet_safety": badge (e.g. "Extremely Low Debt" / "Moderate Leverage" / "High Debt Burden"), verdict (1-sentence summary), and 2-3 specific bullet points.
+   - "strategic_execution": badge (e.g. "Rapid Scale & Expansion" / "Steady Progress" / "Delayed Rollout"), verdict (1-sentence summary), and 2-3 specific bullet points.
+6. ANALYST_TAKEAWAY:
    - "improving": exactly 4 to 6 clear positive points with specific numbers/facts.
    - "weakening": exactly 4 to 6 challenges, drops, or concerns with specific numbers/facts.
    - "growth_drivers": exactly 4 to 6 key factors that could drive future revenue.
    - "investor_watch": exactly 4 to 6 specific checkpoints an investor should track next.
-6. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF (e.g. Consolidated, Standalone, AUM, Net Interest Margin, Operating Margin, Gross NPA, CASA, Capital Adequacy, Solvency, Stage 3 Loans, etc. depending on the company type). Provide a clear 1-line plain English explanation of what it means for this company.
+7. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF (e.g. Consolidated, Standalone, AUM, Net Interest Margin, Operating Margin, Gross NPA, CASA, Capital Adequacy, Solvency, Stage 3 Loans, etc. depending on the company type). Provide a clear 1-line plain English explanation of what it means for this company.
 
 ============================================================
 LANGUAGE STYLE RULES
@@ -717,6 +757,28 @@ Return ONLY valid JSON with this exact structure:
       "basis": ""
     }
   ],
+  "investor_scorecard": {
+    "growth_momentum": {
+      "badge": "e.g. Robust Expansion",
+      "verdict": "1-sentence plain English summary",
+      "points": ["Point 1 with numbers", "Point 2 with numbers"]
+    },
+    "profitability_quality": {
+      "badge": "e.g. Under Near-term Cost Pressure",
+      "verdict": "1-sentence plain English summary",
+      "points": ["Point 1 with numbers", "Point 2 with numbers"]
+    },
+    "balance_sheet_safety": {
+      "badge": "e.g. Extremely Well-Capitalized",
+      "verdict": "1-sentence plain English summary",
+      "points": ["Point 1 with numbers", "Point 2 with numbers"]
+    },
+    "strategic_execution": {
+      "badge": "e.g. Scaling Rapidly",
+      "verdict": "1-sentence plain English summary",
+      "points": ["Point 1 with numbers", "Point 2 with numbers"]
+    }
+  },
   "business_performance": [
     {
       "title": "Clear development title",
@@ -775,6 +837,7 @@ data = st.session_state.analysis
 if data:
     company = data.get("company_overview", {})
     metrics = data.get("key_metrics", [])
+    scorecard = data.get("investor_scorecard", {})
     performance = data.get("business_performance", [])
     management = data.get("management_commentary", [])
     risks = data.get("risks", [])
@@ -852,9 +915,9 @@ if data:
                 """
                 st.markdown(kpi_card_html, unsafe_allow_html=True)
 
-    # Tabs
-    tab_overview, tab_metrics, tab_charts, tab_business, tab_mgmt, tab_risks, tab_investor = st.tabs([
-        "Overview", "Financial Metrics Table", "📊 Visual Charts", "Business Updates", "Management Plans", "Risks", "Investor Takeaway"
+    # Tabs (Now with Step 23 Investor Scorecard)
+    tab_overview, tab_scorecard, tab_metrics, tab_charts, tab_business, tab_mgmt, tab_risks, tab_investor = st.tabs([
+        "Overview", "⭐ Investor Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Business Updates", "Management Plans", "Risks", "Investor Takeaway"
     ])
 
     with tab_overview:
@@ -877,6 +940,77 @@ if data:
                 </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
+
+    # ========================================================
+    # STEP 23: INVESTOR SCORECARD & STRATEGIC OVERVIEW TAB
+    # ========================================================
+    with tab_scorecard:
+        st.subheader("Executive Investor Scorecard")
+        st.write("A multi-pillar strategic assessment extracted directly from this report:")
+
+        if scorecard:
+            growth_info = scorecard.get("growth_momentum", {})
+            prof_info = scorecard.get("profitability_quality", {})
+            safety_info = scorecard.get("balance_sheet_safety", {})
+            exec_info = scorecard.get("strategic_execution", {})
+
+            col_s1, col_s2 = st.columns(2)
+
+            with col_s1:
+                st.markdown(f"""
+                <div class="scorecard-card">
+                    <div class="scorecard-header">
+                        <div class="scorecard-title">🚀 Growth Momentum</div>
+                        <div class="scorecard-badge">{growth_info.get('badge', 'Expanding')}</div>
+                    </div>
+                    <div class="scorecard-verdict">{growth_info.get('verdict', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in growth_info.get("points", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            with col_s2:
+                st.markdown(f"""
+                <div class="scorecard-card">
+                    <div class="scorecard-header">
+                        <div class="scorecard-title">💰 Profitability & Earnings Quality</div>
+                        <div class="scorecard-badge">{prof_info.get('badge', 'Operating Profit')}</div>
+                    </div>
+                    <div class="scorecard-verdict">{prof_info.get('verdict', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in prof_info.get("points", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            col_s3, col_s4 = st.columns(2)
+
+            with col_s3:
+                st.markdown(f"""
+                <div class="scorecard-card">
+                    <div class="scorecard-header">
+                        <div class="scorecard-title">🛡️ Balance Sheet Resilience</div>
+                        <div class="scorecard-badge">{safety_info.get('badge', 'Capital Cushion')}</div>
+                    </div>
+                    <div class="scorecard-verdict">{safety_info.get('verdict', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in safety_info.get("points", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            with col_s4:
+                st.markdown(f"""
+                <div class="scorecard-card">
+                    <div class="scorecard-header">
+                        <div class="scorecard-title">⚙️ Strategic Execution</div>
+                        <div class="scorecard-badge">{exec_info.get('badge', 'Executing')}</div>
+                    </div>
+                    <div class="scorecard-verdict">{exec_info.get('verdict', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in exec_info.get("points", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            st.info("Investor scorecard is generated automatically when processing the report.")
 
     with tab_metrics:
         st.subheader("All Financial & Operating Numbers")
@@ -915,9 +1049,6 @@ if data:
         else:
             st.info("No financial metrics found.")
 
-    # ========================================================
-    # CLEAR & READABLE VISUAL CHARTS
-    # ========================================================
     with tab_charts:
         st.subheader("Visual Financial Comparisons")
         st.write("Clean graphical views to help compare performance at a glance:")
