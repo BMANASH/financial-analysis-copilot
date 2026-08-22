@@ -705,7 +705,6 @@ with st.sidebar:
         st.markdown("---")
         st.markdown("### 📥 Export Dashboard")
         
-        # Excel Export Buffer
         metrics_list = st.session_state.analysis.get("key_metrics", [])
         if metrics_list:
             df_export = pd.DataFrame(metrics_list)
@@ -722,7 +721,6 @@ with st.sidebar:
                 use_container_width=True
             )
 
-        # Text/PDF Report Summary Export
         comp_name = st.session_state.analysis.get("company_overview", {}).get("company_name", "Financial_Report")
         summary_text = f"FINANCIAL ANALYSIS SUMMARY: {comp_name}\n" + "="*50 + "\n\n"
         summary_text += f"Report File: {st.session_state.uploaded_name}\n"
@@ -1291,11 +1289,525 @@ if data:
 
         col1, col2 = st.columns(2)
         with col1:
-            stThe `requirements.txt` file for your **financial-analysis-copilot** repository looks solid and covers all the core dependencies needed for a Streamlit-based financial assistant using Yahoo Finance, Pandas, PDF processing, and the Gemini API. 
+            st.markdown("### 🟢 What is improving?")
+            if improving:
+                for item in improving:
+                    card_html = f"""<div class="takeaway-improving">✓ {item}</div>"""
+                    st.markdown(card_html, unsafe_allow_html=True)
+            else:
+                st.info("No specific improvement points identified.")
 
-However, there is one small detail to double-check regarding the Google GenAI library:
+        with col2:
+            st.markdown("### 🔴 What is weakening?")
+            if weakening:
+                for item in weakening:
+                    card_html = f"""<div class="takeaway-weakening">✗ {item}</div>"""
+                    st.markdown(card_html, unsafe_allow_html=True)
+            else:
+                st.info("No specific weakening points identified.")
 
-* **Package Name Check:** Depending on which version of the SDK you are using, the package name is typically `google-genai` (which matches line 5 in your file) or the older `google-generativeai`. If you are using the modern `google-genai` client library, `google-genai` is correct. 
-* **Pinning Versions:** It's often a good practice to pin specific versions (e.g., `streamlit>=1.30.0` or `pandas==2.2.0`) to prevent any breaking changes from upstream updates when deploying your app.
+        st.markdown("### 🚀 Main Growth Drivers")
+        if growth_drivers:
+            for item in growth_drivers:
+                card_html = f"""<div class="takeaway-driver">◆ {item}</div>"""
+                st.markdown(card_html, unsafe_allow_html=True)
 
-Everything else—`streamlit`, `pypdf`, `pandas`, and `yfinance`—is lined up correctly for financial data ingestion and dashboarding. Want to review the `app.py` structure next?
+        st.markdown("### 🔍 What Should an Investor Watch?")
+        if investor_watch:
+            for item in investor_watch:
+                card_html = f"""<div class="takeaway-watch">◉ {item}</div>"""
+                st.markdown(card_html, unsafe_allow_html=True)
+
+    # ========================================================
+    # DYNAMIC INVESTMENT POSITION & ACCURATE LIVE CMP MODULE
+    # ========================================================
+    st.markdown("---")
+    st.markdown('<div class="section-title">💼 Personalized Investment Position & Market Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Evaluate your personal investment against live stock market pricing and the financial health in this annual report.</div>', unsafe_allow_html=True)
+
+    investor_mcq = st.radio(
+        "Are you currently an investor in this company's stock?",
+        options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"],
+        index=0,
+        horizontal=True,
+        key="investor_position_mcq"
+    )
+
+    if investor_mcq == "No, I am just studying / evaluating":
+        st.info("💡 Thank you! Feel free to explore the annual report and dashboard above to evaluate the business.")
+
+    elif investor_mcq == "Yes, I hold shares in this company":
+        with st.container():
+            st.markdown("""
+            <div class="position-box">
+                <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 14px;">📊 Enter Your Investment Details:</div>
+            """, unsafe_allow_html=True)
+
+            col_inv1, col_inv2 = st.columns(2)
+            with col_inv1:
+                total_invested_input = st.number_input(
+                    "Total Amount Invested (₹)", 
+                    min_value=0.0, 
+                    value=None, 
+                    placeholder="e.g. 50000.00", 
+                    step=500.0, 
+                    format="%.2f",
+                    key="input_total_invested_unique_calc"
+                )
+            with col_inv2:
+                avg_price_input = st.number_input(
+                    "Average Buying Price per Share (₹)", 
+                    min_value=0.0, 
+                    value=None, 
+                    placeholder="e.g. 250.00", 
+                    step=1.0, 
+                    format="%.2f",
+                    key="input_avg_buy_price_unique_calc"
+                )
+
+            has_valid_inputs = (
+                total_invested_input is not None and 
+                avg_price_input is not None and 
+                total_invested_input > 0 and 
+                avg_price_input > 0
+            )
+
+            calculated_shares = int(total_invested_input // avg_price_input) if has_valid_inputs else 0
+
+            if has_valid_inputs:
+                st.markdown(f"""
+                <div style="background: #192231; border: 1px solid #2e3e57; border-radius: 8px; padding: 10px 14px; margin-top: 10px; margin-bottom: 14px; display: flex; justify-content: space-between;">
+                    <span style="color: #94a3b8; font-size: 13.5px;">Calculated Holding:</span>
+                    <span style="color: #60a5fa; font-weight: 700; font-size: 14px;">~{calculated_shares:,} Shares</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+                if st.button("⚡ Analyse The Investment", type="primary"):
+                    company_name = company.get('company_name', 'this company')
+                    ticker_hint = company.get('stock_ticker', '')
+
+                    with st.spinner(f"Retrieving current stock market quote for {company_name}..."):
+                        market_info = fetch_live_stock_price(company_name, ticker_hint)
+
+                    live_price = market_info["price"] if market_info else 0.0
+                    live_date = market_info["as_on"] if market_info else datetime.today().strftime("%d %b %Y")
+                    exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "NSE / BSE"
+
+                    if live_price > 0:
+                        actual_invested = avg_price_input * calculated_shares
+                        cur_val = live_price * calculated_shares
+                        pnl_amt = cur_val - actual_invested
+                        pnl_pct = ((live_price - avg_price_input) / avg_price_input) * 100
+                        pnl_sign = "+" if pnl_amt >= 0 else ""
+                        pnl_str = f"{pnl_sign}{pnl_pct:.2f}%"
+                        amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
+                        cmp_display = f"₹{live_price:,.2f}"
+                        gain_per_share = live_price - avg_price_input
+                        gain_sign = "+" if gain_per_share >= 0 else ""
+                        per_share_str = f"{gain_sign}₹{gain_per_share:,.2f} per share"
+                    else:
+                        cmp_display = "Active Trading Quote"
+                        pnl_str = "Active"
+                        amt_str = ""
+                        per_share_str = "Active"
+
+                    analysis_req_prompt = f"""
+You are a senior equity research analyst explaining an investment in {company_name} to a regular investor in plain, everyday English.
+
+INVESTMENT NUMBERS:
+- Capital Invested: ₹{total_invested_input:,.2f}
+- Purchase Price: ₹{avg_price_input:.2f} (~{calculated_shares:,} shares)
+- Current Market Price: {cmp_display} as of {live_date} on {exchange_tag}
+- Exact Return: {pnl_str} ({amt_str}, {per_share_str})
+
+STRUCTURE YOUR ANALYSIS STRICTLY INTO 3 DIRECT SECTIONS:
+1. "Profit or Loss": Clear 1-sentence verdict on whether the position is in profit or loss right now, the exact rupee difference per share between purchase price and market price, and what that means today.
+2. "The Price At Which Stock Is Bought Is Fundamentally Safe": Explain in 3 simple points why this buying price is safe by comparing it directly against the company's asset backing, net worth cushion, loan safety, and promoter benchmark.
+3. "Outlook for Next 5 to 8 Years": Explain in 3 clear long-term points how the business model, digital scale, and global joint ventures compound value over a 5 to 8 year horizon.
+
+Return ONLY valid JSON with this exact structure:
+{{
+  "profit_or_loss_summary": "You are currently in profit by {pnl_str} ({amt_str}), having gained {per_share_str} from your entry price of ₹{avg_price_input:.2f} to the current market price of {cmp_display}.",
+  "price_safety_points": [
+    {{
+      "title": "Below Promoter & Institutional Valuation",
+      "explanation": "Clear explanation comparing purchase price to promoter warrants or market valuation bands in simple words."
+    }},
+    {{
+      "title": "Massive Net Worth & Zero Debt Cushion",
+      "explanation": "Clear explanation of how the company's total net worth and debt-free balance sheet protects capital."
+    }},
+    {{
+      "title": "Core Business Engine Growing Behind Price",
+      "explanation": "Explanation of core revenue growth and secured lending safety supporting the entry price."
+    }}
+  ],
+  "long_term_outlook_5_to_8_years": [
+    {{
+      "title": "Massive Digital Ecosystem Monetisation",
+      "explanation": "How millions of active app users convert into compounding fee streams across 5 to 8 years."
+    }},
+    {{
+      "title": "Global Joint Venture Scale (BlackRock & Allianz)",
+      "explanation": "How mutual fund assets and insurance distribution build high-margin recurring income over 5 to 8 years."
+    }},
+    {{
+      "title": "Transformation into Financial Super-Platform",
+      "explanation": "Long-term investor takeaway on holding through setup phases into full operational maturity."
+    }}
+  ]
+}}
+"""
+                    with st.spinner("Analyzing portfolio fundamentals & live market position..."):
+                        try:
+                            pos_response = generate_with_fallback(
+                                contents=[analysis_req_prompt, st.session_state.gemini_file],
+                                json_mode=True
+                            )
+                            parsed_analysis = clean_json_response(pos_response.text)
+                            parsed_analysis["cmp_display"] = cmp_display
+                            parsed_analysis["live_date"] = live_date
+                            parsed_analysis["exchange_tag"] = exchange_tag
+                            parsed_analysis["pnl_str"] = pnl_str
+                            parsed_analysis["amt_str"] = amt_str
+                            parsed_analysis["is_pos"] = not str(pnl_str).startswith("-")
+                            parsed_analysis["live_price"] = live_price
+                            parsed_analysis["avg_price"] = avg_price_input
+
+                            st.session_state.position_assessment = parsed_analysis
+                        except Exception as e:
+                            st.error(f"Could not complete investment analysis: {e}")
+
+                if st.session_state.position_assessment:
+                    pos_data = st.session_state.position_assessment
+                    
+                    st.markdown("---")
+                    st.markdown("### 📋 Analyst Portfolio Assessment")
+                    
+                    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+                    with col_m1:
+                        st.markdown(f"""
+                        <div class="invest-kpi-card">
+                            <div class="invest-kpi-label">Invested Capital</div>
+                            <div class="invest-kpi-val">₹{total_invested_input:,.2f}</div>
+                            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">~{calculated_shares:,} Shares</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with col_m2:
+                        st.markdown(f"""
+                        <div class="invest-kpi-card">
+                            <div class="invest-kpi-label">Your Buy Price</div>
+                            <div class="invest-kpi-val">₹{avg_price_input:,.2f}</div>
+                            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">Cost Basis</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with col_m3:
+                        mkt_price = pos_data.get("cmp_display", "N/A")
+                        as_on_date = pos_data.get("live_date", "")
+                        st.markdown(f"""
+                        <div class="invest-kpi-card">
+                            <div class="invest-kpi-label">Current Market Price (CMP)</div>
+                            <div class="invest-kpi-val" style="color: #60a5fa;">{mkt_price}</div>
+                            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">As on {as_on_date} ({pos_data.get('exchange_tag', 'NSE/BSE')})</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with col_m4:
+                        gain_pct = pos_data.get("pnl_str", "N/A")
+                        is_pos = pos_data.get("is_pos", True)
+                        pnl_color = "#34d399" if is_pos else "#f87171"
+                        st.markdown(f"""
+                        <div class="invest-kpi-card">
+                            <div class="invest-kpi-label">Estimated Return</div>
+                            <div class="invest-kpi-val" style="color: {pnl_color};">{gain_pct}</div>
+                            <div style="color: {pnl_color}; font-size: 11.5px; margin-top: 4px;">{pos_data.get('amt_str', '')}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                    st.markdown("""
+                    <div class="invest-section-box">
+                        <div class="invest-section-header">💰 Profit or Loss</div>
+                    """, unsafe_allow_html=True)
+                    
+                    pnl_summary = pos_data.get("profit_or_loss_summary", f"Position status: {pos_data.get('pnl_str', '')}")
+                    is_pos = pos_data.get("is_pos", True)
+                    banner_border = "#10b981" if is_pos else "#ef4444"
+                    banner_bg = "#121d19" if is_pos else "#201417"
+                    banner_text = "#d1fae5" if is_pos else "#fee2e2"
+
+                    st.markdown(f"""
+                    <div style="background: {banner_bg}; border-left: 4px solid {banner_border}; padding: 14px 16px; border-radius: 0 8px 8px 0; margin-bottom: 14px; color: {banner_text}; font-size: 14px; font-weight: 500;">
+                        {pnl_summary}
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    l_price = pos_data.get("live_price", 0.0)
+                    a_price = pos_data.get("avg_price", 0.0)
+                    promoter_benchmark = 316.50
+
+                    price_table_html = f"""
+                    <div class="price-gauge-card">
+                        <div style="font-size: 13.5px; font-weight: 700; color: #ffffff; margin-bottom: 12px;">📊 Price Level Comparison Table:</div>
+                        <div class="gauge-row">
+                            <span style="color: #cbd5e1;">Your Purchase Price:</span>
+                            <span style="color: #60a5fa; font-weight: 700;">₹{a_price:,.2f}</span>
+                        </div>
+                        <div class="gauge-row">
+                            <span style="color: #cbd5e1;">Current Live Market Price:</span>
+                            <span style="color: {'#34d399' if is_pos else '#f87171'}; font-weight: 700;">₹{l_price:,.2f} ({pos_data.get('pnl_str', '')})</span>
+                        </div>
+                        <div class="gauge-row">
+                            <span style="color: #cbd5e1;">Promoter Warrant Benchmark:</span>
+                            <span style="color: #f59e0b; font-weight: 700;">₹{promoter_benchmark:,.2f}</span>
+                        </div>
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #233145; color: #94a3b8; font-size: 12px;">
+                            💡 <em>Your buying price of ₹{a_price:,.2f} sits below the market price (₹{l_price:,.2f}) and represents a substantial discount to the ₹{promoter_benchmark:,.2f} promoter capital infusion level.</em>
+                        </div>
+                    </div>
+                    """
+                    st.markdown(price_table_html, unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                    st.markdown("""
+                    <div class="invest-section-box">
+                        <div class="invest-section-header">🛡️ The Price At Which Stock Is Bought Is Fundamentally Safe</div>
+                    """, unsafe_allow_html=True)
+                    for item in pos_data.get("price_safety_points", []):
+                        st.markdown(f"""
+                        <div class="invest-subcard">
+                            <div class="invest-subcard-title">✓ {item.get('title', '')}</div>
+                            <div class="invest-subcard-body">{item.get('explanation', '')}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                    st.markdown("""
+                    <div class="invest-section-box">
+                        <div class="invest-section-header">🚀 Outlook For The Next 5 To 8 Years (Long-Term Horizon)</div>
+                    """, unsafe_allow_html=True)
+                    for item in pos_data.get("long_term_outlook_5_to_8_years", []):
+                        st.markdown(f"""
+                        <div class="invest-subcard" style="border-left-color: #8b5cf6;">
+                            <div class="invest-subcard-title">◆ {item.get('title', '')}</div>
+                            <div class="invest-subcard-body">{item.get('explanation', '')}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+    # ========================================================
+    # USER-CONTROLLED DEEP-DIVE (MCQ SELECTION)
+    # ========================================================
+    st.markdown("---")
+    st.markdown('<div class="section-title">🔬 Deep-Dive Financial Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Would you like to view an in-depth financial investigation covering profitability margins, debt & balance sheet safety, and operating efficiency?</div>', unsafe_allow_html=True)
+
+    mcq_choice = st.radio(
+        "Select the given option:",
+        options=["Yes", "No"],
+        index=None,
+        horizontal=True,
+        key="deep_dive_mcq"
+    )
+
+    if mcq_choice == "Yes":
+        if st.session_state.deep_dive is None:
+            deep_prompt = """
+You are a senior financial analyst providing a specialized deep-dive assessment of the uploaded annual report in plain, everyday English.
+
+Extract and analyze three core financial pillars from the uploaded PDF:
+1. PROFITABILITY & MARGINS: Profit margins, return on capital, drivers of net earnings, and cost pressures.
+2. DEBT, LIQUIDITY & CAPITAL HEALTH: Borrowing levels, cash reserves, capital adequacy, and solvency.
+3. OPERATING EFFICIENCY & REVENUE COMPOSITION: How efficiently the company runs its operations, employee/tech costs, and shift toward core recurring revenue.
+
+============================================================
+RULES:
+- Use plain, conversational, professional English.
+- Explain technical metrics in brackets or everyday terms.
+- Use exact figures and percentages found in the report.
+- Return ONLY valid JSON with this structure:
+{
+  "profitability_depth": {
+    "headline": "Short plain English verdict on profitability",
+    "insights": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+  },
+  "debt_and_liquidity": {
+    "headline": "Short plain English verdict on debt and balance sheet safety",
+    "insights": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+  },
+  "operating_efficiency": {
+    "headline": "Short plain English verdict on operational efficiency and scale",
+    "insights": ["Point 1 with numbers", "Point 2 with numbers", "Point 3 with numbers"]
+  }
+}
+"""
+            with st.spinner("Gemini is conducting an in-depth financial investigation..."):
+                try:
+                    deep_res = generate_with_fallback(
+                        contents=[deep_prompt, st.session_state.gemini_file],
+                        json_mode=True
+                    )
+                    deep_data = clean_json_response(deep_res.text)
+                    if deep_data and "profitability_depth" in deep_data:
+                        st.session_state.deep_dive = deep_data
+                    else:
+                        st.warning("Could not structure deep-dive data. Please try again.")
+                except Exception as e:
+                    st.error(f"Deep-dive analysis error: {e}")
+
+        if st.session_state.deep_dive:
+            dd = st.session_state.deep_dive
+            prof = dd.get("profitability_depth", {})
+            debt = dd.get("debt_and_liquidity", {})
+            eff = dd.get("operating_efficiency", {})
+
+            col_d1, col_d2, col_d3 = st.columns(3)
+
+            with col_d1:
+                st.markdown(f"""
+                <div class="deep-card">
+                    <div class="deep-card-title">📊 Profitability & Margins</div>
+                    <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{prof.get('headline', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in prof.get("insights", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            with col_d2:
+                st.markdown(f"""
+                <div class="deep-card">
+                    <div class="deep-card-title">🛡️ Debt & Balance Sheet Safety</div>
+                    <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{debt.get('headline', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in debt.get("insights", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            with col_d3:
+                st.markdown(f"""
+                <div class="deep-card">
+                    <div class="deep-card-title">⚙️ Operating Efficiency & Scale</div>
+                    <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{eff.get('headline', '')}</div>
+                """, unsafe_allow_html=True)
+                for pt in eff.get("insights", []):
+                    st.markdown(f"• {pt}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+    elif mcq_choice == "No":
+        st.info("💡 Feel free to explore the tabs above or ask any question below if you have any doubts!")
+
+# ============================================================
+# ASK GEMINI EXPERIENCE
+# ============================================================
+
+st.divider()
+st.markdown('<div class="section-title">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below. Gemini answers strictly using the uploaded PDF.</div>', unsafe_allow_html=True)
+
+# Quick Prompts / Chips
+st.markdown("**Suggested Questions:**")
+chip_cols = st.columns(4)
+suggested_question = None
+
+with chip_cols[0]:
+    if st.button("📈 Why did profits change YoY?", use_container_width=True):
+        suggested_question = "Why did profits change compared with the previous year? Break down key drivers of the profit change in simple terms."
+with chip_cols[1]:
+    if st.button("🚀 What are the biggest growth drivers?", use_container_width=True):
+        suggested_question = "What are the company's major growth drivers and biggest future expansion opportunities based on this report?"
+with chip_cols[2]:
+    if st.button("💰 Explain debt & cash position", use_container_width=True):
+        suggested_question = "How is the company's debt, borrowings, and overall cash/liquidity position? Is its financial footing strong?"
+with chip_cols[3]:
+    if st.button("⚠️ Key risks for investors", use_container_width=True):
+        suggested_question = "What are the primary operational, financial, and market risks an investor should know about?"
+
+# Header row with clear button
+chat_header_left, chat_header_right = st.columns([4, 1])
+with chat_header_right:
+    if st.session_state.chat_history:
+        if st.button("🗑️ Clear History", use_container_width=True):
+            st.session_state.chat_history = []
+            st.rerun()
+
+# Display Conversation History
+for chat in st.session_state.chat_history:
+    with st.chat_message(chat["role"]):
+        st.markdown(chat["content"])
+
+# Text Input Bar
+user_input = st.chat_input("Ask a question about this financial report...")
+
+active_query = user_input or suggested_question
+
+if active_query:
+    st.session_state.chat_history.append({
+        "role": "user",
+        "content": active_query
+    })
+    
+    with st.chat_message("user"):
+        st.markdown(active_query)
+
+    question_prompt = f"""
+You are a helpful, clear financial guide talking to a regular investor or finance student.
+Answer the user's question using ONLY facts from the uploaded financial report.
+
+USER QUESTION:
+{active_query}
+
+============================================================
+RULES FOR ANSWERING
+============================================================
+1. Answer directly and in simple, clear everyday English.
+2. Avoid textbook jargon. If a technical term is necessary, explain what it means in plain words immediately.
+3. Use concrete numbers and percentages from the report whenever helpful, and explain what those numbers mean in real life.
+4. If the question is outside the scope of the report or the information is missing, state clearly:
+   "The uploaded report does not contain specific information regarding this."
+5. Do NOT give direct Buy, Sell or Hold recommendations.
+6. Format your answer cleanly with Markdown:
+   ### Direct Answer
+   (2-3 clear plain-English paragraphs answering the question directly)
+   
+   ### Key Numbers & Facts
+   (Bullet points with specific figures and what they mean)
+   
+   ### What This Means For You
+   (Practical takeaway for an investor or analyst)
+   
+   ### What to Watch
+   (1-2 specific future checkpoints or indicators)
+"""
+
+    with st.chat_message("assistant"):
+        with st.spinner("Gemini is reading the report and preparing your answer..."):
+            try:
+                response = generate_with_fallback(
+                    contents=[question_prompt, st.session_state.gemini_file],
+                    json_mode=False
+                )
+                answer = response.text.strip() if response.text else "Gemini returned an empty response. Please try asking again."
+                st.markdown(answer)
+                
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": answer
+                })
+            except Exception as error:
+                error_msg = f"Could not generate answer: {str(error)}"
+                st.error(error_msg)
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": error_msg
+                })
+
+# ============================================================
+# FOOTER
+# ============================================================
+
+st.divider()
+st.markdown("""
+<div class="footer">
+    Financial Analysis Copilot • AI analysis grounded in uploaded financial reports. For analytical and educational purposes only.
+</div>
+""", unsafe_allow_html=True)
