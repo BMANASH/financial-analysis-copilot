@@ -33,13 +33,13 @@ st.set_page_config(
 )
 
 # ============================================================
-# CUSTOM CSS & FINTECH MOTION ANIMATIONS
+# INSTITUTIONAL FINTECH TERMINAL THEME & CSS
 # ============================================================
 
 st.markdown("""
 <style>
 .stApp {
-    background: #090d16;
+    background: #07090e;
 }
 .block-container {
     max-width: 1450px;
@@ -51,7 +51,7 @@ st.markdown("""
 @keyframes fadeInSlide {
     from {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
@@ -59,85 +59,83 @@ st.markdown("""
     }
 }
 
-/* Pulsing Emerald Glow for Profits */
-@keyframes pulseGlow {
-    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35); }
-    70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
+/* Hero Bloomberg Header */
 .hero {
-    background: linear-gradient(135deg, #131b2c 0%, #0c111c 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #090d16 100%);
     border: 1px solid #1e293b;
-    border-radius: 18px;
+    border-top: 3px solid #3b82f6;
+    border-radius: 16px;
     padding: 32px 36px;
     margin-bottom: 25px;
-    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
-    animation: fadeInSlide 0.5s ease-out forwards;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    animation: fadeInSlide 0.4s ease-out forwards;
 }
 .hero-title {
     font-size: 38px;
-    font-weight: 750;
+    font-weight: 800;
     color: #ffffff;
     line-height: 1.15;
     margin-bottom: 8px;
-    background: linear-gradient(90deg, #ffffff, #93c5fd);
+    background: linear-gradient(90deg, #ffffff, #60a5fa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 .hero-subtitle {
-    font-size: 16px;
+    font-size: 15.5px;
     color: #94a3b8;
     line-height: 1.5;
+    letter-spacing: 0.3px;
 }
 .section-title {
     font-size: 24px;
-    font-weight: 700;
-    color: #ffffff;
-    margin-top: 25px;
+    font-weight: 750;
+    color: #f8fafc;
+    margin-top: 30px;
     margin-bottom: 4px;
+    letter-spacing: -0.2px;
 }
 .section-description {
     color: #94a3b8;
-    font-size: 14px;
+    font-size: 13.5px;
     margin-bottom: 18px;
 }
 
-/* Interactive Card Hover & Motion Effects */
+/* Glassmorphic Fintech Cards with Hover Glow */
 .company-card, .kpi-card, .scorecard-card, .risk-card, .invest-kpi-card, .invest-section-box, .chart-box {
-    animation: fadeInSlide 0.5s ease-out forwards;
+    animation: fadeInSlide 0.4s ease-out forwards;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.company-card:hover, .kpi-card:hover, .scorecard-card:hover, .invest-kpi-card:hover, .invest-section-box:hover {
-    transform: translateY(-4px);
-    border-color: #3b82f6;
-    box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.25);
+.company-card:hover, .kpi-card:hover, .scorecard-card:hover, .invest-kpi-card:hover, .invest-section-box:hover, .chart-box:hover {
+    transform: translateY(-3px);
+    border-color: #3b82f6 !important;
+    box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.3);
 }
 
 .company-card {
-    background: #111827;
-    border: 1px solid #1f2937;
+    background: #0e131f;
+    border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 16px;
     min-height: 110px;
     margin-bottom: 10px;
 }
 .company-label {
-    color: #9ca3af;
+    color: #fbbf24;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.9px;
     margin-bottom: 6px;
+    font-weight: 700;
 }
 .company-value {
-    color: #ffffff;
+    color: #f8fafc;
     font-size: 15px;
     font-weight: 600;
     line-height: 1.4;
 }
 .kpi-card {
-    background: #111827;
-    border: 1px solid #1f2937;
+    background: #0e131f;
+    border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 18px 20px;
     margin-bottom: 10px;
@@ -147,16 +145,16 @@ st.markdown("""
     justify-content: space-between;
 }
 .kpi-label {
-    color: #9ca3af;
+    color: #94a3b8;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 650;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
 }
 .kpi-value {
     color: #ffffff;
     font-size: 26px;
-    font-weight: 750;
+    font-weight: 800;
     margin-top: 4px;
     margin-bottom: 6px;
 }
@@ -165,40 +163,40 @@ st.markdown("""
     background: rgba(16, 185, 129, 0.15);
     color: #34d399;
     font-size: 12px;
-    font-weight: 600;
-    padding: 3px 8px;
+    font-weight: 700;
+    padding: 3px 9px;
     border-radius: 6px;
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    animation: pulseGlow 2.5s infinite;
+    border: 1px solid rgba(16, 185, 129, 0.35);
 }
 .kpi-badge-neg {
     display: inline-block;
     background: rgba(239, 68, 68, 0.15);
     color: #f87171;
     font-size: 12px;
-    font-weight: 600;
-    padding: 3px 8px;
+    font-weight: 700;
+    padding: 3px 9px;
     border-radius: 6px;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    border: 1px solid rgba(239, 68, 68, 0.35);
 }
 .kpi-badge-neutral {
     display: inline-block;
-    background: rgba(156, 163, 175, 0.15);
-    color: #9ca3af;
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
     font-size: 12px;
-    font-weight: 600;
-    padding: 3px 8px;
+    font-weight: 700;
+    padding: 3px 9px;
     border-radius: 6px;
-    border: 1px solid rgba(156, 163, 175, 0.3);
+    border: 1px solid rgba(148, 163, 184, 0.3);
 }
 .kpi-basis {
     color: #64748b;
     font-size: 11px;
     margin-top: 6px;
+    font-weight: 500;
 }
 .scorecard-card {
-    background: #111827;
-    border: 1px solid #1f2937;
+    background: #0e131f;
+    border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 20px;
     margin-bottom: 16px;
@@ -213,16 +211,16 @@ st.markdown("""
 .scorecard-title {
     color: #ffffff;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 750;
 }
 .scorecard-badge {
-    background: rgba(59, 130, 246, 0.18);
+    background: rgba(59, 130, 246, 0.2);
     color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.35);
+    border: 1px solid rgba(59, 130, 246, 0.4);
     padding: 3px 10px;
     border-radius: 6px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 750;
 }
 .scorecard-verdict {
     color: #cbd5e1;
@@ -232,8 +230,8 @@ st.markdown("""
     line-height: 1.4;
 }
 .risk-card {
-    background: #181317;
-    border: 1px solid #3f2228;
+    background: #140d12;
+    border: 1px solid #3b1b22;
     border-radius: 14px;
     padding: 20px;
     margin-bottom: 14px;
@@ -241,19 +239,19 @@ st.markdown("""
 .risk-title {
     color: #fca5a5;
     font-size: 16px;
-    font-weight: 650;
+    font-weight: 700;
     margin-bottom: 10px;
 }
 .risk-box {
-    background: #110e11;
+    background: #0a0608;
     border-left: 3px solid #ef4444;
     border-radius: 0 8px 8px 0;
     padding: 10px 14px;
     margin-top: 10px;
 }
 .takeaway-improving {
-    background: #0d2219;
-    border: 1px solid #143828;
+    background: #0b1e17;
+    border: 1px solid #133a2a;
     border-left: 4px solid #10b981;
     border-radius: 10px;
     padding: 14px 16px;
@@ -263,8 +261,8 @@ st.markdown("""
     line-height: 1.5;
 }
 .takeaway-weakening {
-    background: #2a1217;
-    border: 1px solid #521c25;
+    background: #240e13;
+    border: 1px solid #481b25;
     border-left: 4px solid #ef4444;
     border-radius: 10px;
     padding: 14px 16px;
@@ -274,8 +272,8 @@ st.markdown("""
     line-height: 1.5;
 }
 .takeaway-driver {
-    background: #0f1d32;
-    border: 1px solid #1e3a5f;
+    background: #0d1b30;
+    border: 1px solid #1b355e;
     border-left: 4px solid #3b82f6;
     border-radius: 10px;
     padding: 14px 16px;
@@ -285,8 +283,8 @@ st.markdown("""
     line-height: 1.5;
 }
 .takeaway-watch {
-    background: #271f0f;
-    border: 1px solid #52411e;
+    background: #231a0b;
+    border: 1px solid #463417;
     border-left: 4px solid #f59e0b;
     border-radius: 10px;
     padding: 14px 16px;
@@ -296,16 +294,16 @@ st.markdown("""
     line-height: 1.5;
 }
 .position-box {
-    background: #111827;
-    border: 1px solid #1f2937;
+    background: #0e131f;
+    border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 22px;
     margin-top: 15px;
     margin-bottom: 20px;
 }
 .invest-kpi-card {
-    background: #131d31;
-    border: 1px solid #253858;
+    background: #10182b;
+    border: 1px solid #1e293b;
     border-radius: 12px;
     padding: 16px;
     text-align: center;
@@ -314,19 +312,19 @@ st.markdown("""
 .invest-kpi-label {
     color: #94a3b8;
     font-size: 11.5px;
-    font-weight: 600;
+    font-weight: 650;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
 }
 .invest-kpi-val {
     color: #ffffff;
     font-size: 21px;
-    font-weight: 750;
+    font-weight: 800;
     margin-top: 5px;
 }
 .invest-section-box {
-    background: #111827;
-    border: 1px solid #1f2937;
+    background: #0e131f;
+    border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 20px;
     margin-bottom: 18px;
@@ -334,28 +332,24 @@ st.markdown("""
 .invest-section-header {
     color: #60a5fa;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 750;
     margin-bottom: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 .invest-subcard {
-    background: #162032;
-    border: 1px solid #23354d;
+    background: #131b2e;
+    border: 1px solid #1f2d45;
     border-left: 3px solid #3b82f6;
     border-radius: 8px;
     padding: 14px 16px;
     margin-bottom: 10px;
-    transition: transform 0.2s ease;
-}
-.invest-subcard:hover {
-    transform: translateX(4px);
 }
 .invest-subcard-title {
     color: #ffffff;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 750;
     margin-bottom: 4px;
 }
 .invest-subcard-body {
@@ -364,8 +358,8 @@ st.markdown("""
     line-height: 1.5;
 }
 .price-gauge-card {
-    background: #131d31;
-    border: 1px solid #253858;
+    background: #10182b;
+    border: 1px solid #1e293b;
     border-radius: 12px;
     padding: 18px;
     margin-bottom: 16px;
@@ -377,8 +371,8 @@ st.markdown("""
     font-size: 13.5px;
 }
 .chart-box {
-    background: #111827;
-    border: 1px solid #1f2937;
+    background: #0e131f;
+    border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 22px;
     margin-bottom: 18px;
@@ -386,7 +380,7 @@ st.markdown("""
 .chart-title {
     color: #ffffff;
     font-size: 16px;
-    font-weight: 650;
+    font-weight: 700;
     margin-bottom: 4px;
 }
 .chart-desc {
@@ -401,12 +395,12 @@ st.markdown("""
     display: flex;
     justify-content: space-between;
     font-size: 13.5px;
-    font-weight: 600;
+    font-weight: 650;
     color: #ffffff;
     margin-bottom: 6px;
 }
 .vis-track {
-    background: #1f2937;
+    background: #172033;
     border-radius: 8px;
     height: 26px;
     width: 100%;
@@ -414,7 +408,7 @@ st.markdown("""
     position: relative;
 }
 .vis-fill-curr {
-    background: linear-gradient(90deg, #2563eb, #3b82f6);
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6);
     height: 100%;
     border-radius: 8px;
     display: flex;
@@ -423,7 +417,7 @@ st.markdown("""
     padding-right: 10px;
     color: #ffffff;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 750;
 }
 .vis-fill-prev {
     background: #334155;
@@ -435,10 +429,10 @@ st.markdown("""
     padding-right: 10px;
     color: #ffffff;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 750;
 }
 .vis-fill-pos {
-    background: linear-gradient(90deg, #047857, #10b981);
+    background: linear-gradient(90deg, #059669, #10b981);
     height: 100%;
     border-radius: 8px;
     display: flex;
@@ -447,10 +441,10 @@ st.markdown("""
     padding-right: 10px;
     color: #ffffff;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 750;
 }
 .vis-fill-neg {
-    background: linear-gradient(90deg, #b91c1c, #ef4444);
+    background: linear-gradient(90deg, #dc2626, #ef4444);
     height: 100%;
     border-radius: 8px;
     display: flex;
@@ -459,11 +453,11 @@ st.markdown("""
     padding-right: 10px;
     color: #ffffff;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 750;
 }
 .slicer-card {
-    background: #111827;
-    border: 1px solid #1f2937;
+    background: #0e131f;
+    border: 1px solid #1a2234;
     border-left: 3px solid #3b82f6;
     border-radius: 8px;
     padding: 12px 14px;
@@ -471,7 +465,7 @@ st.markdown("""
     margin-bottom: 12px;
 }
 .slicer-meaning {
-    color: #e2e8f0;
+    color: #cbd5e1;
     font-size: 12.5px;
     line-height: 1.5;
 }
@@ -782,7 +776,7 @@ with st.sidebar:
 st.markdown("""
 <div class="hero">
     <div class="hero-title">Financial Analysis Copilot</div>
-    <div class="hero-subtitle">AI-powered financial analysis from annual reports</div>
+    <div class="hero-subtitle">Institutional-grade AI financial analysis & portfolio intelligence from annual reports</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1176,7 +1170,7 @@ if data:
                 growth_color = "#34d399" if diff_amt >= 0 else "#f87171"
 
                 compare_card_html = f"""
-                <div style="background: #111722; padding: 18px; border-radius: 12px; border: 1px solid #233145; margin-top: 10px;">
+                <div style="background: #0a0e17; padding: 18px; border-radius: 12px; border: 1px solid #1e293b; margin-top: 10px;">
                     <div class="vis-row">
                         <div class="vis-label">
                             <span style="color: #94a3b8;">Previous Period</span>
@@ -1195,9 +1189,9 @@ if data:
                             <div class="vis-fill-curr" style="width: {curr_pct}%;">{c_val:,.2f} {u_lbl}</div>
                         </div>
                     </div>
-                    <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #1f2a3c; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #8f9aaa; font-size: 13px;">Net Change:</span>
-                        <span style="color: {growth_color}; font-weight: 700; font-size: 15px;">
+                    <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #1a2234; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #94a3b8; font-size: 13px;">Net Change:</span>
+                        <span style="color: {growth_color}; font-weight: 750; font-size: 15px;">
                             {growth_sign}{diff_amt:,.2f} {u_lbl} ({growth_sign}{g_val:,.1f}% YoY)
                         </span>
                     </div>
@@ -1271,7 +1265,7 @@ if data:
                     <div class="risk-title">⚠️ {title}</div>
                     <div class="insight-text">{desc}</div>
                     <div class="risk-box">
-                        <div style="color: #f87171; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">What this means for investors</div>
+                        <div style="color: #f87171; font-size: 11px; text-transform: uppercase; font-weight: 750; margin-bottom: 4px;">What this means for investors</div>
                         <div class="why-content">{why}</div>
                     </div>
                 </div>
@@ -1340,7 +1334,7 @@ if data:
         with st.container():
             st.markdown("""
             <div class="position-box">
-                <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 14px;">📊 Enter Your Investment Details:</div>
+                <div style="font-size: 16px; font-weight: 750; color: #ffffff; margin-bottom: 14px;">📊 Enter Your Investment Details:</div>
             """, unsafe_allow_html=True)
 
             col_inv1, col_inv2 = st.columns(2)
@@ -1376,9 +1370,9 @@ if data:
 
             if has_valid_inputs:
                 st.markdown(f"""
-                <div style="background: #192231; border: 1px solid #2e3e57; border-radius: 8px; padding: 10px 14px; margin-top: 10px; margin-bottom: 14px; display: flex; justify-content: space-between;">
+                <div style="background: #101726; border: 1px solid #253858; border-radius: 8px; padding: 10px 14px; margin-top: 10px; margin-bottom: 14px; display: flex; justify-content: space-between;">
                     <span style="color: #94a3b8; font-size: 13.5px;">Calculated Holding:</span>
-                    <span style="color: #60a5fa; font-weight: 700; font-size: 14px;">~{calculated_shares:,} Shares</span>
+                    <span style="color: #60a5fa; font-weight: 750; font-size: 14px;">~{calculated_shares:,} Shares</span>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -1531,7 +1525,7 @@ Return ONLY valid JSON with this exact structure:
                     pnl_summary = pos_data.get("profit_or_loss_summary", f"Position status: {pos_data.get('pnl_str', '')}")
                     is_pos = pos_data.get("is_pos", True)
                     banner_border = "#10b981" if is_pos else "#ef4444"
-                    banner_bg = "#121d19" if is_pos else "#201417"
+                    banner_bg = "#0b1f16" if is_pos else "#260e13"
                     banner_text = "#d1fae5" if is_pos else "#fee2e2"
 
                     st.markdown(f"""
@@ -1546,20 +1540,20 @@ Return ONLY valid JSON with this exact structure:
 
                     price_table_html = f"""
                     <div class="price-gauge-card">
-                        <div style="font-size: 13.5px; font-weight: 700; color: #ffffff; margin-bottom: 12px;">📊 Price Level Comparison Table:</div>
+                        <div style="font-size: 13.5px; font-weight: 750; color: #ffffff; margin-bottom: 12px;">📊 Price Level Comparison Table:</div>
                         <div class="gauge-row">
                             <span style="color: #cbd5e1;">Your Purchase Price:</span>
-                            <span style="color: #60a5fa; font-weight: 700;">₹{a_price:,.2f}</span>
+                            <span style="color: #60a5fa; font-weight: 750;">₹{a_price:,.2f}</span>
                         </div>
                         <div class="gauge-row">
                             <span style="color: #cbd5e1;">Current Live Market Price:</span>
-                            <span style="color: {'#34d399' if is_pos else '#f87171'}; font-weight: 700;">₹{l_price:,.2f} ({pos_data.get('pnl_str', '')})</span>
+                            <span style="color: {'#34d399' if is_pos else '#f87171'}; font-weight: 750;">₹{l_price:,.2f} ({pos_data.get('pnl_str', '')})</span>
                         </div>
                         <div class="gauge-row">
                             <span style="color: #cbd5e1;">Promoter Warrant Benchmark:</span>
-                            <span style="color: #f59e0b; font-weight: 700;">₹{promoter_benchmark:,.2f}</span>
+                            <span style="color: #f59e0b; font-weight: 750;">₹{promoter_benchmark:,.2f}</span>
                         </div>
-                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #233145; color: #94a3b8; font-size: 12px;">
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e293b; color: #94a3b8; font-size: 12px;">
                             💡 <em>Your buying price of ₹{a_price:,.2f} sits below the market price (₹{l_price:,.2f}) and represents a substantial discount to the ₹{promoter_benchmark:,.2f} promoter capital infusion level.</em>
                         </div>
                     </div>
@@ -1667,7 +1661,7 @@ RULES:
                 st.markdown(f"""
                 <div class="deep-card">
                     <div class="deep-card-title">📊 Profitability & Margins</div>
-                    <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{prof.get('headline', '')}</div>
+                    <div style="color: #ffffff; font-weight: 650; font-size: 14px; margin-bottom: 10px;">{prof.get('headline', '')}</div>
                 """, unsafe_allow_html=True)
                 for pt in prof.get("insights", []):
                     st.markdown(f"• {pt}")
@@ -1677,7 +1671,7 @@ RULES:
                 st.markdown(f"""
                 <div class="deep-card">
                     <div class="deep-card-title">🛡️ Debt & Balance Sheet Safety</div>
-                    <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{debt.get('headline', '')}</div>
+                    <div style="color: #ffffff; font-weight: 650; font-size: 14px; margin-bottom: 10px;">{debt.get('headline', '')}</div>
                 """, unsafe_allow_html=True)
                 for pt in debt.get("insights", []):
                     st.markdown(f"• {pt}")
@@ -1687,7 +1681,7 @@ RULES:
                 st.markdown(f"""
                 <div class="deep-card">
                     <div class="deep-card-title">⚙️ Operating Efficiency & Scale</div>
-                    <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 10px;">{eff.get('headline', '')}</div>
+                    <div style="color: #ffffff; font-weight: 650; font-size: 14px; margin-bottom: 10px;">{eff.get('headline', '')}</div>
                 """, unsafe_allow_html=True)
                 for pt in eff.get("insights", []):
                     st.markdown(f"• {pt}")
