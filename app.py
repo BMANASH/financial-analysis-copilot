@@ -753,7 +753,7 @@ if not st.session_state.gemini_file:
     st.stop()
 
 # ============================================================
-# GENERATE ANALYSIS SECTION
+# STEP 1: GENERATE ANALYSIS SECTION (SHOWN FIRST ON UPLOAD)
 # ============================================================
 
 st.markdown('<div class="section-title">Generate Financial Analysis</div>', unsafe_allow_html=True)
@@ -882,7 +882,7 @@ Return ONLY valid JSON with this exact structure:
             st.code(str(error))
 
 # ============================================================
-# DISPLAY ANALYSIS DASHBOARD
+# DISPLAY ANALYSIS DASHBOARD (ONLY AFTER GENERATION)
 # ============================================================
 
 data = st.session_state.analysis
@@ -1654,60 +1654,189 @@ RULES:
     elif mcq_choice == "No":
         st.info("💡 Feel free to explore the tabs above or ask any question below if you have any doubts!")
 
-# ============================================================
-# ASK GEMINI EXPERIENCE
-# ============================================================
+    # ========================================================
+    # STEP 2: EXPORT SECTION (SHOWN ONLY AFTER ANALYSIS IS GENERATED)
+    # ========================================================
+    st.markdown("---")
+    st.markdown('<div class="section-title">📥 Export Financial Dashboard Summary</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>', unsafe_allow_html=True)
 
-st.divider()
-st.markdown('<div class="section-title">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below. Gemini answers strictly using the uploaded PDF.</div>', unsafe_allow_html=True)
+    export_decision = st.radio(
+        "Select download preference:",
+        options=["No, thank you", "Yes, download dashboard summary report"],
+        index=0,
+        horizontal=True,
+        key="end_dashboard_export_choice"
+    )
 
-# Quick Prompts / Chips
-st.markdown("**Suggested Questions:**")
-chip_cols = st.columns(4)
-suggested_question = None
+    if export_decision == "Yes, download dashboard summary report":
+        comp_name = company.get("company_name", "Company")
+        
+        # Formatting Disclaimer
+        st.info("💡 **Disclaimer:** Depending on your spreadsheet or text editor settings, exported file formats (CSV/TXT) may require minor adjustments to column widths, text wrapping, or font sizes for optimal viewing.")
 
-with chip_cols[0]:
-    if st.button("📈 Why did profits change YoY?", use_container_width=True):
-        suggested_question = "Why did profits change compared with the previous year? Break down key drivers of the profit change in simple terms."
-with chip_cols[1]:
-    if st.button("🚀 What are the biggest growth drivers?", use_container_width=True):
-        suggested_question = "What are the company's major growth drivers and biggest future expansion opportunities based on this report?"
-with chip_cols[2]:
-    if st.button("💰 Explain debt & cash position", use_container_width=True):
-        suggested_question = "How is the company's debt, borrowings, and overall cash/liquidity position? Is its financial footing strong?"
-with chip_cols[3]:
-    if st.button("⚠️ Key risks for investors", use_container_width=True):
-        suggested_question = "What are the primary operational, financial, and market risks an investor should know about?"
+        detailed_report = f"""======================================================================
+                  FINANCIAL ANALYSIS & INVESTMENT REPORT
+======================================================================
+Company Name    : {company.get('company_name', 'N/A')}
+Stock Ticker    : {company.get('stock_ticker', 'N/A')}
+Industry        : {company.get('industry', 'N/A')}
+Reporting Period: {company.get('reporting_period', 'N/A')}
+Report Type     : {company.get('report_type', 'N/A')}
+Generated Date  : {datetime.today().strftime('%d %B %Y')}
+Source File     : {st.session_state.uploaded_name}
 
-# Header row with clear button
-chat_header_left, chat_header_right = st.columns([4, 1])
-with chat_header_right:
-    if st.session_state.chat_history:
-        if st.button("🗑️ Clear History", use_container_width=True):
-            st.session_state.chat_history = []
-            st.rerun()
+----------------------------------------------------------------------
+1. EXECUTIVE BUSINESS PROFILE
+----------------------------------------------------------------------
+{company.get('business_type', 'N/A')}
 
-# Display Conversation History
-for chat in st.session_state.chat_history:
-    with st.chat_message(chat["role"]):
-        st.markdown(chat["content"])
+----------------------------------------------------------------------
+2. KEY FINANCIAL & OPERATING METRICS
+----------------------------------------------------------------------
+"""
+        for m in metrics:
+            detailed_report += f"  • {m.get('metric', 'Metric')}: {m.get('current_period', 'N/A')} {m.get('unit', '')} (Prior: {m.get('previous_period', 'N/A')}, YoY Growth: {m.get('yoy_growth', 'N/A')}) [{m.get('basis', '')}]\n"
 
-# Text Input Bar
-user_input = st.chat_input("Ask a question about this financial report...")
+        if st.session_state.position_assessment:
+            pos = st.session_state.position_assessment
+            detailed_report += f"""
+----------------------------------------------------------------------
+3. PERSONALIZED INVESTMENT POSITION & MARKET ANALYSIS
+----------------------------------------------------------------------
+- Position Status      : {pos.get('position_summary', 'N/A')}
+- Current Market Price : {pos.get('cmp_display', 'N/A')} as on {pos.get('live_date', 'N/A')} ({pos.get('exchange_tag', '')})
+- Estimated Return / P&L: {pos.get('pnl_str', 'N/A')} ({pos.get('amt_str', 'N/A')})
+"""
+            if "price_safety_points" in pos:
+                detailed_report += "\n[Fundamental Price Safety Pillars]\n"
+                for pt in pos["price_safety_points"]:
+                    detailed_report += f"  - {pt.get('title')}\n    {pt.get('explanation')}\n"
 
-active_query = user_input or suggested_question
+            if "long_term_outlook_5_to_8_years" in pos:
+                detailed_report += "\n[Long-Term Outlook (5 to 8 Years)]\n"
+                for pt in pos["long_term_outlook_5_to_8_years"]:
+                    detailed_report += f"  - {pt.get('title')}\n    {pt.get('explanation')}\n"
 
-if active_query:
-    st.session_state.chat_history.append({
-        "role": "user",
-        "content": active_query
-    })
-    
-    with st.chat_message("user"):
-        st.markdown(active_query)
+        detailed_report += f"""
+======================================================================
+    Financial Analysis Copilot • For Educational & Analytical Use Only
+======================================================================
+"""
 
-    question_prompt = f"""
+        col_dl1, col_dl2 = st.columns(2)
+        with col_dl1:
+            st.download_button(
+                label="📄 Download Executive Summary Report (.txt)",
+                data=detailed_report,
+                file_name=f"{comp_name.replace(' ', '_')}_Executive_Summary_Report.txt",
+                mime="text/plain",
+                use_container_width=True
+            )
+
+        with col_dl2:
+            summary_card_data = []
+            summary_card_data.append(["=== COMPANY EXECUTIVE PROFILE ===", "", "", "", "", ""])
+            summary_card_data.append(["Company Name", company.get('company_name', 'N/A'), "", "", "", ""])
+            summary_card_data.append(["Industry / Sector", company.get('industry', 'N/A'), "", "", "", ""])
+            summary_card_data.append(["Business Profile", company.get('business_type', 'N/A'), "", "", "", ""])
+            summary_card_data.append(["Reporting Period", company.get('reporting_period', 'N/A'), "", "", "", ""])
+            summary_card_data.append(["", "", "", "", "", ""])
+            
+            summary_card_data.append(["=== KEY FINANCIAL & OPERATING METRICS ===", "", "", "", "", ""])
+            summary_card_data.append(["Financial Metric", "Current Period", "Previous Period", "YoY Growth", "Unit", "Basis"])
+            for m in metrics:
+                summary_card_data.append([
+                    m.get('metric', ''),
+                    m.get('current_period', ''),
+                    m.get('previous_period', ''),
+                    m.get('yoy_growth', ''),
+                    m.get('unit', ''),
+                    m.get('basis', '')
+                ])
+            
+            if st.session_state.position_assessment:
+                pos = st.session_state.position_assessment
+                summary_card_data.append(["", "", "", "", "", ""])
+                summary_card_data.append(["=== PERSONALIZED INVESTMENT POSITION ASSESSMENT ===", "", "", "", "", ""])
+                summary_card_data.append(["Position Status", pos.get('position_summary', ''), "", "", "", ""])
+                summary_card_data.append(["Current Market Price", pos.get('cmp_display', ''), f"As on {pos.get('live_date', '')}", "", "", ""])
+                summary_card_data.append(["Estimated Return / P&L", pos.get('pnl_str', ''), pos.get('amt_str', ''), "", "", ""])
+                
+                if "price_safety_points" in pos:
+                    summary_card_data.append(["--- Fundamental Safety Pillars ---", "", "", "", "", ""])
+                    for pt in pos["price_safety_points"]:
+                        summary_card_data.append([pt.get('title'), pt.get('explanation'), "", "", "", ""])
+
+                if "long_term_outlook_5_to_8_years" in pos:
+                    summary_card_data.append(["--- Long-Term Outlook (5-8 Years) ---", "", "", "", "", ""])
+                    for pt in pos["long_term_outlook_5_to_8_years"]:
+                        summary_card_data.append([pt.get('title'), pt.get('explanation'), "", "", "", ""])
+
+            df_card_layout = pd.DataFrame(summary_card_data)
+            csv_card_bytes = df_card_layout.to_csv(index=False, header=False).encode('utf-8-sig')
+
+            st.download_button(
+                label="📊 Download Structured Executive Report (.csv / Excel Compatible)",
+                data=csv_card_bytes,
+                file_name=f"{comp_name.replace(' ', '_')}_Structured_Executive_Dashboard.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+
+    # ========================================================
+    # STEP 3: ASK GEMINI EXPERIENCE (SHOWN AT THE VERY END)
+    # ========================================================
+    st.divider()
+    st.markdown('<div class="section-title">💬 Ask Questions About This Financial Report</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Ask any custom question in plain English, or click one of the suggested prompts below. Gemini answers strictly using the uploaded PDF.</div>', unsafe_allow_html=True)
+
+    # Quick Prompts / Chips
+    st.markdown("**Suggested Questions:**")
+    chip_cols = st.columns(4)
+    suggested_question = None
+
+    with chip_cols[0]:
+        if st.button("📈 Why did profits change YoY?", use_container_width=True):
+            suggested_question = "Why did profits change compared with the previous year? Break down key drivers of the profit change in simple terms."
+    with chip_cols[1]:
+        if st.button("🚀 What are the biggest growth drivers?", use_container_width=True):
+            suggested_question = "What are the company's major growth drivers and biggest future expansion opportunities based on this report?"
+    with chip_cols[2]:
+        if st.button("💰 Explain debt & cash position", use_container_width=True):
+            suggested_question = "How is the company's debt, borrowings, and overall cash/liquidity position? Is its financial footing strong?"
+    with chip_cols[3]:
+        if st.button("⚠️ Key risks for investors", use_container_width=True):
+            suggested_question = "What are the primary operational, financial, and market risks an investor should know about?"
+
+    # Header row with clear button
+    chat_header_left, chat_header_right = st.columns([4, 1])
+    with chat_header_right:
+        if st.session_state.chat_history:
+            if st.button("🗑️ Clear History", use_container_width=True):
+                st.session_state.chat_history = []
+                st.rerun()
+
+    # Display Conversation History
+    for chat in st.session_state.chat_history:
+        with st.chat_message(chat["role"]):
+            st.markdown(chat["content"])
+
+    # Text Input Bar
+    user_input = st.chat_input("Ask a question about this financial report...")
+
+    active_query = user_input or suggested_question
+
+    if active_query:
+        st.session_state.chat_history.append({
+            "role": "user",
+            "content": active_query
+        })
+        
+        with st.chat_message("user"):
+            st.markdown(active_query)
+
+        question_prompt = f"""
 You are a helpful, clear financial guide talking to a regular investor or finance student.
 Answer the user's question using ONLY facts from the uploaded financial report.
 
@@ -1758,139 +1887,6 @@ RULES FOR ANSWERING
                     "role": "assistant",
                     "content": error_msg
                 })
-
-# ============================================================
-# END-OF-DASHBOARD EXPORT SECTION (WITH FORMATTING DISCLAIMER)
-# ============================================================
-
-st.markdown("---")
-st.markdown('<div class="section-title">📥 Export Financial Dashboard Summary</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>', unsafe_allow_html=True)
-
-# Professional Formatting Disclaimer
-st.info("💡 **Disclaimer:** Depending on your spreadsheet or text editor settings, exported file formats (CSV/TXT) may require minor adjustments to column widths, text wrapping, or font sizes for optimal viewing.")
-
-export_decision = st.radio(
-    "Select download preference:",
-    options=["No, thank you", "Yes, download dashboard summary report"],
-    index=0,
-    horizontal=True,
-    key="end_dashboard_export_choice"
-)
-
-if export_decision == "Yes, download dashboard summary report":
-    comp_name = company.get("company_name", "Company")
-    
-    # 1. Professional Formatted Text Report
-    detailed_report = f"""======================================================================
-                  FINANCIAL ANALYSIS & INVESTMENT REPORT
-======================================================================
-Company Name    : {company.get('company_name', 'N/A')}
-Stock Ticker    : {company.get('stock_ticker', 'N/A')}
-Industry        : {company.get('industry', 'N/A')}
-Reporting Period: {company.get('reporting_period', 'N/A')}
-Report Type     : {company.get('report_type', 'N/A')}
-Generated Date  : {datetime.today().strftime('%d %B %Y')}
-Source File     : {st.session_state.uploaded_name}
-
-----------------------------------------------------------------------
-1. EXECUTIVE BUSINESS PROFILE
-----------------------------------------------------------------------
-{company.get('business_type', 'N/A')}
-
-----------------------------------------------------------------------
-2. KEY FINANCIAL & OPERATING METRICS
-----------------------------------------------------------------------
-"""
-    for m in metrics:
-        detailed_report += f"  • {m.get('metric', 'Metric')}: {m.get('current_period', 'N/A')} {m.get('unit', '')} (Prior: {m.get('previous_period', 'N/A')}, YoY Growth: {m.get('yoy_growth', 'N/A')}) [{m.get('basis', '')}]\n"
-
-    if st.session_state.position_assessment:
-        pos = st.session_state.position_assessment
-        detailed_report += f"""
-----------------------------------------------------------------------
-3. PERSONALIZED INVESTMENT POSITION & MARKET ANALYSIS
-----------------------------------------------------------------------
-- Position Status      : {pos.get('position_summary', 'N/A')}
-- Current Market Price : {pos.get('cmp_display', 'N/A')} as on {pos.get('live_date', 'N/A')} ({pos.get('exchange_tag', '')})
-- Estimated Return / P&L: {pos.get('pnl_str', 'N/A')} ({pos.get('amt_str', 'N/A')})
-"""
-        if "price_safety_points" in pos:
-            detailed_report += "\n[Fundamental Price Safety Pillars]\n"
-            for pt in pos["price_safety_points"]:
-                detailed_report += f"  - {pt.get('title')}\n    {pt.get('explanation')}\n"
-
-        if "long_term_outlook_5_to_8_years" in pos:
-            detailed_report += "\n[Long-Term Outlook (5 to 8 Years)]\n"
-            for pt in pos["long_term_outlook_5_to_8_years"]:
-                detailed_report += f"  - {pt.get('title')}\n    {pt.get('explanation')}\n"
-
-    detailed_report += f"""
-======================================================================
-    Financial Analysis Copilot • For Educational & Analytical Use Only
-======================================================================
-"""
-
-    col_dl1, col_dl2 = st.columns(2)
-    with col_dl1:
-        st.download_button(
-            label="📄 Download Executive Summary Report (.txt)",
-            data=detailed_report,
-            file_name=f"{comp_name.replace(' ', '_')}_Executive_Summary_Report.txt",
-            mime="text/plain",
-            use_container_width=True
-        )
-
-    with col_dl2:
-        if pd is not None and metrics:
-            summary_card_data = []
-            summary_card_data.append(["=== COMPANY EXECUTIVE PROFILE ===", "", "", "", "", ""])
-            summary_card_data.append(["Company Name", company.get('company_name', 'N/A'), "", "", "", ""])
-            summary_card_data.append(["Industry / Sector", company.get('industry', 'N/A'), "", "", "", ""])
-            summary_card_data.append(["Business Profile", company.get('business_type', 'N/A'), "", "", "", ""])
-            summary_card_data.append(["Reporting Period", company.get('reporting_period', 'N/A'), "", "", "", ""])
-            summary_card_data.append(["", "", "", "", "", ""])
-            
-            summary_card_data.append(["=== KEY FINANCIAL & OPERATING METRICS ===", "", "", "", "", ""])
-            summary_card_data.append(["Financial Metric", "Current Period", "Previous Period", "YoY Growth", "Unit", "Basis"])
-            for m in metrics:
-                summary_card_data.append([
-                    m.get('metric', ''),
-                    m.get('current_period', ''),
-                    m.get('previous_period', ''),
-                    m.get('yoy_growth', ''),
-                    m.get('unit', ''),
-                    m.get('basis', '')
-                ])
-            
-            if st.session_state.position_assessment:
-                pos = st.session_state.position_assessment
-                summary_card_data.append(["", "", "", "", "", ""])
-                summary_card_data.append(["=== PERSONALIZED INVESTMENT POSITION ASSESSMENT ===", "", "", "", "", ""])
-                summary_card_data.append(["Position Status", pos.get('position_summary', ''), "", "", "", ""])
-                summary_card_data.append(["Current Market Price", pos.get('cmp_display', ''), f"As on {pos.get('live_date', '')}", "", "", ""])
-                summary_card_data.append(["Estimated Return / P&L", pos.get('pnl_str', ''), pos.get('amt_str', ''), "", "", ""])
-                
-                if "price_safety_points" in pos:
-                    summary_card_data.append(["--- Fundamental Safety Pillars ---", "", "", "", "", ""])
-                    for pt in pos["price_safety_points"]:
-                        summary_card_data.append([pt.get('title'), pt.get('explanation'), "", "", "", ""])
-
-                if "long_term_outlook_5_to_8_years" in pos:
-                    summary_card_data.append(["--- Long-Term Outlook (5-8 Years) ---", "", "", "", "", ""])
-                    for pt in pos["long_term_outlook_5_to_8_years"]:
-                        summary_card_data.append([pt.get('title'), pt.get('explanation'), "", "", "", ""])
-
-            df_card_layout = pd.DataFrame(summary_card_data)
-            csv_card_bytes = df_card_layout.to_csv(index=False, header=False).encode('utf-8-sig')
-
-            st.download_button(
-                label="📊 Download Structured Executive Report (.csv / Excel Compatible)",
-                data=csv_card_bytes,
-                file_name=f"{comp_name.replace(' ', '_')}_Structured_Executive_Dashboard.csv",
-                mime="text/csv",
-                use_container_width=True
-            )
 
 # ============================================================
 # FOOTER
