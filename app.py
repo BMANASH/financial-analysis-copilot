@@ -47,7 +47,7 @@ st.markdown("""
     padding-bottom: 4rem;
 }
 
-/* Hide Default Streamlit Top-Right Running Man / Status Widget */
+/* Hide Default Streamlit Top-Right Status Widget */
 div[data-testid="stStatusWidget"] {
     display: none !important;
     visibility: hidden !important;
@@ -747,7 +747,7 @@ def generate_with_fallback(contents, json_mode=False):
     raise Exception(f"API Rate limit reached. Please wait a few seconds and try again.\n\n{error_text}")
 
 # ============================================================
-# SAFE PARSERS & LIVE MARKET LOOKUP
+# SAFE PARSERS & UNIVERSAL GLOBAL STOCK LOOKUP
 # ============================================================
 
 def clean_json_response(text):
@@ -787,32 +787,23 @@ def parse_clean_float(val):
     return None
 
 def fetch_live_stock_price(company_name, ticker_hint=""):
-    """Pulls live stock quote from NSE/BSE using yfinance or falls back cleanly"""
+    """Universally fetches live stock quote for ANY public company worldwide (India, US, Global)"""
     if not yf:
         return None
 
     try:
         candidates = []
         if ticker_hint:
-            candidates.extend([f"{ticker_hint}.NS", f"{ticker_hint}.BO", ticker_hint])
+            clean_t = re.sub(r'[^A-Za-z0-9]', '', str(ticker_hint)).upper()
+            if clean_t:
+                # Tests Indian exchanges (NSE/BSE) as well as global exchanges (NASDAQ, NYSE, LSE)
+                candidates.extend([f"{clean_t}.NS", f"{clean_t}.BO", clean_t])
 
-        c_lower = company_name.lower()
-        if "jio" in c_lower:
-            candidates.extend(["JIOFIN.NS", "JIOFIN.BO"])
-        elif "tata motors" in c_lower:
-            candidates.extend(["TATAMOTORS.NS", "TATAMOTORS.BO"])
-        elif "tata power" in c_lower:
-            candidates.extend(["TATAPOWER.NS", "TATAPOWER.BO"])
-        elif "varun beverages" in c_lower:
-            candidates.extend(["VBL.NS", "VBL.BO"])
-        elif "hudco" in c_lower:
-            candidates.extend(["HUDCO.NS", "HUDCO.BO"])
-        elif "nhpc" in c_lower:
-            candidates.extend(["NHPC.NS", "NHPC.BO"])
-        elif "state bank" in c_lower or "sbi" in c_lower:
-            candidates.extend(["SBIN.NS", "SBIN.BO"])
-        elif "infosys" in c_lower or "infy" in c_lower:
-            candidates.extend(["INFY.NS", "INFY.BO"])
+        if not candidates and company_name:
+            # Fallback: extract first word token if no ticker was spotted
+            first_word = re.sub(r'[^A-Za-z0-9]', '', company_name.split()[0]).upper()
+            if len(first_word) >= 3:
+                candidates.extend([f"{first_word}.NS", f"{first_word}.BO", first_word])
 
         for sym in candidates:
             try:
@@ -821,12 +812,13 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
                 if not hist.empty:
                     last_price = float(hist["Close"].iloc[-1])
                     last_date = hist.index[-1].strftime("%d %b %Y")
+                    exchange_label = "NSE" if ".NS" in sym else ("BSE" if ".BO" in sym else "Global Market")
                     return {
                         "is_listed": True,
                         "ticker": sym.replace(".NS", "").replace(".BO", ""),
                         "price": last_price,
                         "as_on": last_date,
-                        "exchange": "NSE" if ".NS" in sym else ("BSE" if ".BO" in sym else "Exchange")
+                        "exchange": exchange_label
                     }
             except Exception:
                 continue
@@ -882,7 +874,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="section-title">Upload Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Drag and drop your company annual report PDF below to automatically start the analysis.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Drag and drop any company annual report PDF below to automatically start the analysis.</div>', unsafe_allow_html=True)
 
 # Main Direct PDF Uploader
 uploaded_file = st.file_uploader(
@@ -918,7 +910,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             <div class="feature-card feature-card-alt">
                 <div class="feature-icon">📈</div>
                 <div class="feature-title">Portfolio Intelligence</div>
-                <div class="feature-desc">Pulls live exchange quotes (NSE/BSE) to compute exact P&L, fundamental purchase safety, and 5–8 year outlooks.</div>
+                <div class="feature-desc">Pulls live exchange quotes (NSE/BSE/Global) to compute exact P&L, fundamental purchase safety, and 5–8 year outlooks.</div>
             </div>
             """, unsafe_allow_html=True)
         with c_feat3:
@@ -978,7 +970,7 @@ if uploaded_file:
             analysis_prompt = """
 You are an expert financial mentor explaining an annual report to everyday investors and finance students in simple, clean, professional English without textbook jargon.
 
-Analyze ONLY the uploaded PDF. It can belong to ANY company.
+Analyze ONLY the uploaded PDF. It can belong to ANY company worldwide.
 Identify the company name, stock ticker (if applicable), industry, reporting period, report type, and describe what the business actually does and how it earns revenue in 2 plain sentences.
 
 ============================================================
@@ -1007,7 +999,7 @@ Return ONLY valid JSON with this exact structure:
 {
   "company_overview": {
     "company_name": "",
-    "stock_ticker": "e.g. JIOFIN or TATAMOTORS",
+    "stock_ticker": "e.g. INFY, AAPL, TATAMOTORS, JIOFIN",
     "industry": "",
     "business_type": "2 clear sentences on what the company actually does and how it earns revenue",
     "reporting_period": "",
@@ -1365,7 +1357,7 @@ with tab_investor:
             st.markdown(f'<div class="takeaway-weakening">✗ {item}</div>', unsafe_allow_html=True)
 
 # ========================================================
-# RESTORED: USER-CONTROLLED DEEP-DIVE (MCQ SELECTION)
+# USER-CONTROLLED FORENSIC DEEP-DIVE
 # ========================================================
 st.markdown("""
 <div class="fintech-banner">
@@ -1489,7 +1481,13 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-investor_mcq = st.radio("Are you currently an investor in this company's stock?", options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"], index=0, horizontal=True, key="inv_mcq")
+investor_mcq = st.radio(
+    "Are you currently an investor in this company's stock?",
+    options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"],
+    index=0,
+    horizontal=True,
+    key="inv_mcq"
+)
 
 if investor_mcq == "Yes, I hold shares in this company":
     col_inv1, col_inv2 = st.columns(2)
@@ -1523,7 +1521,7 @@ if investor_mcq == "Yes, I hold shares in this company":
             market_info = fetch_live_stock_price(c_name, t_hint)
             live_price = market_info["price"] if market_info else avg_price_input
             live_date = market_info["as_on"] if market_info else datetime.today().strftime("%d %b %Y")
-            exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "NSE / BSE"
+            exchange_tag = f"{market_info['exchange']}: {market_info['ticker']}" if market_info else "Global Exchange"
 
             pnl_amt = (live_price - avg_price_input) * calc_shares
             pnl_pct = ((live_price - avg_price_input) / avg_price_input) * 100
@@ -1683,7 +1681,13 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-export_choice = st.radio("Select download preference:", options=["No, thank you", "Yes, download dashboard summary report"], index=0, horizontal=True, key="export_rad")
+export_choice = st.radio(
+    "Select download preference:",
+    options=["No, thank you", "Yes, download dashboard summary report"],
+    index=0,
+    horizontal=True,
+    key="export_rad"
+)
 
 if export_choice == "Yes, download dashboard summary report":
     comp_name = company.get("company_name", "Company")
