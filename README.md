@@ -341,7 +341,7 @@ This allows users to continue working with the generated information outside the
 
 ---
 
-# 🎓 Who Is This For?
+# Who Is This For?
 
 ## 🎓 Finance Students
 
