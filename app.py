@@ -173,6 +173,21 @@ div[data-testid="stStatusWidget"] {
     animation: shimmerBar 1.6s infinite ease-in-out;
 }
 
+/* Interactive Acknowledgment Box for "No" selections */
+.ack-card {
+    background: rgba(14, 20, 34, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-left: 4px solid #3b82f6;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    color: #cbd5e1;
+    font-size: 13.5px;
+    line-height: 1.5;
+    animation: fadeInSlide 0.35s ease-out forwards;
+}
+
 .hero {
     background: linear-gradient(135deg, #0f172a 0%, #090d16 100%);
     border: 1px solid #1e293b;
@@ -800,7 +815,6 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
                 candidates.extend([f"{clean_t}.NS", f"{clean_t}.BO", clean_t])
 
         if not candidates and company_name:
-            # Fallback: extract first word token if no ticker was spotted
             first_word = re.sub(r'[^A-Za-z0-9]', '', company_name.split()[0]).upper()
             if len(first_word) >= 3:
                 candidates.extend([f"{first_word}.NS", f"{first_word}.BO", first_word])
@@ -1374,7 +1388,14 @@ deep_choice = st.radio(
     key="deep_dive_choice_rad"
 )
 
-if deep_choice == "Yes, generate deep-dive financial analysis":
+if deep_choice == "No, keep summary view":
+    st.markdown("""
+    <div class="ack-card">
+        💡 <strong>Summary view retained.</strong> You can explore the core financial metrics and visual charts above, or switch to the in-depth investigation whenever you wish.
+    </div>
+    """, unsafe_allow_html=True)
+
+elif deep_choice == "Yes, generate deep-dive financial analysis":
     if st.session_state.deep_dive is None:
         deep_loader = st.empty()
         deep_loader.markdown("""
@@ -1489,7 +1510,14 @@ investor_mcq = st.radio(
     key="inv_mcq"
 )
 
-if investor_mcq == "Yes, I hold shares in this company":
+if investor_mcq == "No, I am just studying / evaluating":
+    st.markdown("""
+    <div class="ack-card">
+        💡 <strong>Thank you for your response!</strong> You are in evaluation mode. Feel free to review the company's financial health, executive scorecard, and visual balance sheet trends above, or ask custom questions in the AI Copilot below.
+    </div>
+    """, unsafe_allow_html=True)
+
+elif investor_mcq == "Yes, I hold shares in this company":
     col_inv1, col_inv2 = st.columns(2)
     with col_inv1:
         total_invested_input = st.number_input("Total Amount Invested (₹)", min_value=0.0, value=None, placeholder="e.g. 50000.00", step=500.0, format="%.2f", key="inv_amt")
@@ -1689,7 +1717,14 @@ export_choice = st.radio(
     key="export_rad"
 )
 
-if export_choice == "Yes, download dashboard summary report":
+if export_choice == "No, thank you":
+    st.markdown("""
+    <div class="ack-card">
+        💡 <strong>Thank you for your response!</strong> All summary metrics, scorecard ratings, and risk breakdowns remain viewable across the dashboard above. You can generate an export file anytime if needed.
+    </div>
+    """, unsafe_allow_html=True)
+
+elif export_choice == "Yes, download dashboard summary report":
     comp_name = company.get("company_name", "Company")
     st.info("💡 **Disclaimer:** Exported files may require minor column width adjustments depending on your editor.")
     
