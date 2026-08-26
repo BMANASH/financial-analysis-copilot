@@ -453,15 +453,14 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# ACTIVE GEMINI PRODUCTION MODELS
+# ACTIVE GEMINI 3-SERIES PRODUCTION MODELS
 # ============================================================
 
 ACTIVE_MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-2.5-pro",
-    "gemini-1.5-pro"
+    "gemini-3.7-flash",
+    "gemini-3.6-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-pro-preview"
 ]
 
 def generate_with_fallback(contents, json_mode=False, use_search=False):
@@ -476,7 +475,6 @@ def generate_with_fallback(contents, json_mode=False, use_search=False):
             try:
                 tools_list = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
                 
-                # When search tool is enabled, response_mime_type cannot be application/json
                 if json_mode and not use_search:
                     config = types.GenerateContentConfig(
                         response_mime_type="application/json",
@@ -527,7 +525,6 @@ def clean_json_response(text):
     except Exception:
         pass
 
-    # Extract outermost JSON boundaries
     start = raw.find("{")
     end = raw.rfind("}")
     if start != -1 and end != -1 and end > start:
@@ -537,10 +534,8 @@ def clean_json_response(text):
         except Exception:
             pass
 
-    # Resilient repair for truncated JSON outputs
     if start != -1:
         truncated = raw[start:]
-        # Attempt closing quotes, brackets, and braces
         for suffix in ['"}', '"}]}', '"]}', ']}', '}']:
             try:
                 return json.loads(truncated + suffix)
@@ -612,10 +607,10 @@ def upload_pdf_to_gemini(uploaded_file):
             temp_file.write(uploaded_file.getbuffer())
             temp_path = temp_file.name
 
-        # Direct, reliable upload to Gemini without the unsupported mime_type argument
+        # Direct, reliable upload to Gemini without invalid arguments
         gemini_file = client.files.upload(file=temp_path)
         
-        # Polling loop to wait until the file is ACTIVE and completely processed
+        # Robust polling loop to verify the file is ready
         for _ in range(90):
             try:
                 gemini_file = client.files.get(name=gemini_file.name)
@@ -828,7 +823,8 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
 """
             response = generate_with_fallback(
                 contents=[analysis_prompt, gemini_file],
-                json_mode=True
+                json_mode=True,
+                use_search=False
             )
             data = clean_json_response(response.text)
             elapsed_time = round(time.time() - start_time, 1)
@@ -842,7 +838,7 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
                 st.success(f"Institutional analysis completed successfully in {elapsed_time}s!")
                 st.rerun()
             else:
-                st.error("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+                st.error("The document could not be completely parsed. Please re-upload or try again.")
         except Exception as e:
             loader_container.empty()
             st.error(f"Processing error: {e}")
@@ -1241,7 +1237,6 @@ if forecast_toggle == "No, keep standard view":
     """, unsafe_allow_html=True)
 elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     
-    # Dynamically generate or fetch web-backed forecasting insights if not already in session state
     if st.session_state.forecast_data is None or st.session_state.get("forecast_company") != company.get("company_name"):
         with st.spinner("🌍 Tracing live internet market trends, past financial history, and predictive compounding models via Gemini Search..."):
             c_name = company.get("company_name", "the company")
