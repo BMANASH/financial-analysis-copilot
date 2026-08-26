@@ -43,7 +43,7 @@ from google.genai import types
 # ============================================================
 
 st.set_page_config(
-    page_title="Financial Analyst AI | Institutional Intelligence Terminal",
+    page_title="Financial Analyst AI | Terminal",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -123,7 +123,7 @@ div[data-testid="stStatusWidget"] {
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.15);
 }
 
-/* Electric Glowing Animations for Cards and Uploader */
+/* Electric Glowing Animations for Cards and Uploader (3 Status Types: Blue, Green, Yellow/Amber, Red) */
 @keyframes electricPulseBlue {
     0%, 100% {
         box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.1);
@@ -143,6 +143,17 @@ div[data-testid="stStatusWidget"] {
     50% {
         box-shadow: 0 0 30px rgba(52, 211, 153, 0.6), inset 0 0 20px rgba(52, 211, 153, 0.25);
         border-color: #34d399;
+    }
+}
+
+@keyframes electricPulseYellow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.3), inset 0 0 10px rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(251, 191, 36, 0.6), inset 0 0 20px rgba(251, 191, 36, 0.25);
+        border-color: #fbbf24;
     }
 }
 
@@ -167,7 +178,7 @@ div[data-testid="stFileUploader"] {
     animation: electricPulseBlue 3s infinite ease-in-out;
 }
 
-/* Symmetrical Electric KPI Cards with 3 Color Statuses */
+/* Symmetrical Electric KPI Cards with 4 Performance Statuses */
 .electric-kpi-card-blue {
     background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
     border-radius: 16px;
@@ -190,6 +201,18 @@ div[data-testid="stFileUploader"] {
     justify-content: space-between;
     animation: electricPulseGreen 3.5s infinite ease-in-out;
     border: 2px solid #10b981;
+}
+
+.electric-kpi-card-yellow {
+    background: linear-gradient(145deg, #221808 0%, #0d0a04 100%);
+    border-radius: 16px;
+    padding: 20px;
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    animation: electricPulseYellow 3.5s infinite ease-in-out;
+    border: 2px solid #fbbf24;
 }
 
 .electric-kpi-card-red {
@@ -610,7 +633,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================
-# SECTION 2: UPLOAD FINANCIAL REPORT (ELECTRIC BORDER WRAPPED)
+# SECTION 2: UPLOAD FINANCIAL REPORT
 # ============================================================
 
 st.markdown('<div class="section-title landing-animate">Upload Financial Report</div>', unsafe_allow_html=True)
@@ -644,7 +667,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
     if not uploaded_file:
         st.info("👆 Upload an annual report PDF above to begin institutional financial analysis.")
         st.markdown("---")
-        st.markdown('<div class="section-title" style="margin-top:0;">⚡ Terminal Research Capabilities</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title" style="margin-top:0;">Terminal Research Capabilities</div>', unsafe_allow_html=True)
         st.markdown('<div class="section-description">Automated modules generated upon document reconciliation:</div>', unsafe_allow_html=True)
         
         c_feat1, c_feat2, c_feat3, c_feat4 = st.columns(4)
@@ -725,7 +748,7 @@ if uploaded_file:
                 <div class="telemetry-pill" style="margin-bottom: 12px;">Step 3 of 3 • Synthesizing Scorecard</div>
                 <div class="fintech-spinner"></div>
                 <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Synthesizing Executive Scorecard...</div>
-                <div style="font-size: 13px; color: #94a3b8;">Structuring financial health indicators, risk matrices, and Power BI dashboards.</div>
+                <div style="font-size: 13px; color: #94a3b8;">Structuring financial health indicators, risk matrices, and dashboards.</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -873,7 +896,7 @@ for column, item in zip(overview_columns, overview_items):
         </div>
         """, unsafe_allow_html=True)
 
-# Headline Financial Metrics (BI Tile Matrix with 3-Color Status Electric Borders: Green, Blue, Red)
+# Headline Financial Metrics (BI Tile Matrix with 3-Color Status Electric Borders: Green, Yellow, Red)
 st.markdown('<div class="section-title">Headline Financial Metrics</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Core revenue, profit, and balance sheet indicators with verified YoY deltas.</div>', unsafe_allow_html=True)
 
@@ -903,8 +926,8 @@ if headline_metrics:
             basis = m.get("basis", "")
 
             spark_width = 75
-            card_class = "electric-kpi-card-blue" # Default steady/stone -> Blue
-            spark_color = "#3b82f6"
+            card_class = "electric-kpi-card-yellow" # Default steady -> Yellow/Amber
+            spark_color = "#fbbf24"
 
             if growth and growth.lower() not in ["n/a", "not available", ""]:
                 if growth.startswith("-") or "decline" in growth.lower():
@@ -940,9 +963,9 @@ if headline_metrics:
             </div>
             """, unsafe_allow_html=True)
 
-# Consolidated BI Dashboard Suite (6 Interactive Tabs)
-st.markdown('<div class="section-title" style="margin-top: 30px;">Consolidated BI Dashboard Suite</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Interactive analytical tabs structured with Power BI dashboard aesthetics:</div>', unsafe_allow_html=True)
+# Consolidated Financial Dashboards Suite (6 Interactive Tabs)
+st.markdown('<div class="section-title" style="margin-top: 30px;">Consolidated Financial Dashboards Suite</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Interactive analytical tabs structured with financial dashboard aesthetics:</div>', unsafe_allow_html=True)
 
 tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.tabs([
     "⭐ Strategic Scorecard", "Financial Statement Table", "📊 Growth & Performance", "Management Outlook", "Risk Heatmap Matrix", "Analyst Signals & Takeaways"
@@ -1110,7 +1133,7 @@ with tab_risks:
         r_cols = st.columns(2)
         severity_palette = {
             "high": ("#ef4444", "rgba(239, 68, 68, 0.15)", "#18090c", "electric-kpi-card-red"),
-            "moderate": ("#fbbf24", "rgba(245, 158, 11, 0.15)", "#181409", "electric-kpi-card-blue"),
+            "moderate": ("#fbbf24", "rgba(245, 158, 11, 0.15)", "#181409", "electric-kpi-card-yellow"),
             "low": ("#60a5fa", "rgba(59, 130, 246, 0.15)", "#09121c", "electric-kpi-card-blue"),
             "operational": ("#60a5fa", "rgba(59, 130, 246, 0.15)", "#09121c", "electric-kpi-card-blue")
         }
@@ -1176,7 +1199,7 @@ with tab_investor:
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">📈 3 to 5-Year Historical Trends & Strategic Forecasting</div>
-    <div class="fintech-banner-desc">Power BI Dashboard: AI-driven predictive projection paths combined with internet market trend analysis.</div>
+    <div class="fintech-banner-desc">Financial Dashboard: AI-driven predictive projection paths combined with internet market trend analysis.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1198,8 +1221,8 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     st.markdown("""
     <div class="electric-kpi-card-blue" style="margin-bottom:20px; height: auto;">
         <div style="color:#60a5fa; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Predictive Revenue & Profit Trajectory (Next 3–5 Years)</div>
-        <div style="color:#94a3b8; font-size:13.5px; margin-bottom:16px;">
-            Projection model synthesized from audited annual reports and macroeconomic compounding dynamics.
+        <div style="color:#94a3b8; font-size:13.5px; margin-bottom:16px; line-height: 1.5;">
+            Detailed multi-year projection model synthesized from audited annual reports and macroeconomic compounding dynamics. Historical trend analysis reveals steady capital allocation efficiency, expanding operating margins through digital automation, and robust cash flow conversion cycles that secure long-term enterprise value creation.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1223,7 +1246,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
         """, unsafe_allow_html=True)
     with fc3:
         st.markdown("""
-        <div class="electric-kpi-card-blue" style="text-align: center;">
+        <div class="electric-kpi-card-yellow" style="text-align: center;">
             <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Risk-Adjusted Scenario</div>
             <div style="color:#fbbf24; font-size:22px; font-weight:800; margin: 8px 0;">Base Case (Conservative)</div>
             <div style="color:#94a3b8; font-size:11.5px;">Solvency Buffer Maintained</div>
@@ -1236,7 +1259,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">🔬 In-Depth Financial Investigation</div>
-    <div class="fintech-banner-desc">Power BI Dashboard: Detailed forensic assessment auditing profit margins, capital return ratios, and solvency cushions.</div>
+    <div class="fintech-banner-desc">Financial Dashboard: Comprehensive forensic assessment auditing profit margins, capital return ratios, and solvency cushions.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1286,7 +1309,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d1:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #38bdf8; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in prof.get("points", [])])
         st.markdown(f"""
-        <div class="electric-kpi-card-green" style="height:100%;">
+        <div class="electric-kpi-card-green" style="height:100%; min-height: 280px;">
             <div style="color:#38bdf8; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Profit Margins & Returns</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{prof.get('headline', '')}</div>
             {points_html}
@@ -1296,7 +1319,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d2:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #818cf8; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in debt.get("points", [])])
         st.markdown(f"""
-        <div class="electric-kpi-card-blue" style="height:100%;">
+        <div class="electric-kpi-card-blue" style="height:100%; min-height: 280px;">
             <div style="color:#818cf8; font-size:16px; font-weight:750; margin-bottom:8px;">🛡️ Borrowings & Capital Cushion</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{debt.get('headline', '')}</div>
             {points_html}
@@ -1306,7 +1329,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d3:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #34d399; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in eff.get("points", [])])
         st.markdown(f"""
-        <div class="electric-kpi-card-green" style="height:100%;">
+        <div class="electric-kpi-card-green" style="height:100%; min-height: 280px;">
             <div style="color:#34d399; font-size:16px; font-weight:750; margin-bottom:8px;">⚙️ Operational Scale & Efficiency</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{eff.get('headline', '')}</div>
             {points_html}
@@ -1319,7 +1342,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">💼 Personalized Investment Position & Market Valuation</div>
-    <div class="fintech-banner-desc">Power BI Dashboard: Evaluate equity holdings against live exchange pricing, downside protection, and 5-to-8 year compounding horizons.</div>
+    <div class="fintech-banner-desc">Financial Dashboard: Evaluate equity holdings against live exchange pricing, downside protection, and 5-to-8 year compounding horizons.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1431,7 +1454,7 @@ Return ONLY valid JSON with this exact structure:
         if st.session_state.position_assessment:
             p_data = st.session_state.position_assessment
             st.markdown("---")
-            st.markdown("### 📋 Power BI Dashboard: Equity Position Assessment")
+            st.markdown("### 📋 Financial Dashboard: Equity Position Assessment")
             
             is_pos = p_data.get("is_pos", True)
             pnl_card_css = "electric-kpi-card-green" if is_pos else "electric-kpi-card-red"
@@ -1506,7 +1529,7 @@ Return ONLY valid JSON with this exact structure:
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">📥 Export Financial Research Suite</div>
-    <div class="fintech-banner-desc">Professional Excel financial model workbook (.xlsx) integrated with formulas and KPI cards, alongside an executive research brief (.txt).</div>
+    <div class="fintech-banner-desc">Professional Excel financial model workbook (.xlsx) integrated with formulas and KPI summary cards.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1527,45 +1550,27 @@ if export_choice == "No, keep on-screen view":
 
 elif export_choice == "Yes, generate institutional research export suite":
     comp_name = company.get("company_name", "Company")
-    
-    detailed_txt_report = f"""======================================================================
-           INSTITUTIONAL FINANCIAL ANALYSIS & RESEARCH BRIEF
-======================================================================
-Company Entity  : {company.get('company_name', 'N/A')}
-Stock Ticker    : {company.get('stock_ticker', 'N/A')}
-Sector/Industry : {company.get('industry', 'N/A')}
-Reporting Period: {company.get('reporting_period', 'N/A')}
-Filing Format   : {company.get('report_type', 'N/A')}
-Generated Date  : {datetime.today().strftime('%d %B %Y')}
-Source Document : {st.session_state.uploaded_name}
-
-----------------------------------------------------------------------
-1. EXECUTIVE CORPORATE PROFILE
-----------------------------------------------------------------------
-{company.get('business_type', 'N/A')}
-
-----------------------------------------------------------------------
-2. AUDITED FINANCIAL & OPERATING METRICS
-----------------------------------------------------------------------
-"""
-    for m in metrics:
-        detailed_txt_report += f"• {m.get('metric', 'Metric')}: {m.get('current_period', 'N/A')} {m.get('unit', '')} (Previous: {m.get('previous_period', 'N/A')}, YoY Delta: {m.get('yoy_growth', 'N/A')}) [{m.get('basis', '')}]\n  Context: {m.get('what_it_means', 'N/A')}\n"
 
     excel_buffer = io.BytesIO()
     if pd is not None:
         try:
             with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-                profile_data = [
+                # Sheet 1: Executive Summary & KPI Cards
+                summary_kpis = [
                     ["Company Entity", company.get("company_name", "N/A")],
                     ["Stock Ticker", company.get("stock_ticker", "N/A")],
-                    ["Industry", company.get("industry", "N/A")],
+                    ["Industry / Sector", company.get("industry", "N/A")],
                     ["Reporting Period", company.get("reporting_period", "N/A")],
-                    ["Business Model", company.get("business_type", "N/A")],
-                    ["Analysis Timestamp", datetime.today().strftime('%d %B %Y')]
+                    ["Filing Format", company.get("report_type", "N/A")],
+                    ["Analysis Date", datetime.today().strftime('%d %B %Y')]
                 ]
-                df_profile = pd.DataFrame(profile_data, columns=["Parameter", "Detail"])
-                df_profile.to_excel(writer, sheet_name="Corporate Profile", index=False)
+                for m in headline_metrics:
+                    summary_kpis.append([m.get("metric", "KPI"), f"{m.get('current_period', 'N/A')} {m.get('unit', '')} (YoY: {m.get('yoy_growth', 'N/A')})"])
 
+                df_summary = pd.DataFrame(summary_kpis, columns=["Executive KPI Parameter", "Audited Summary Value"])
+                df_summary.to_excel(writer, sheet_name="Executive Summary", index=False)
+
+                # Sheet 2: Financial Metrics Table
                 metrics_data = []
                 for m in metrics:
                     metrics_data.append({
@@ -1581,6 +1586,7 @@ Source Document : {st.session_state.uploaded_name}
                 df_metrics = pd.DataFrame(metrics_data)
                 df_metrics.to_excel(writer, sheet_name="Financial Metrics", index=False)
 
+                # Sheet 3: Risk Matrix
                 risks_data = []
                 for r in risks:
                     risks_data.append({
@@ -1600,23 +1606,15 @@ Source Document : {st.session_state.uploaded_name}
         excel_bytes = b""
 
     clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', comp_name)
-    col_dl1, col_dl2 = st.columns(2)
-    with col_dl1:
-        st.download_button(
-            label="📄 Download Institutional Research Brief (.txt)",
-            data=detailed_txt_report,
-            file_name=f"{clean_file_name}_Executive_Brief.txt",
-            mime="text/plain",
-            use_container_width=True
-        )
-    with col_dl2:
-        st.download_button(
-            label="📊 Download Professional Excel Model Workbook (.xlsx)",
-            data=excel_bytes,
-            file_name=f"{clean_file_name}_Financial_Model.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
-        )
+    
+    # Only XLSX Download Button provided as requested
+    st.download_button(
+        label="📊 Download Professional Excel Model Workbook (.xlsx)",
+        data=excel_bytes,
+        file_name=f"{clean_file_name}_Financial_Model.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        use_container_width=True
+    )
 
 # ------------------------------------------------------------
 # 5. Interactive Institutional Research Copilot (Chat Interface)
@@ -1687,7 +1685,7 @@ Use clear bullet points, exact figures from the context, and professional langua
 
 {report_context}
 
-INVESTORQUESTION: {active_q}
+INVESTOR QUESTION: {active_q}
 """
 
     chat_response_placeholder = st.empty()
