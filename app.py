@@ -59,7 +59,7 @@ div[data-testid="stStatusWidget"] {
     visibility: hidden !important;
 }
 
-/* Entry Animation */
+/* Animations */
 @keyframes fadeInSlide {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -400,7 +400,19 @@ div[data-testid="stStatusWidget"] {
     line-height: 1.45;
 }
 
-/* BI Position Boxes */
+/* BI Charts & Position Boxes */
+.bi-chart-card {
+    background: #0b0f19;
+    border: 1px solid #1a2234;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+}
+.bi-chart-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.25);
+}
 .deep-card {
     background: #0b0f19;
     border: 1px solid #1a2234;
@@ -530,14 +542,14 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# PRODUCTION TEXT MODELS
+# ACTIVE 2026 GEMINI 3 SERIES PRODUCTION MODELS
 # ============================================================
 
 ACTIVE_MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro"
+    "gemini-3.7-flash",
+    "gemini-3.6-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-pro-preview"
 ]
 
 def generate_with_fallback(contents, json_mode=False):
@@ -828,6 +840,7 @@ STRICT CONTENT & PLAIN-ENGLISH RULES
 ============================================================
 1. NO DENSE JARGON: Translate complex metrics into real-world meaning without losing facts or exact numbers.
 2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report.
+   Assign each metric to a "category" from: ["Income & Profit", "Balance Sheet & Assets", "Quality Ratios"].
 3. INVESTOR_SCORECARD:
    - "growth_momentum": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
    - "profitability_quality": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
