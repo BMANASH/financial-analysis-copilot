@@ -31,7 +31,7 @@ from google.genai import types
 # ============================================================
 
 st.set_page_config(
-    page_title="Financial Analyst AI | Institutional Terminal",
+    page_title="Financial Analyst AI | Institutional Intelligence Terminal",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -1354,8 +1354,6 @@ if deep_choice == "No, keep summary view":
 
 elif deep_choice == "Yes, generate deep-dive financial analysis":
     # Pull directly from pre-extracted data (Zero delay, instant 0.0s render)
-    deep_investigation = data.get("in_depth_investigation", {})
-    
     prof = deep_investigation.get("profitability_and_margins", {
         "headline": "Core operating revenue expanded with strategic margin reinvestments.",
         "points": [
@@ -1813,7 +1811,7 @@ Position Dynamics:
         )
 
 # ============================================================
-# ASK THE ANALYST AI CHATBOT (HIGH-PERFORMANCE COPILOT)
+# ASK THE ANALYST AI CHATBOT (FAST IN-MEMORY COPILOT)
 # ============================================================
 st.markdown("""
 <div class="fintech-banner">
@@ -1863,7 +1861,7 @@ if active_q:
     </div>
     """, unsafe_allow_html=True)
 
-    # Ingests structured in-memory report metrics for fast ~2s inference
+    # Ingests structured in-memory report metrics for fast ~2s inference (Zero raw PDF re-upload)
     report_context = f"""
 AUDITED COMPANY DATA:
 - Entity: {company.get('company_name', 'Company')} ({company.get('stock_ticker', '')})
@@ -1885,21 +1883,30 @@ Use clear bullet points, exact figures from the context, and professional langua
 INVESTOR QUESTION: {active_q}
 """
 
-    with st.spinner("🤖 Analyzing disclosures..."):
-        try:
-            # Fast text-based inference (1-3 seconds)
-            res = generate_with_fallback(contents=[chat_prompt], json_mode=False)
-            ans = res.text.strip() if res.text else "No relevant disclosure found."
-            
-            st.session_state.chat_history.append({"role": "assistant", "content": ans})
-            st.markdown(f"""
-            <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
-                <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
-                <div class="chat-text">{ans}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        except Exception as e:
-            st.error(f"Error: {e}")
+    chat_response_placeholder = st.empty()
+    chat_response_placeholder.markdown("""
+    <div class="chat-box-card" style="border-left: 3.5px solid #34d399; background: #071318;">
+        <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
+        <div class="chat-text" style="color: #94a3b8;"><em>Analyzing report disclosures and structuring insights...</em></div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    try:
+        # Fast text-based inference in-memory (~2 seconds)
+        res = generate_with_fallback(contents=[chat_prompt], json_mode=False)
+        ans = res.text.strip() if res.text else "No relevant disclosure found."
+        
+        st.session_state.chat_history.append({"role": "assistant", "content": ans})
+        
+        chat_response_placeholder.markdown(f"""
+        <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
+            <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
+            <div class="chat-text">{ans}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    except Exception as e:
+        chat_response_placeholder.empty()
+        st.error(f"Error answering research query: {e}")
 
 # ============================================================
 # FOOTER
