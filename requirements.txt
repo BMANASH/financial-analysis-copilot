@@ -1,7 +1,8 @@
 streamlit
-pypdf
+google-genai
 pandas
 yfinance
-google-genai
+plotly
+pypdf
 openpyxl
 requests
