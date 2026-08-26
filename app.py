@@ -33,7 +33,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# INSTITUTIONAL BI DASHBOARD THEME & VISUAL STYLING
+# INSTITUTIONAL BI DASHBOARD THEME & COMPONENT STYLING
 # ============================================================
 
 st.markdown("""
@@ -57,11 +57,6 @@ div[data-testid="stStatusWidget"] {
 @keyframes fadeInSlide {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
-}
-@keyframes floatSubtleA {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0px); }
 }
 @keyframes spinGlow {
     0% { transform: rotate(0deg); }
@@ -88,7 +83,7 @@ div[data-testid="stStatusWidget"] {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(14, 20, 34, 0.85) !important;
+    background: rgba(14, 20, 34, 0.9) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
     border: 1px solid rgba(59, 130, 246, 0.5) !important;
@@ -180,6 +175,24 @@ div[data-testid="stStatusWidget"] {
     color: #94a3b8;
     line-height: 1.5;
 }
+.fintech-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+.fintech-pill {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid #334155;
+    color: #93c5fd;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
 .telemetry-bar {
     display: flex;
     flex-wrap: wrap;
@@ -258,7 +271,7 @@ div[data-testid="stStatusWidget"] {
     line-height: 1.45;
 }
 
-/* BI Power KPI Cards with Mini-Sparkline Progress */
+/* BI Power KPI Cards */
 .bi-kpi-card {
     background: linear-gradient(145deg, #0e131f 0%, #080b12 100%);
     border: 1px solid #1a2234;
@@ -318,109 +331,7 @@ div[data-testid="stStatusWidget"] {
     border-radius: 4px;
 }
 
-/* BI Executive Scorecard Gauges */
-.scorecard-bi-card {
-    background: #0e131f;
-    border: 1px solid #1a2234;
-    border-radius: 14px;
-    padding: 22px;
-    margin-bottom: 18px;
-    min-height: 250px;
-    transition: all 0.3s ease;
-}
-.scorecard-bi-card:hover {
-    border-color: #60a5fa;
-    transform: translateY(-4px);
-}
-.gauge-track {
-    background: #172033;
-    border-radius: 8px;
-    height: 9px;
-    width: 100%;
-    margin: 12px 0 16px 0;
-    overflow: hidden;
-}
-.gauge-fill {
-    background: linear-gradient(90deg, #2563eb, #38bdf8);
-    height: 100%;
-    border-radius: 8px;
-}
-.bi-chip-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-}
-.bi-chip {
-    background: #131b2e;
-    border: 1px solid #1f2d45;
-    color: #cbd5e1;
-    font-size: 12px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    line-height: 1.4;
-    flex: 1 1 calc(50% - 8px);
-}
-
-/* BI 2x2 Risk Heatmap Grid */
-.risk-grid-card {
-    background: #120c10;
-    border: 1px solid #2d1419;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
-    height: 100%;
-    transition: all 0.3s ease;
-}
-.risk-grid-card:hover {
-    border-color: #ef4444;
-    transform: translateY(-3px);
-}
-.risk-level-tag {
-    display: inline-block;
-    font-size: 10.5px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-}
-.risk-tag-high { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-.risk-tag-mod { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-.risk-tag-op { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-
-/* Bull vs Bear Sentiment Barometer */
-.barometer-container {
-    background: #0e131f;
-    border: 1px solid #1a2234;
-    border-radius: 14px;
-    padding: 22px;
-    margin-bottom: 22px;
-}
-.barometer-track {
-    display: flex;
-    height: 14px;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 14px 0 8px 0;
-}
-.baro-bull {
-    background: linear-gradient(90deg, #059669, #10b981);
-    height: 100%;
-}
-.baro-bear {
-    background: linear-gradient(90deg, #ef4444, #b91c1c);
-    height: 100%;
-}
-.sentiment-legend {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-/* Feature & Section Banners */
+/* Section Headings */
 .section-title {
     font-size: 24px;
     font-weight: 750;
@@ -453,8 +364,39 @@ div[data-testid="stStatusWidget"] {
     color: #94a3b8;
 }
 
-/* BI Visual Charts */
-.chart-box {
+/* Feature Cards on Welcome Screen */
+.feature-card {
+    background: #0e131f;
+    border: 1px solid #1a2234;
+    border-radius: 14px;
+    padding: 22px;
+    height: 100%;
+    transition: all 0.35s ease;
+    box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
+}
+.feature-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: #60a5fa !important;
+    box-shadow: 0 16px 35px -5px rgba(59, 130, 246, 0.45);
+}
+.feature-icon {
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+.feature-title {
+    color: #ffffff;
+    font-size: 15.5px;
+    font-weight: 750;
+    margin-bottom: 6px;
+}
+.feature-desc {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+/* BI Charts & Position Boxes */
+.bi-chart-card {
     background: #0e131f;
     border: 1px solid #1a2234;
     border-radius: 14px;
@@ -462,56 +404,9 @@ div[data-testid="stStatusWidget"] {
     margin-bottom: 16px;
     transition: all 0.3s ease;
 }
-.chart-box:hover {
+.bi-chart-card:hover {
     border-color: #3b82f6;
-}
-.chart-title {
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-.vis-row {
-    margin-bottom: 12px;
-}
-.vis-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    font-weight: 600;
-    color: #cbd5e1;
-    margin-bottom: 4px;
-}
-.vis-track {
-    background: #172033;
-    border-radius: 6px;
-    height: 22px;
-    width: 100%;
-    overflow: hidden;
-}
-.vis-fill-curr {
-    background: linear-gradient(90deg, #1d4ed8, #3b82f6);
-    height: 100%;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 8px;
-    color: #ffffff;
-    font-size: 11.5px;
-    font-weight: 700;
-}
-.vis-fill-prev {
-    background: #334155;
-    height: 100%;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 8px;
-    color: #ffffff;
-    font-size: 11.5px;
-    font-weight: 700;
+    box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.25);
 }
 .deep-card {
     background: #0e131f;
@@ -578,6 +473,20 @@ div[data-testid="stStatusWidget"] {
     color: #cbd5e1;
     font-size: 13px;
     line-height: 1.45;
+}
+.slicer-card {
+    background: #0e131f;
+    border: 1px solid #1a2234;
+    border-left: 3px solid #3b82f6;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 10px;
+    margin-bottom: 12px;
+}
+.slicer-meaning {
+    color: #cbd5e1;
+    font-size: 12.5px;
+    line-height: 1.5;
 }
 .footer {
     color: #64748b;
@@ -841,7 +750,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat2:
             st.markdown("""
-            <div class="feature-card feature-card-alt">
+            <div class="feature-card">
                 <div class="feature-icon">📈</div>
                 <div class="feature-title">Portfolio Intelligence</div>
                 <div class="feature-desc">Pulls live exchange quotes (NSE/BSE/Global) to compute exact P&L, fundamental purchase safety, and 5–8 year outlooks.</div>
@@ -857,7 +766,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat4:
             st.markdown("""
-            <div class="feature-card feature-card-alt">
+            <div class="feature-card">
                 <div class="feature-icon">💬</div>
                 <div class="feature-title">Grounded Research Copilot</div>
                 <div class="feature-desc">Interactive institutional Q&A answering custom financial queries strictly using facts from the uploaded report.</div>
@@ -915,7 +824,8 @@ Identify the company name, stock ticker (if applicable), industry, reporting per
 STRICT CONTENT & PLAIN-ENGLISH RULES
 ============================================================
 1. NO DENSE JARGON: Translate complex metrics into real-world meaning without losing facts or exact numbers.
-2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report. Keep the metric name clean and concise.
+2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report.
+   Assign each metric to a "category" from: ["Income & Profit", "Balance Sheet & Assets", "Quality Ratios"].
 3. INVESTOR_SCORECARD:
    - "growth_momentum": badge, verdict, health_pct (integer 0-100), and 3 short highlight tags (max 8 words each).
    - "profitability_quality": badge, verdict, health_pct (integer 0-100), and 3 short highlight tags (max 8 words each).
@@ -957,7 +867,8 @@ Return ONLY valid JSON with this exact structure:
       "previous_period": "",
       "yoy_growth": "",
       "unit": "",
-      "basis": ""
+      "basis": "",
+      "category": "Income & Profit / Balance Sheet & Assets / Quality Ratios"
     }
   ],
   "investor_scorecard": {
@@ -1078,7 +989,7 @@ with st.expander("📌 Financial Glossary & Report Terms", expanded=False):
             </div>
             """, unsafe_allow_html=True)
 
-# Company Overview - Symmetrical Floating Cards
+# Company Overview Cards
 st.markdown('<div class="section-title">Company Overview</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">A quick snapshot of the company and its primary revenue engine.</div>', unsafe_allow_html=True)
 
@@ -1176,7 +1087,7 @@ tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.t
     "⭐ Report Overview & Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks Matrix", "Investor Sentiment & Takeaways"
 ])
 
-# 1. BI Executive Scorecard with Health Dials & Micro-Tags
+# 1. BI Executive Scorecard (Unified Card HTML - Zero Code Leaks)
 with tab_scorecard:
     st.subheader("Executive Strategic Scorecard (BI Health Gauges)")
     st.write("4-pillar diagnostic matrix evaluating operational momentum and downside resilience:")
@@ -1194,29 +1105,35 @@ with tab_scorecard:
         for p_key, p_title, target_col, bar_color in pillars:
             p_obj = scorecard.get(p_key, {})
             score = p_obj.get("health_pct", 82)
+            badge = p_obj.get("badge", "Strong")
+            verdict = p_obj.get("verdict", "")
             tags = p_obj.get("tags", p_obj.get("points", []))
 
+            chips_html = "".join([
+                f'<div style="background:#131b2e; border:1px solid #1f2d45; color:#cbd5e1; font-size:12px; padding:6px 10px; border-radius:6px; line-height:1.4; margin-bottom:6px;">✓ {t}</div>'
+                for t in tags[:3]
+            ])
+
+            card_html = f"""
+            <div style="background:#0e131f; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:16px; font-weight:750; color:#ffffff;">{p_title}</span>
+                    <span style="background:rgba(59,130,246,0.18); border:1px solid rgba(59,130,246,0.35); color:#93c5fd; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700;">{badge}</span>
+                </div>
+                <div style="color:#94a3b8; font-size:13.5px; line-height:1.45; margin-bottom:12px;">{verdict}</div>
+                <div style="display:flex; justify-content:space-between; font-size:11.5px; color:#cbd5e1; font-weight:600; margin-bottom:4px;">
+                    <span>Pillar Diagnostic Score</span>
+                    <span style="color:{bar_color}; font-weight:800;">{score}%</span>
+                </div>
+                <div style="background:#172033; border-radius:8px; height:8px; width:100%; margin-bottom:14px; overflow:hidden;">
+                    <div style="width:{score}%; height:100%; background:{bar_color}; border-radius:8px;"></div>
+                </div>
+                <div style="font-size:11.5px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Key Performance Signals:</div>
+                {chips_html}
+            </div>
+            """
             with target_col:
-                st.markdown(f"""
-                <div class="scorecard-bi-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:16px; font-weight:750; color:#ffffff;">{p_title}</span>
-                        <span style="background:rgba(59,130,246,0.18); border:1px solid rgba(59,130,246,0.35); color:#93c5fd; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700;">{p_obj.get('badge', 'Strong')}</span>
-                    </div>
-                    <div style="color:#94a3b8; font-size:13.5px; margin-top:6px; line-height:1.45;">{p_obj.get('verdict', '')}</div>
-                    
-                    <div style="display:flex; justify-content:space-between; font-size:11.5px; color:#cbd5e1; margin-top:12px; font-weight:600;">
-                        <span>Pillar Diagnostic Score</span>
-                        <span style="color:{bar_color}; font-weight:800;">{score}%</span>
-                    </div>
-                    <div class="gauge-track"><div class="gauge-fill" style="width:{score}%; background:{bar_color};"></div></div>
-                    
-                    <div style="font-size:11.5px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Key Signal Highlights:</div>
-                    <div class="bi-chip-group">
-                """, unsafe_allow_html=True)
-                for t in tags[:4]:
-                    st.markdown(f'<div class="bi-chip">✓ {t}</div>', unsafe_allow_html=True)
-                st.markdown('</div></div>', unsafe_allow_html=True)
+                st.markdown(card_html, unsafe_allow_html=True)
 
 # 2. Financial Metrics Table
 with tab_metrics:
@@ -1245,45 +1162,71 @@ with tab_metrics:
         if filtered_rows and pd is not None:
             st.dataframe(filtered_rows, use_container_width=True, hide_index=True, height=400)
 
-# 3. BI Visual Charts with Slicer Filter
+# 3. BI Visual Charts with Interactive Category Slicer
 with tab_charts:
     st.subheader("Visual Financial Comparisons (BI Engine)")
-    st.write("Compare previous vs. current performance across key metrics at a glance:")
+    st.write("Compare previous vs. current performance across key metrics with interactive category slicers:")
+
+    categories = ["All Metrics", "Income & Profit", "Balance Sheet & Assets", "Quality Ratios"]
+    selected_cat = st.radio("Select Financial Category Slicer:", options=categories, horizontal=True, key="bi_chart_slicer")
 
     chart_records = []
     for m in metrics:
         curr_val = parse_clean_float(m.get("current_period"))
         prev_val = parse_clean_float(m.get("previous_period"))
-        if curr_val is not None and prev_val is not None:
-            chart_records.append({
-                "Metric": m.get("metric", "").strip(),
-                "Previous": prev_val,
-                "Current": curr_val,
-                "Unit": m.get("unit", "").strip()
-            })
+        cat = m.get("category", "Income & Profit")
+        
+        # Match category slicer
+        if selected_cat == "All Metrics" or selected_cat.lower() in cat.lower():
+            if curr_val is not None and prev_val is not None:
+                chart_records.append({
+                    "Metric": m.get("metric", "").strip(),
+                    "Previous": prev_val,
+                    "Current": curr_val,
+                    "Unit": m.get("unit", "").strip(),
+                    "Growth": m.get("yoy_growth", "")
+                })
 
     if chart_records:
         chart_cols = st.columns(2)
-        for idx, item in enumerate(chart_records[:6]):
-            c_val, p_val, u_lbl, m_name = item["Current"], item["Previous"], item["Unit"], item["Metric"]
+        for idx, item in enumerate(chart_records[:8]):
+            c_val, p_val, u_lbl, m_name, growth = item["Current"], item["Previous"], item["Unit"], item["Metric"], item["Growth"]
             max_v = max(abs(c_val), abs(p_val)) if max(abs(c_val), abs(p_val)) > 0 else 1
-            prev_pct = max(int((abs(p_val) / max_v) * 100), 10)
-            curr_pct = max(int((abs(c_val) / max_v) * 100), 10)
+            prev_pct = max(int((abs(p_val) / max_v) * 100), 8)
+            curr_pct = max(int((abs(c_val) / max_v) * 100), 8)
+            
+            delta_html = f'<span style="color:#34d399; font-size:11.5px; font-weight:750;">▲ {growth} YoY</span>' if not str(growth).startswith("-") else f'<span style="color:#f87171; font-size:11.5px; font-weight:750;">▼ {growth} YoY</span>'
 
-            with chart_cols[idx % 2]:
-                st.markdown(f"""
-                <div class="chart-box">
-                    <div class="chart-title">{m_name}</div>
-                    <div class="vis-row">
-                        <div class="vis-label"><span>Previous Period</span><span>{p_val:,.2f} {u_lbl}</span></div>
-                        <div class="vis-track"><div class="vis-fill-prev" style="width: {prev_pct}%;">{p_val:,.2f}</div></div>
+            chart_html = f"""
+            <div class="bi-chart-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="color:#ffffff; font-size:15px; font-weight:750;">{m_name}</span>
+                    {delta_html}
+                </div>
+                <div style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:#94a3b8; margin-bottom:4px;">
+                        <span>Previous Period</span>
+                        <span>{p_val:,.2f} {u_lbl}</span>
                     </div>
-                    <div class="vis-row" style="margin-top:10px;">
-                        <div class="vis-label"><span>Current Period</span><span>{c_val:,.2f} {u_lbl}</span></div>
-                        <div class="vis-track"><div class="vis-fill-curr" style="width: {curr_pct}%;">{c_val:,.2f}</div></div>
+                    <div style="background:#172033; border-radius:6px; height:20px; width:100%; overflow:hidden;">
+                        <div style="width:{prev_pct}%; background:#334155; height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#ffffff; font-size:11px; font-weight:700;">{p_val:,.2f}</div>
                     </div>
                 </div>
-                """, unsafe_allow_html=True)
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;">
+                        <span>Current Period</span>
+                        <span>{c_val:,.2f} {u_lbl}</span>
+                    </div>
+                    <div style="background:#172033; border-radius:6px; height:20px; width:100%; overflow:hidden;">
+                        <div style="width:{curr_pct}%; background:linear-gradient(90deg, #1d4ed8, #38bdf8); height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#ffffff; font-size:11px; font-weight:700;">{c_val:,.2f}</div>
+                    </div>
+                </div>
+            </div>
+            """
+            with chart_cols[idx % 2]:
+                st.markdown(chart_html, unsafe_allow_html=True)
+    else:
+        st.info("No comparative figures available for this specific category slice.")
 
 # 4. Management Strategy
 with tab_mgmt:
@@ -1292,7 +1235,7 @@ with tab_mgmt:
         with st.expander(item.get("title", "Strategy"), expanded=False):
             st.write(item.get("summary", ""))
 
-# 5. BI 2x2 Risk Heatmap Matrix
+# 5. BI 2x2 Risk Heatmap Grid
 with tab_risks:
     st.subheader("Potential Risks & Headwinds (BI Heatmap Grid)")
     st.write("Visual categorization of operational, credit, and regulatory risk vectors:")
@@ -1303,22 +1246,24 @@ with tab_risks:
             cat = r.get("category", "Credit & Market")
             impact = r.get("impact_level", "Moderate")
             
-            tag_class = "risk-tag-high" if impact.lower() == "high" else ("risk-tag-op" if impact.lower() == "operational" else "risk-tag-mod")
+            tag_color = "#f87171" if impact.lower() == "high" else ("#60a5fa" if impact.lower() == "operational" else "#fbbf24")
+            tag_bg = "rgba(239, 68, 68, 0.15)" if impact.lower() == "high" else ("rgba(59, 130, 246, 0.15)" if impact.lower() == "operational" else "rgba(245, 158, 11, 0.15)")
             
-            with r_cols[idx % 2]:
-                st.markdown(f"""
-                <div class="risk-grid-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="risk-level-tag {tag_class}">● {impact.upper()} IMPACT</span>
-                        <span style="color:#94a3b8; font-size:11px; font-weight:600;">{cat}</span>
-                    </div>
-                    <div style="color:#ffffff; font-weight:750; font-size:14.5px; margin-bottom:6px;">⚠️ {r.get('title')}</div>
-                    <div style="color:#94a3b8; font-size:13px; line-height:1.45; margin-bottom:10px;">{r.get('what_is_the_risk')}</div>
-                    <div style="background:#0a0608; border-left:3px solid #ef4444; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12.5px; color:#fca5a5;">
-                        <b>Earnings Impact:</b> {r.get('why_it_matters')}
-                    </div>
+            risk_card_html = f"""
+            <div style="background:#120c10; border:1px solid #2d1419; border-radius:12px; padding:16px; margin-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="background:{tag_bg}; border:1px solid {tag_color}; color:{tag_color}; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; text-transform:uppercase;">● {impact.upper()} IMPACT</span>
+                    <span style="color:#94a3b8; font-size:11px; font-weight:600;">{cat}</span>
                 </div>
-                """, unsafe_allow_html=True)
+                <div style="color:#ffffff; font-weight:750; font-size:14.5px; margin-bottom:6px;">⚠️ {r.get('title')}</div>
+                <div style="color:#94a3b8; font-size:13px; line-height:1.45; margin-bottom:10px;">{r.get('what_is_the_risk')}</div>
+                <div style="background:#0a0608; border-left:3px solid #ef4444; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12.5px; color:#fca5a5;">
+                    <b>Earnings Impact:</b> {r.get('why_it_matters')}
+                </div>
+            </div>
+            """
+            with r_cols[idx % 2]:
+                st.markdown(risk_card_html, unsafe_allow_html=True)
 
 # 6. BI Sentiment Barometer & Signal Takeaways
 with tab_investor:
@@ -1328,16 +1273,16 @@ with tab_investor:
     bear_pct = 100 - bull_pct
 
     st.markdown(f"""
-    <div class="barometer-container">
-        <div class="sentiment-legend">
+    <div style="background:#0e131f; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
             <span style="color:#34d399;">🟢 Institutional Bull Drivers: {bull_pct}%</span>
             <span style="color:#f87171;">🔴 Headwinds & Cost Pressure: {bear_pct}%</span>
         </div>
-        <div class="barometer-track">
-            <div class="baro-bull" style="width: {bull_pct}%;"></div>
-            <div class="baro-bear" style="width: {bear_pct}%;"></div>
+        <div style="display:flex; height:12px; border-radius:10px; overflow:hidden; margin:10px 0 6px 0;">
+            <div style="width:{bull_pct}%; background:linear-gradient(90deg, #059669, #10b981);"></div>
+            <div style="width:{bear_pct}%; background:linear-gradient(90deg, #ef4444, #b91c1c);"></div>
         </div>
-        <div style="color:#64748b; font-size:11.5px; margin-top:6px;">Weighted sentiment based on operating expansion vs. risk factors.</div>
+        <div style="color:#64748b; font-size:11.5px;">Weighted sentiment based on operational momentum vs. downside risk disclosures.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1699,7 +1644,6 @@ elif export_choice == "Yes, download dashboard summary report":
     comp_name = company.get("company_name", "Company")
     st.info("💡 **Disclaimer:** Exported files may require minor column width adjustments depending on your editor.")
     
-    # Structured TXT Report
     detailed_txt_report = f"""======================================================================
                FINANCIAL ANALYSIS & EXECUTIVE REPORT
 ======================================================================
@@ -1778,7 +1722,6 @@ Summary:
 ======================================================================
 """
 
-    # Structured CSV Report
     csv_rows = []
     csv_rows.append(["=== COMPANY EXECUTIVE PROFILE ===", "", "", "", "", ""])
     csv_rows.append(["Company Name", company.get('company_name', 'N/A'), "", "", "", ""])
