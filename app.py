@@ -24,6 +24,11 @@ except ImportError:
     openpyxl = None
 
 try:
+    import pypdf
+except ImportError:
+    pypdf = None
+
+try:
     import plotly.graph_objects as go
     import plotly.express as px
 except ImportError:
@@ -45,14 +50,20 @@ st.set_page_config(
 )
 
 # ============================================================
-# INSTITUTIONAL FINTECH COCKPIT THEME & CSS (ANIMATIONS & ELECTRIC BORDERS)
+# INSTITUTIONAL LIQUID GLASS FINTECH COCKPIT THEME & CSS
 # ============================================================
 
 st.markdown("""
 <style>
-/* Base Theme */
+/* Base Theme with Financial Analytics Watermark Background */
 .stApp {
-    background: #06080e;
+    background-color: #06080e;
+    background-image: 
+        radial-gradient(circle at 15% 20%, rgba(30, 58, 138, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+        linear-gradient(rgba(6, 8, 14, 0.94), rgba(6, 8, 14, 0.94)),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 10h80v80H10z' fill='none'/%3E%3Cpath d='M20 70l20-30 20 15 25-35' stroke='rgba(59, 130, 246, 0.04)' stroke-width='2' fill='none'/%3E%3Ctext x='15' y='30' fill='rgba(255,255,255,0.02)' font-family='monospace' font-size='10'%3EBI-ANALYTICS%3C/text%3E%3C/svg%3E");
+    background-size: cover, cover, cover, 180px 180px;
     color: #f1f5f9;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -68,180 +79,110 @@ div[data-testid="stStatusWidget"] {
     visibility: hidden !important;
 }
 
-/* Animations: Sliding Down with Gentle Bouncing */
-@keyframes slideDownBounce {
+/* Landing Page Downward Sliding Bouncy Animation */
+@keyframes landingBounce {
     0% {
         opacity: 0;
-        transform: translateY(-40px);
+        transform: translateY(-60px) scale(0.98);
     }
-    60% {
+    50% {
         opacity: 1;
-        transform: translateY(8px);
+        transform: translateY(12px) scale(1.01);
     }
-    80% {
-        transform: translateY(-4px);
+    75% {
+        transform: translateY(-6px) scale(0.995);
+    }
+    90% {
+        transform: translateY(3px) scale(1.002);
     }
     100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
-@keyframes fadeInSlide {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.landing-animate {
+    animation: landingBounce 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-@keyframes electricPulseGreen {
+/* Liquid Glass Card Styling */
+.liquid-glass-card {
+    background: rgba(13, 20, 36, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.liquid-glass-card:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+/* Electric Glowing Upload Box (Fixing empty box issue) */
+@keyframes electricPulse {
     0%, 100% {
-        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4), inset 0 0 10px rgba(16, 185, 129, 0.2);
-        border-color: rgba(16, 185, 129, 0.8);
-    }
-    50% {
-        box-shadow: 0 0 30px rgba(52, 211, 153, 0.8), inset 0 0 20px rgba(52, 211, 153, 0.4);
-        border-color: #34d399;
-    }
-}
-
-@keyframes electricPulseBlue {
-    0%, 100% {
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4), inset 0 0 10px rgba(59, 130, 246, 0.2);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.15);
         border-color: rgba(59, 130, 246, 0.8);
     }
     50% {
-        box-shadow: 0 0 30px rgba(96, 165, 250, 0.8), inset 0 0 20px rgba(96, 165, 250, 0.4);
+        box-shadow: 0 0 35px rgba(96, 165, 250, 0.7), inset 0 0 25px rgba(96, 165, 250, 0.3);
         border-color: #60a5fa;
     }
 }
 
-@keyframes electricPulseRed {
-    0%, 100% {
-        box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.2);
-        border-color: rgba(239, 68, 68, 0.8);
-    }
-    50% {
-        box-shadow: 0 0 30px rgba(248, 113, 113, 0.8), inset 0 0 20px rgba(248, 113, 113, 0.4);
-        border-color: #f87171;
-    }
+.electric-upload-container {
+    background: rgba(11, 17, 30, 0.85);
+    backdrop-filter: blur(12px);
+    border: 2px dashed #3b82f6;
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    animation: electricPulse 3s infinite ease-in-out;
+    margin-bottom: 16px;
 }
 
+/* Status Glow & Borders */
+.border-green {
+    border: 2px solid #10b981 !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+}
+.border-blue {
+    border: 2px solid #3b82f6 !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+}
+.border-red {
+    border: 2px solid #ef4444 !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.25);
+}
+
+/* Spinner & Loaders */
 @keyframes spinGlow {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
 @keyframes shimmerBar {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
 }
 
-/* Applied Animations */
-.animated-header {
-    animation: slideDownBounce 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-
-.electric-upload-box {
-    border: 2px dashed #3b82f6;
-    background: linear-gradient(135deg, rgba(11, 17, 32, 0.95) 0%, rgba(6, 9, 19, 0.95) 100%);
-    border-radius: 16px;
-    padding: 24px;
-    animation: electricPulseBlue 3s infinite ease-in-out;
-    transition: all 0.3s ease;
-}
-
-.electric-upload-box:hover {
-    border-color: #60a5fa;
-}
-
-/* Status Border classes */
-.border-green {
-    border: 2px solid #10b981 !important;
-    animation: electricPulseGreen 3s infinite ease-in-out;
-}
-.border-blue {
-    border: 2px solid #3b82f6 !important;
-    animation: electricPulseBlue 3s infinite ease-in-out;
-}
-.border-red {
-    border: 2px solid #ef4444 !important;
-    animation: electricPulseRed 3s infinite ease-in-out;
-}
-
-/* Institutional Terminal Hero */
-.hero {
-    background: linear-gradient(135deg, #0b1120 0%, #060913 100%);
-    border: 1px solid #1e293b;
-    border-top: 3px solid #3b82f6;
-    border-radius: 16px;
-    padding: 28px 32px;
-    margin-bottom: 20px;
-    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.75);
-}
-.hero-title {
-    font-size: 34px;
-    font-weight: 850;
-    line-height: 1.15;
-    margin-bottom: 6px;
-    background: linear-gradient(90deg, #ffffff 30%, #93c5fd 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -0.5px;
-}
-.hero-subtitle {
-    font-size: 14.5px;
-    color: #94a3b8;
-    line-height: 1.5;
-    letter-spacing: 0.2px;
-}
-.fintech-badge-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 14px;
-}
-.fintech-pill {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid #23334d;
-    color: #93c5fd;
-    font-size: 11.5px;
-    font-weight: 600;
-    padding: 5px 13px;
-    border-radius: 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-/* Center Glassmorphic Loader */
 .center-loader-box {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(13, 18, 30, 0.92) !important;
+    background: rgba(13, 18, 30, 0.95) !important;
     backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
     border: 1px solid rgba(59, 130, 246, 0.45) !important;
     border-radius: 18px !important;
     padding: 36px 32px !important;
     margin: 25px auto !important;
     text-align: center;
     max-width: 620px;
-}
-.loader-status-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid rgba(59, 130, 246, 0.35);
-    color: #60a5fa;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    margin-bottom: 16px;
 }
 .fintech-spinner {
     width: 50px;
@@ -250,40 +191,11 @@ div[data-testid="stStatusWidget"] {
     border-top: 3.5px solid #60a5fa;
     border-right: 3.5px solid #3b82f6;
     border-radius: 50%;
-    animation: spinGlow 0.85s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+    animation: spinGlow 0.85s linear infinite;
     margin-bottom: 16px;
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
-}
-.loader-title {
-    color: #ffffff;
-    font-size: 20px;
-    font-weight: 750;
-    margin-bottom: 6px;
-}
-.loader-subtitle {
-    color: #94a3b8;
-    font-size: 13.5px;
-    line-height: 1.5;
-    margin-bottom: 20px;
-    max-width: 480px;
-}
-.loader-progress-track {
-    background: rgba(15, 23, 42, 0.9);
-    border: 1px solid rgba(59, 130, 246, 0.25);
-    border-radius: 12px;
-    height: 7px;
-    width: 85%;
-    overflow: hidden;
-    position: relative;
-}
-.loader-progress-fill {
-    background: linear-gradient(90deg, transparent, #38bdf8, #3b82f6, transparent);
-    height: 100%;
-    width: 100%;
-    animation: shimmerBar 1.6s infinite ease-in-out;
 }
 
-/* Telemetry Bar */
+/* Telemetry & Badges */
 .telemetry-bar {
     display: flex;
     flex-wrap: wrap;
@@ -308,14 +220,13 @@ div[data-testid="stStatusWidget"] {
     gap: 6px;
 }
 
-/* Cards & Section Banners */
+/* Typography & Banners */
 .section-title {
     font-size: 21px;
     font-weight: 750;
     color: #f8fafc;
     margin-top: 24px;
     margin-bottom: 4px;
-    letter-spacing: -0.3px;
 }
 .section-description {
     color: #94a3b8;
@@ -344,7 +255,7 @@ div[data-testid="stStatusWidget"] {
 
 /* Symmetrical Overview Cards */
 .company-card {
-    background: #0a0e1a;
+    background: rgba(10, 14, 26, 0.85);
     border: 1px solid #1a2234;
     border-radius: 12px;
     padding: 15px;
@@ -354,11 +265,6 @@ div[data-testid="stStatusWidget"] {
     justify-content: flex-start;
     overflow-y: auto;
     margin-bottom: 10px;
-    transition: all 0.3s ease;
-}
-.company-card:hover {
-    border-color: #60a5fa !important;
-    transform: translateY(-3px);
 }
 .company-label {
     color: #fbbf24;
@@ -375,22 +281,15 @@ div[data-testid="stStatusWidget"] {
     line-height: 1.4;
 }
 
-/* Top Headline KPI Cards */
+/* BI KPI Cards */
 .bi-kpi-card {
     background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
-    border: 1px solid #1e293b;
     border-radius: 12px;
     padding: 16px 18px;
     min-height: 145px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: all 0.3s ease;
-}
-.bi-kpi-card:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 8px 24px -5px rgba(59, 130, 246, 0.3);
-    transform: translateY(-3px);
 }
 .kpi-header-row {
     display: flex;
@@ -409,7 +308,6 @@ div[data-testid="stStatusWidget"] {
     font-size: 24px;
     font-weight: 800;
     margin: 4px 0;
-    letter-spacing: -0.3px;
 }
 .spark-track {
     background: #151d2f;
@@ -418,117 +316,6 @@ div[data-testid="stStatusWidget"] {
     width: 100%;
     margin-top: 8px;
     overflow: hidden;
-}
-
-/* Feature Cards (Welcome Screen) */
-.feature-card {
-    background: #0a0e1a;
-    border: 1px solid #1a2234;
-    border-radius: 12px;
-    padding: 20px;
-    height: 100%;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
-}
-.feature-card:hover {
-    transform: translateY(-5px);
-    border-color: #60a5fa !important;
-    box-shadow: 0 14px 30px -5px rgba(59, 130, 246, 0.35);
-}
-.feature-icon {
-    font-size: 24px;
-    margin-bottom: 8px;
-}
-.feature-title {
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 750;
-    margin-bottom: 6px;
-}
-.feature-desc {
-    color: #94a3b8;
-    font-size: 13px;
-    line-height: 1.45;
-}
-
-/* Advisory & Ack Cards */
-.processing-note-card {
-    background: linear-gradient(135deg, #0e1526 0%, #0a0e1a 100%);
-    border: 1px solid #1e293b;
-    border-left: 4px solid #f59e0b;
-    border-radius: 12px;
-    padding: 14px 18px;
-    margin-top: 12px;
-    margin-bottom: 20px;
-}
-.ack-card {
-    background: rgba(13, 18, 30, 0.7);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    border-left: 4px solid #3b82f6;
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-top: 12px;
-    margin-bottom: 12px;
-    color: #cbd5e1;
-    font-size: 13.5px;
-    line-height: 1.5;
-}
-
-/* Valuation & Investment Section Cards */
-.invest-kpi-card {
-    background: #0d1322;
-    border: 1px solid #1e293b;
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-    margin-bottom: 14px;
-}
-.invest-kpi-label {
-    color: #94a3b8;
-    font-size: 11.5px;
-    font-weight: 650;
-    text-transform: uppercase;
-}
-.invest-kpi-val {
-    color: #ffffff;
-    font-size: 21px;
-    font-weight: 800;
-    margin-top: 5px;
-}
-.invest-section-box {
-    background: #070a14;
-    border: 1px solid #1a2234;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-}
-.invest-section-header {
-    color: #60a5fa;
-    font-size: 15.5px;
-    font-weight: 750;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.invest-subcard {
-    background: #0d121f;
-    border: 1px solid #1f2d45;
-    border-left: 3.5px solid #3b82f6;
-    border-radius: 8px;
-    padding: 12px 15px;
-    margin-bottom: 10px;
-}
-.invest-subcard-title {
-    color: #ffffff;
-    font-size: 13.5px;
-    font-weight: 750;
-    margin-bottom: 4px;
-}
-.invest-subcard-body {
-    color: #cbd5e1;
-    font-size: 13px;
-    line-height: 1.45;
 }
 
 /* Chat Styling */
@@ -561,21 +348,6 @@ div[data-testid="stStatusWidget"] {
     color: #e2e8f0;
     font-size: 13.5px;
     line-height: 1.6;
-}
-
-.slicer-card {
-    background: #0a0e1a;
-    border: 1px solid #1a2234;
-    border-left: 3px solid #3b82f6;
-    border-radius: 8px;
-    padding: 12px 14px;
-    margin-top: 10px;
-    margin-bottom: 12px;
-}
-.slicer-meaning {
-    color: #cbd5e1;
-    font-size: 12.5px;
-    line-height: 1.5;
 }
 .footer {
     color: #64748b;
@@ -718,7 +490,6 @@ def parse_clean_float(val):
     return None
 
 def auto_classify_metric(name):
-    """Classifies metrics into structured BI categories"""
     n = str(name).lower()
     if any(k in n for k in ["revenue", "income", "profit", "pat", "ebitda", "margin", "expense", "cost", "turnover", "fee", "sales"]):
         return "Revenue & Profit"
@@ -728,7 +499,6 @@ def auto_classify_metric(name):
         return "Balance Sheet & Assets"
 
 def fetch_live_stock_price(company_name, ticker_hint=""):
-    """Universally fetches live market price for any Indian or Global equity ticker"""
     if not yf:
         return None
     try:
@@ -791,11 +561,11 @@ def upload_pdf_to_gemini(uploaded_file):
                 pass
 
 # ============================================================
-# ANIMATED HERO SECTION & ELECTRIC UPLOAD BOX
+# ANIMATED LANDING HERO SECTION & ELECTRIC UPLOAD BOX
 # ============================================================
 
 st.markdown("""
-<div class="hero animated-header">
+<div class="hero landing-animate">
     <div class="hero-title">Financial Analyst AI</div>
     <div class="hero-subtitle">Institutional Equity Research & Corporate Fundamental Intelligence Terminal</div>
     <div class="fintech-badge-row">
@@ -807,11 +577,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="section-title">Upload Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Upload any corporate annual report or financial filing (PDF) to initiate institutional analysis.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title landing-animate">Upload Financial Report</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description landing-animate">Upload any corporate annual report or financial filing (PDF) to initiate institutional analysis.</div>', unsafe_allow_html=True)
 
-# Wrapped in electric glow container
-st.markdown('<div class="electric-upload-box">', unsafe_allow_html=True)
+# Electric Glowing Highlight Upload Container
+st.markdown('<div class="electric-upload-container landing-animate">', unsafe_allow_html=True)
 uploaded_file = st.file_uploader(
     "Upload Financial Report (PDF)",
     type=["pdf"],
@@ -821,7 +591,7 @@ uploaded_file = st.file_uploader(
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("""
-<div class="processing-note-card">
+<div class="processing-note-card landing-animate">
     <div style="font-weight: 700; color: #fbbf24; margin-bottom: 4px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
         ⏱️ <span>Document Ingestion & Processing Advisory</span>
     </div>
@@ -844,7 +614,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
         c_feat1, c_feat2, c_feat3, c_feat4 = st.columns(4)
         with c_feat1:
             st.markdown("""
-            <div class="feature-card">
+            <div class="liquid-glass-card">
                 <div class="feature-icon">📊</div>
                 <div class="feature-title">Financial Extraction</div>
                 <div class="feature-desc">Extracts 12–18 primary income statement, balance sheet, and operating metrics with YoY growth reconciliation.</div>
@@ -852,7 +622,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat2:
             st.markdown("""
-            <div class="feature-card">
+            <div class="liquid-glass-card">
                 <div class="feature-icon">📈</div>
                 <div class="feature-title">Portfolio Intelligence</div>
                 <div class="feature-desc">Connects to live market pricing (NSE/BSE/Global) to evaluate cost basis, purchase safety, and compounding outlooks.</div>
@@ -860,7 +630,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat3:
             st.markdown("""
-            <div class="feature-card">
+            <div class="liquid-glass-card">
                 <div class="feature-icon">🛡️</div>
                 <div class="feature-title">Executive Scorecard</div>
                 <div class="feature-desc">4-pillar evaluation matrix assessing Growth Momentum, Profit Quality, Balance Sheet Cushion, and Execution.</div>
@@ -868,7 +638,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat4:
             st.markdown("""
-            <div class="feature-card">
+            <div class="liquid-glass-card">
                 <div class="feature-icon">💬</div>
                 <div class="feature-title">Grounded AI Copilot</div>
                 <div class="feature-desc">Interactive research assistant answering custom queries strictly using audited facts from the uploaded report.</div>
@@ -1111,7 +881,7 @@ if headline_metrics:
                 badge_html = """<span style="color:#94a3b8; font-weight:700; font-size:12px;">Reported Level</span>"""
 
             st.markdown(f"""
-            <div class="bi-kpi-card {border_class}">
+            <div class="bi-kpi-card liquid-glass-card {border_class}">
                 <div>
                     <div class="kpi-header-row">
                         <span class="kpi-title">{name}</span>
@@ -1164,7 +934,7 @@ with tab_scorecard:
                 for t in points[:3]
             ])
 
-            card_html = f"""<div style="background:#0a0e1a; border:1px solid #1a2234; border-radius:12px; padding:18px; margin-bottom:16px;">
+            card_html = f"""<div class="liquid-glass-card" style="margin-bottom:16px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
 <span style="font-size:15.5px; font-weight:750; color:#ffffff;">{p_title}</span>
 <span style="background:rgba(59,130,246,0.18); border:1px solid rgba(59,130,246,0.35); color:#93c5fd; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700;">{badge}</span>
@@ -1252,7 +1022,7 @@ with tab_charts:
             else:
                 delta_html = '<span style="color:#94a3b8; font-size:11.5px; font-weight:700;">Audited Level</span>'
 
-            chart_html = f"""<div style="background:#0a0e1a; border:1px solid #1a2234; border-radius:12px; padding:16px; margin-bottom:14px;">
+            chart_html = f"""<div class="liquid-glass-card" style="margin-bottom:14px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
 <span style="color:#ffffff; font-size:14.5px; font-weight:750;">{m_name}</span>
 {delta_html}
@@ -1313,7 +1083,7 @@ with tab_risks:
             
             tag_color, tag_bg, card_bg = severity_palette[impact]
             
-            risk_card_html = f"""<div style="background:{card_bg}; border:1px solid {tag_color}40; border-radius:12px; padding:16px; margin-bottom:12px; height:100%;">
+            risk_card_html = f"""<div class="liquid-glass-card" style="background:{card_bg}; border:1px solid {tag_color}40; margin-bottom:12px; height:100%;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
 <span style="background:{tag_bg}; border:1px solid {tag_color}; color:{tag_color}; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; text-transform:uppercase;">● {impact.upper()} IMPACT</span>
 <span style="color:#94a3b8; font-size:11.5px; font-weight:600;">{cat}</span>
@@ -1334,7 +1104,7 @@ with tab_investor:
     bull_pct = int(takeaway.get("sentiment_score", 74))
     bear_pct = 100 - bull_pct
 
-    st.markdown(f"""<div style="background:#0a0e1a; border:1px solid #1a2234; border-radius:12px; padding:18px; margin-bottom:20px;">
+    st.markdown(f"""<div class="liquid-glass-card" style="margin-bottom:20px;">
 <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
 <span style="color:#34d399;">🟢 Institutional Bull Catalysts: {bull_pct}%</span>
 <span style="color:#f87171;">🔴 Headwinds & Cost Pressures: {bear_pct}%</span>
@@ -1376,7 +1146,7 @@ forecast_toggle = st.radio(
 
 if forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     st.markdown("""
-    <div style="background:#0a0e1a; border:1px solid #1e293b; border-radius:14px; padding:22px; margin-bottom:20px;">
+    <div class="liquid-glass-card" style="margin-bottom:20px;">
         <div style="color:#60a5fa; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Predictive Revenue & Profit Trajectory (Next 3–5 Years)</div>
         <div style="color:#94a3b8; font-size:13.5px; margin-bottom:16px;">
             Projection model based on historical CAGR growth rates, capital expenditure allocations, and sector compounding dynamics.
@@ -1466,7 +1236,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d1:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #38bdf8; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in prof.get("points", [])])
         st.markdown(f"""
-        <div style="background:#0a0e1a; border:1px solid #1e293b; border-radius:14px; padding:20px; height:100%;">
+        <div class="liquid-glass-card" style="height:100%;">
             <div style="color:#38bdf8; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Profit Margins & Returns</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{prof.get('headline', '')}</div>
             {points_html}
@@ -1476,7 +1246,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d2:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #818cf8; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in debt.get("points", [])])
         st.markdown(f"""
-        <div style="background:#0a0e1a; border:1px solid #1e293b; border-radius:14px; padding:20px; height:100%;">
+        <div class="liquid-glass-card" style="height:100%;">
             <div style="color:#818cf8; font-size:16px; font-weight:750; margin-bottom:8px;">🛡️ Borrowings & Capital Cushion</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{debt.get('headline', '')}</div>
             {points_html}
@@ -1486,7 +1256,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d3:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #34d399; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in eff.get("points", [])])
         st.markdown(f"""
-        <div style="background:#0a0e1a; border:1px solid #1e293b; border-radius:14px; padding:20px; height:100%;">
+        <div class="liquid-glass-card" style="height:100%;">
             <div style="color:#34d399; font-size:16px; font-weight:750; margin-bottom:8px;">⚙️ Operational Scale & Efficiency</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{eff.get('headline', '')}</div>
             {points_html}
