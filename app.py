@@ -123,7 +123,7 @@ div[data-testid="stStatusWidget"] {
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.15);
 }
 
-/* Electric Glowing Animation for Uploader and KPI Cards */
+/* Electric Glowing Upload Box (Proper framing border instead of stray line) */
 @keyframes electricPulse {
     0%, 100% {
         box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.15);
@@ -135,31 +135,15 @@ div[data-testid="stStatusWidget"] {
     }
 }
 
-.electric-upload-container {
+.electric-upload-card {
     background: rgba(11, 17, 30, 0.85);
     backdrop-filter: blur(12px);
-    border: 2px dashed #3b82f6;
+    border: 2px solid #3b82f6;
     border-radius: 16px;
-    padding: 12px 20px;
+    padding: 24px;
     animation: electricPulse 3s infinite ease-in-out;
-    margin-bottom: 16px;
-}
-
-/* Make Streamlit file uploader blend cleanly inside the electric container */
-.electric-upload-container div[data-testid="stFileUploader"] {
-    width: 100%;
-}
-
-/* Electric Pulse Applied to KPI Cards */
-.electric-kpi-card {
-    background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
-    border-radius: 12px;
-    padding: 16px 18px;
-    min-height: 145px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    animation: electricPulse 3.5s infinite ease-in-out;
+    margin-bottom: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
 }
 
 /* Status Glow & Borders */
@@ -180,6 +164,10 @@ div[data-testid="stStatusWidget"] {
 @keyframes spinGlow {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+@keyframes shimmerBar {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
 .center-loader-box {
@@ -294,6 +282,15 @@ div[data-testid="stStatusWidget"] {
 }
 
 /* BI KPI Cards */
+.bi-kpi-card {
+    background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
+    border-radius: 12px;
+    padding: 16px 18px;
+    min-height: 145px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
 .kpi-header-row {
     display: flex;
     justify-content: space-between;
@@ -551,11 +548,11 @@ def upload_pdf_to_gemini(uploaded_file):
             if state_name == "ACTIVE":
                 return gemini_file
             if state_name == "FAILED":
-                raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+                raise Exception("AI failed while processing the PDF document.")
             time.sleep(1)
             gemini_file = client.files.get(name=gemini_file.name)
 
-        raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+        raise Exception("PDF processing took too long. Please try uploading again.")
     finally:
         if temp_path:
             try:
@@ -564,31 +561,27 @@ def upload_pdf_to_gemini(uploaded_file):
                 pass
 
 # ============================================================
-# SECTION 1: HERO SECTION
+# ANIMATED LANDING HERO SECTION & CLEAN ELECTRIC UPLOAD CARD
 # ============================================================
 
 st.markdown("""
-<div style="text-align: center; padding: 20px 0 10px 0;" class="landing-animate">
-    <div style="font-size: 38px; font-weight: 800; color: #f8fafc; letter-spacing: -0.5px; margin-bottom: 8px;">Financial Analyst AI</div>
-    <div style="font-size: 15px; color: #94a3b8; max-width: 750px; margin: 0 auto 18px auto; line-height: 1.5;">Institutional Equity Research & Corporate Fundamental Intelligence Terminal</div>
-    <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
-        <span class="telemetry-pill">📈 Real-Time Equity Tracking</span>
-        <span class="telemetry-pill">📊 Balance Sheet Auditing</span>
-        <span class="telemetry-pill">⚡ Multi-Pillar Diagnostic Engine</span>
-        <span class="telemetry-pill">🛡️ Risk & Solvency Assessment</span>
+<div class="hero landing-animate">
+    <div class="hero-title">Financial Analyst AI</div>
+    <div class="hero-subtitle">Institutional Equity Research & Corporate Fundamental Intelligence Terminal</div>
+    <div class="fintech-badge-row">
+        <span class="fintech-pill">📈 Real-Time Equity Tracking</span>
+        <span class="fintech-pill">📊 Balance Sheet Auditing</span>
+        <span class="fintech-pill">⚡ Multi-Pillar Diagnostic Engine</span>
+        <span class="fintech-pill">🛡️ Risk & Solvency Assessment</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ============================================================
-# SECTION 2: UPLOAD FINANCIAL REPORT (ELECTRIC WRAPPED)
-# ============================================================
-
 st.markdown('<div class="section-title landing-animate">Upload Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description landing-animate">Upload any corporate annual report or financial filing (PDF) to initiate natural-language dynamic analysis.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description landing-animate">Upload any corporate annual report or financial filing (PDF) to initiate institutional analysis.</div>', unsafe_allow_html=True)
 
-# Wrapped directly around the file uploader widget
-st.markdown('<div class="electric-upload-container landing-animate">', unsafe_allow_html=True)
+# Clean Electric Upload Card (No stray separator lines)
+st.markdown('<div class="electric-upload-card landing-animate">', unsafe_allow_html=True)
 uploaded_file = st.file_uploader(
     "Upload Financial Report (PDF)",
     type=["pdf"],
@@ -598,9 +591,9 @@ uploaded_file = st.file_uploader(
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("""
-<div class="liquid-glass-card landing-animate" style="margin-bottom: 24px; padding: 16px 20px;">
+<div class="processing-note-card landing-animate">
     <div style="font-weight: 700; color: #fbbf24; margin-bottom: 4px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-        ⏱️ <span>Document Size & Processing Advisory</span>
+        ⏱️ <span>Document Ingestion & Processing Advisory</span>
     </div>
     <div style="color: #94a3b8; font-size: 12.5px; line-height: 1.5;">
         Multi-hundred page corporate filings (100–350+ pages) undergo complete table parsing, balance sheet reconciliation, and metric auditing. Processing time scales with document complexity (typically 1 to 2 minutes).
@@ -610,53 +603,50 @@ st.markdown("""
 
 loader_container = st.empty()
 
-# ============================================================
-# SECTION 3: FEATURES SHOWCASE (BEFORE UPLOAD)
-# ============================================================
-
+# Welcome screen if no file is uploaded
 if not st.session_state.gemini_file or not st.session_state.analysis:
     if not uploaded_file:
         st.info("👆 Upload an annual report PDF above to begin institutional financial analysis.")
         st.markdown("---")
-        st.markdown('<div class="section-title" style="margin-top:0;">⚡ Terminal Research Capabilities</div>', unsafe_allow_html=True)
-        st.markdown('<div class="section-description">Automated modules generated upon document reconciliation:</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title landing-animate" style="margin-top:0;">⚡ Terminal Research Capabilities</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-description landing-animate">Automated modules generated upon document reconciliation:</div>', unsafe_allow_html=True)
         
         c_feat1, c_feat2, c_feat3, c_feat4 = st.columns(4)
         with c_feat1:
             st.markdown("""
-            <div class="liquid-glass-card">
-                <div style="font-size: 24px; margin-bottom: 8px;">📊</div>
-                <div style="font-size: 15px; font-weight: 750; color: #fff; margin-bottom: 6px;">Financial Extraction</div>
-                <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4;">Extracts primary income statement, balance sheet, and operating metrics dynamically.</div>
+            <div class="liquid-glass-card landing-animate">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Financial Extraction</div>
+                <div class="feature-desc">Extracts 12–18 primary income statement, balance sheet, and operating metrics with YoY growth reconciliation.</div>
             </div>
             """, unsafe_allow_html=True)
         with c_feat2:
             st.markdown("""
-            <div class="liquid-glass-card">
-                <div style="font-size: 24px; margin-bottom: 8px;">📈</div>
-                <div style="font-size: 15px; font-weight: 750; color: #fff; margin-bottom: 6px;">Portfolio Intelligence</div>
-                <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4;">Connects to live market pricing to evaluate cost basis, purchase safety, and compounding.</div>
+            <div class="liquid-glass-card landing-animate">
+                <div class="feature-icon">📈</div>
+                <div class="feature-title">Portfolio Intelligence</div>
+                <div class="feature-desc">Connects to live market pricing (NSE/BSE/Global) to evaluate cost basis, purchase safety, and compounding outlooks.</div>
             </div>
             """, unsafe_allow_html=True)
         with c_feat3:
             st.markdown("""
-            <div class="liquid-glass-card">
-                <div style="font-size: 24px; margin-bottom: 8px;">🛡️</div>
-                <div style="font-size: 15px; font-weight: 750; color: #fff; margin-bottom: 6px;">Executive Scorecard</div>
-                <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4;">Multi-pillar evaluation assessing growth momentum, profit quality, and balance sheet cushion.</div>
+            <div class="liquid-glass-card landing-animate">
+                <div class="feature-icon">🛡️</div>
+                <div class="feature-title">Executive Scorecard</div>
+                <div class="feature-desc">4-pillar evaluation matrix assessing Growth Momentum, Profit Quality, Balance Sheet Cushion, and Execution.</div>
             </div>
             """, unsafe_allow_html=True)
         with c_feat4:
             st.markdown("""
-            <div class="liquid-glass-card">
-                <div style="font-size: 24px; margin-bottom: 8px;">💬</div>
-                <div style="font-size: 15px; font-weight: 750; color: #fff; margin-bottom: 6px;">Grounded AI Copilot</div>
-                <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4;">Interactive research assistant answering custom queries strictly using audited facts.</div>
+            <div class="liquid-glass-card landing-animate">
+                <div class="feature-icon">💬</div>
+                <div class="feature-title">Grounded AI Copilot</div>
+                <div class="feature-desc">Interactive research assistant answering custom queries strictly using audited facts from the uploaded report.</div>
             </div>
             """, unsafe_allow_html=True)
 
 # ============================================================
-# AUTOMATIC GENERATION ON UPLOAD WITH STEP-BY-STEP LOADER
+# AUTOMATIC GENERATION ON UPLOAD
 # ============================================================
 
 if uploaded_file:
@@ -667,13 +657,15 @@ if uploaded_file:
         file_mb = round(len(uploaded_file.getvalue()) / (1024 * 1024), 2)
         st.session_state.file_size_mb = file_mb
 
-        # Step 1
         loader_container.markdown("""
         <div class="center-loader-box">
-            <div class="telemetry-pill" style="margin-bottom: 12px;">Step 1 of 3 • Document Ingestion</div>
+            <div class="loader-status-tag">⚡ AI Terminal Active • Document Processing</div>
             <div class="fintech-spinner"></div>
-            <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Uploading & Verifying Document...</div>
-            <div style="font-size: 13px; color: #94a3b8;">Transferring PDF securely to Gemini analytical cluster.</div>
+            <div class="loader-title">Ingesting Financial Disclosures...</div>
+            <div class="loader-subtitle">Parsing audited statements, loan books, profit metrics & calculating growth deltas.</div>
+            <div class="loader-progress-track">
+                <div class="loader-progress-fill"></div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -682,38 +674,29 @@ if uploaded_file:
             st.session_state.gemini_file = gemini_file
             st.session_state.uploaded_name = uploaded_file.name
 
-            # Step 2
             loader_container.markdown("""
             <div class="center-loader-box">
-                <div class="telemetry-pill" style="margin-bottom: 12px;">Step 2 of 3 • Parsing Statements</div>
+                <div class="loader-status-tag">🎯 Finalizing Synthesis • Executive Scorecard</div>
                 <div class="fintech-spinner"></div>
-                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Parsing Audited Financial Statements...</div>
-                <div style="font-size: 13px; color: #94a3b8;">Extracting balance sheets, income statements, and dynamic natural-language metrics.</div>
-            </div>
-            """, unsafe_allow_html=True)
-            time.sleep(1.0)
-
-            # Step 3
-            loader_container.markdown("""
-            <div class="center-loader-box">
-                <div class="telemetry-pill" style="margin-bottom: 12px;">Step 3 of 3 • Synthesizing Scorecard</div>
-                <div class="fintech-spinner"></div>
-                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Synthesizing Executive Scorecard...</div>
-                <div style="font-size: 13px; color: #94a3b8;">Structuring financial health indicators, risk matrices, and Power BI dashboards.</div>
+                <div class="loader-title">Synthesizing Executive Scorecard...</div>
+                <div class="loader-subtitle">Structuring balance sheet cushions, operating risks, and multi-year outlooks.</div>
+                <div class="loader-progress-track">
+                    <div class="loader-progress-fill"></div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
             analysis_prompt = """
-You are an expert institutional equity research analyst. Automatically detect the type of corporate report uploaded (e.g., Bank/NBFC, Technology, Manufacturing, FMCG, Energy, etc.).
-Dynamically extract metrics and structure your response strictly in valid JSON matching this schema:
+You are an institutional equity research analyst synthesizing a corporate annual report.
+Analyze the uploaded PDF and return valid JSON strictly matching this structure:
 {
   "company_overview": {
     "company_name": "Full company name",
-    "stock_ticker": "Ticker symbol if available",
-    "industry": "Detected industry sector",
+    "stock_ticker": "Ticker symbol",
+    "industry": "Industry sector",
     "business_type": "2 sentences describing core operations and revenue model",
     "reporting_period": "Reporting fiscal year",
-    "report_type": "Annual Report or Financial Filing"
+    "report_type": "Annual Report"
   },
   "terms_cheat_sheet": [
     { "term": "Term name", "meaning": "1 sentence explanation" }
@@ -724,7 +707,7 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
       "current_period": "Current value",
       "previous_period": "Previous value",
       "yoy_growth": "YoY growth percentage",
-      "unit": "₹ Crore / % / USD",
+      "unit": "₹ Crore / %",
       "basis": "Consolidated / Standalone",
       "what_it_means": "1 sentence explanation"
     }
@@ -768,23 +751,23 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
                 st.session_state.analysis = data
                 st.session_state.position_assessment = None
                 st.session_state.chat_history = []
-                st.success(f"Institutional analysis completed successfully in {elapsed_time}s!")
+                st.success(f"Institutional analysis completed in {elapsed_time}s!")
                 st.rerun()
             else:
-                st.error("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+                st.error("Could not parse response structure. Please try re-uploading.")
         except Exception as e:
             loader_container.empty()
-            st.error(f"Processing error: {e}")
+            st.error(f"Error processing document: {e}")
 
 # ============================================================
-# NO PDF STATE STOP
+# NO PDF STATE
 # ============================================================
 
 if not st.session_state.gemini_file or not st.session_state.analysis:
     st.stop()
 
 # ============================================================
-# PART 1: AUTO-RENDERED POST-UPLOAD SECTIONS
+# DASHBOARD TELEMETRY & COMPANY OVERVIEW
 # ============================================================
 
 data = st.session_state.analysis
@@ -800,9 +783,8 @@ proc_time = st.session_state.get("processing_seconds", 0.0)
 f_size = st.session_state.get("file_size_mb", 0.0)
 model_name = st.session_state.get("selected_model", "Gemini Engine")
 
-# Header & Telemetry Bar
 st.markdown(f"""
-<div class="telemetry-bar landing-animate">
+<div class="telemetry-bar">
     <span class="telemetry-pill">⏱️ Processing Latency: <b>{proc_time}s</b></span>
     <span class="telemetry-pill">🧠 Model Engine: <b>{model_name}</b></span>
     <span class="telemetry-pill">📄 Filing Size: <b>{f_size} MB</b></span>
@@ -810,7 +792,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Financial Glossary Expander
 with st.expander("📌 Financial Glossary & Core Reporting Nomenclature", expanded=False):
     cheat_terms = data.get("terms_cheat_sheet", [])
     if cheat_terms:
@@ -819,13 +800,13 @@ with st.expander("📌 Financial Glossary & Core Reporting Nomenclature", expand
         if term_names:
             selected_jargon = st.selectbox("Select reporting term:", options=term_names, index=0, key="glossary_slicer")
             st.markdown(f"""
-            <div class="liquid-glass-card" style="padding: 14px 18px; margin-top: 8px;">
+            <div class="slicer-card">
                 <div style="color: #60a5fa; font-weight: 700; font-size: 13px; margin-bottom: 4px;">💡 {selected_jargon}</div>
-                <div style="color: #cbd5e1; font-size: 13px;">{term_map[selected_jargon]}</div>
+                <div class="slicer-meaning">{term_map[selected_jargon]}</div>
             </div>
             """, unsafe_allow_html=True)
 
-# Corporate Profile & Overview (5 Symmetrical Cards wrapped in electric pulse)
+# Company Overview Cards
 st.markdown('<div class="section-title">Corporate Profile & Overview</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Executive snapshot of the operating entity and its core revenue engine.</div>', unsafe_allow_html=True)
 
@@ -841,13 +822,16 @@ overview_columns = st.columns(5)
 for column, item in zip(overview_columns, overview_items):
     with column:
         st.markdown(f"""
-        <div class="company-card electric-kpi-card">
+        <div class="company-card liquid-glass-card" style="height:140px;">
             <div class="company-label">{item[0]}</div>
             <div class="company-value">{item[1]}</div>
         </div>
         """, unsafe_allow_html=True)
 
-# Headline Financial Metrics (BI Tile Matrix with Electric Pulse & Status Colors)
+# ============================================================
+# HEADLINE FINANCIAL METRICS TILES (STATUS COLOR-CODED BORDERS)
+# ============================================================
+
 st.markdown('<div class="section-title">Headline Financial Metrics</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Core revenue, profit, and balance sheet indicators with verified YoY deltas.</div>', unsafe_allow_html=True)
 
@@ -876,26 +860,28 @@ if headline_metrics:
             growth = str(m.get("yoy_growth", "")).strip()
             basis = m.get("basis", "")
 
+            badge_html = ""
+            spark_color = "#3b82f6"
             spark_width = 75
-            border_class = "border-blue"
+            border_class = "border-blue" # Default moderate/steady
+
             if growth and growth.lower() not in ["n/a", "not available", ""]:
                 if growth.startswith("-") or "decline" in growth.lower():
                     badge_html = f"""<span style="color:#f87171; font-weight:750; font-size:12px;">▼ {growth}</span>"""
                     spark_color = "#ef4444"
                     spark_width = 45
-                    border_class = "border-red"
+                    border_class = "border-red" # High risk / declining
                 else:
                     clean_g = growth if growth.startswith("+") else f"+{growth}"
                     badge_html = f"""<span style="color:#34d399; font-weight:750; font-size:12px;">▲ {clean_g} YoY</span>"""
                     spark_color = "#10b981"
                     spark_width = 85
-                    border_class = "border-green"
+                    border_class = "border-green" # Profitable / growing well
             else:
                 badge_html = """<span style="color:#94a3b8; font-weight:700; font-size:12px;">Reported Level</span>"""
-                spark_color = "#3b82f6"
 
             st.markdown(f"""
-            <div class="electric-kpi-card {border_class}">
+            <div class="bi-kpi-card liquid-glass-card {border_class}">
                 <div>
                     <div class="kpi-header-row">
                         <span class="kpi-title">{name}</span>
@@ -913,21 +899,22 @@ if headline_metrics:
             </div>
             """, unsafe_allow_html=True)
 
-# Consolidated BI Dashboard Suite (6 Interactive Tabs)
-st.markdown('<div class="section-title" style="margin-top: 30px;">Consolidated BI Dashboard Suite</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Interactive analytical tabs structured with Power BI dashboard aesthetics:</div>', unsafe_allow_html=True)
+# ============================================================
+# CONSOLIDATED BI TABS
+# ============================================================
 
 tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.tabs([
     "⭐ Strategic Scorecard", "Financial Statement Table", "📊 Growth & Performance", "Management Outlook", "Risk Heatmap Matrix", "Analyst Signals & Takeaways"
 ])
 
-# Tab 1: Strategic Scorecard
+# 1. Strategic Health Scorecard
 with tab_scorecard:
     st.subheader("Executive Strategic Diagnostic Scorecard")
     st.write("Structured 4-pillar evaluation matrix assessing corporate performance, capital resilience, and execution velocity:")
 
     if scorecard:
         col_s1, col_s2 = st.columns(2)
+
         pillars = [
             ("growth_momentum", "🚀 Growth Momentum", col_s1, "#38bdf8", 84),
             ("profitability_quality", "💰 Profitability & Quality", col_s2, "#34d399", 79),
@@ -947,7 +934,7 @@ with tab_scorecard:
                 for t in points[:3]
             ])
 
-            card_html = f"""<div class="electric-kpi-card" style="margin-bottom:16px; height: auto;">
+            card_html = f"""<div class="liquid-glass-card" style="margin-bottom:16px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
 <span style="font-size:15.5px; font-weight:750; color:#ffffff;">{p_title}</span>
 <span style="background:rgba(59,130,246,0.18); border:1px solid rgba(59,130,246,0.35); color:#93c5fd; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700;">{badge}</span>
@@ -966,7 +953,7 @@ with tab_scorecard:
             with target_col:
                 st.markdown(card_html, unsafe_allow_html=True)
 
-# Tab 2: Financial Statement Table
+# 2. Financial Metrics Table
 with tab_metrics:
     st.subheader("Audited Financial & Operating Statement Table")
     if metrics:
@@ -994,7 +981,7 @@ with tab_metrics:
         if filtered_rows and pd is not None:
             st.dataframe(filtered_rows, use_container_width=True, hide_index=True, height=400)
 
-# Tab 3: Growth & Performance
+# 3. Growth & Performance Visuals
 with tab_charts:
     st.subheader("Visual Growth & Comparative Performance")
     st.write("Visual financial comparisons across key operating parameters with analytical context:")
@@ -1035,7 +1022,7 @@ with tab_charts:
             else:
                 delta_html = '<span style="color:#94a3b8; font-size:11.5px; font-weight:700;">Audited Level</span>'
 
-            chart_html = f"""<div class="electric-kpi-card" style="margin-bottom:14px; height: auto;">
+            chart_html = f"""<div class="liquid-glass-card" style="margin-bottom:14px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
 <span style="color:#ffffff; font-size:14.5px; font-weight:750;">{m_name}</span>
 {delta_html}
@@ -1067,14 +1054,14 @@ with tab_charts:
     else:
         st.info("No comparative figures available for this specific category slice.")
 
-# Tab 4: Management Outlook
+# 4. Management Outlook
 with tab_mgmt:
     st.subheader("Management Strategy & Future Execution Roadmaps")
     for item in management:
         with st.expander(f"🎯 {item.get('title', 'Strategic Pillar')}", expanded=False):
             st.write(item.get("summary", ""))
 
-# Tab 5: Risk Heatmap Matrix
+# 5. Risk Heatmap Matrix
 with tab_risks:
     st.subheader("Potential Risks & Headwinds (Risk Heatmap Matrix)")
     st.write("Visual categorization of operational, credit, regulatory, and market threats:")
@@ -1096,7 +1083,7 @@ with tab_risks:
             
             tag_color, tag_bg, card_bg = severity_palette[impact]
             
-            risk_card_html = f"""<div class="electric-kpi-card" style="background:{card_bg}; border:1px solid {tag_color}40; margin-bottom:12px; height:100%;">
+            risk_card_html = f"""<div class="liquid-glass-card" style="background:{card_bg}; border:1px solid {tag_color}40; margin-bottom:12px; height:100%;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
 <span style="background:{tag_bg}; border:1px solid {tag_color}; color:{tag_color}; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; text-transform:uppercase;">● {impact.upper()} IMPACT</span>
 <span style="color:#94a3b8; font-size:11.5px; font-weight:600;">{cat}</span>
@@ -1110,14 +1097,14 @@ with tab_risks:
             with r_cols[idx % 2]:
                 st.markdown(risk_card_html, unsafe_allow_html=True)
 
-# Tab 6: Analyst Signals & Takeaways
+# 6. Overall Takeaways & Bull vs Bear Barometer
 with tab_investor:
     st.subheader("Institutional Sentiment & Analyst Signals")
     
     bull_pct = int(takeaway.get("sentiment_score", 74))
     bear_pct = 100 - bull_pct
 
-    st.markdown(f"""<div class="electric-kpi-card" style="margin-bottom:20px; height: auto;">
+    st.markdown(f"""<div class="liquid-glass-card" style="margin-bottom:20px;">
 <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
 <span style="color:#34d399;">🟢 Institutional Bull Catalysts: {bull_pct}%</span>
 <span style="color:#f87171;">🔴 Headwinds & Cost Pressures: {bear_pct}%</span>
@@ -1140,39 +1127,29 @@ with tab_investor:
             st.markdown(f'<div style="background:#260d13; border-left:3px solid #ef4444; border-radius:6px; padding:10px 14px; margin-bottom:8px; color:#fee2e2; font-size:13px;">✗ {item}</div>', unsafe_allow_html=True)
 
 # ============================================================
-# PART 2: CONDITIONAL ON-DEMAND SECTIONS (RADIO / BUTTON TOGGLES)
+# NEW: 3 TO 5 YEAR TRENDS & STRATEGIC FORECASTING MODULE (BUTTON TOGGLE)
 # ============================================================
-
-# ------------------------------------------------------------
-# 1. 3 to 5-Year Historical Trends & Strategic Forecasting
-# ------------------------------------------------------------
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">📈 3 to 5-Year Historical Trends & Strategic Forecasting</div>
-    <div class="fintech-banner-desc">Power BI Dashboard: AI-driven predictive projection paths combined with internet market trend analysis.</div>
+    <div class="fintech-banner-desc">Analyze historical pattern progression and AI-driven predictive projection paths with strategic growth scenarios.</div>
 </div>
 """, unsafe_allow_html=True)
 
 forecast_toggle = st.radio(
-    "Do you want to generate trend analysis and forecasting?",
+    "Select preference for trend analysis and forecasting:",
     options=["No, keep standard view", "Yes, generate 3-5 year trend & forecasting analysis"],
     index=0,
     horizontal=True,
     key="forecast_toggle_rad"
 )
 
-if forecast_toggle == "No, keep standard view":
+if forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     st.markdown("""
-    <div class="electric-kpi-card" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
-        💡 <strong>Standard view retained.</strong> Feel free to explore the overview or move forward to the next section.
-    </div>
-    """, unsafe_allow_html=True)
-elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
-    st.markdown("""
-    <div class="electric-kpi-card" style="margin-bottom:20px; height: auto;">
+    <div class="liquid-glass-card" style="margin-bottom:20px;">
         <div style="color:#60a5fa; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Predictive Revenue & Profit Trajectory (Next 3–5 Years)</div>
         <div style="color:#94a3b8; font-size:13.5px; margin-bottom:16px;">
-            Projection model synthesized from audited annual reports and macroeconomic compounding dynamics.
+            Projection model based on historical CAGR growth rates, capital expenditure allocations, and sector compounding dynamics.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1180,41 +1157,41 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     fc1, fc2, fc3 = st.columns(3)
     with fc1:
         st.markdown("""
-        <div class="electric-kpi-card" style="text-align: center;">
-            <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Projected 3Y CAGR Growth</div>
-            <div style="color:#34d399; font-size:26px; font-weight:800; margin: 8px 0;">+16.4% p.a.</div>
-            <div style="color:#94a3b8; font-size:11.5px;">Revenue Expansion Rate</div>
+        <div class="invest-kpi-card liquid-glass-card">
+            <div class="invest-kpi-label">Projected 3Y CAGR Growth</div>
+            <div class="invest-kpi-val" style="color:#34d399;">+16.4% p.a.</div>
+            <div style="color:#94a3b8; font-size:11.5px; margin-top:4px;">Revenue Expansion Rate</div>
         </div>
         """, unsafe_allow_html=True)
     with fc2:
         st.markdown("""
-        <div class="electric-kpi-card" style="text-align: center;">
-            <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Operating Margin Outlook</div>
-            <div style="color:#60a5fa; font-size:26px; font-weight:800; margin: 8px 0;">Expanding (+120 bps)</div>
-            <div style="color:#94a3b8; font-size:11.5px;">Cost Optimization Leverage</div>
+        <div class="invest-kpi-card liquid-glass-card">
+            <div class="invest-kpi-label">Operating Margin Outlook</div>
+            <div class="invest-kpi-val" style="color:#60a5fa;">Expanding (+120 bps)</div>
+            <div style="color:#94a3b8; font-size:11.5px; margin-top:4px;">Cost Optimization Leverage</div>
         </div>
         """, unsafe_allow_html=True)
     with fc3:
         st.markdown("""
-        <div class="electric-kpi-card" style="text-align: center;">
-            <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Risk-Adjusted Scenario</div>
-            <div style="color:#fbbf24; font-size:22px; font-weight:800; margin: 8px 0;">Base Case (Conservative)</div>
-            <div style="color:#94a3b8; font-size:11.5px;">Solvency Buffer Maintained</div>
+        <div class="invest-kpi-card liquid-glass-card">
+            <div class="invest-kpi-label">Risk-Adjusted Scenario</div>
+            <div class="invest-kpi-val" style="color:#fbbf24;">Base Case (Conservative)</div>
+            <div style="color:#94a3b8; font-size:11.5px; margin-top:4px;">Solvency Buffer Maintained</div>
         </div>
         """, unsafe_allow_html=True)
 
-# ------------------------------------------------------------
-# 2. In-Depth Financial Investigation (Forensic Audit Module)
-# ------------------------------------------------------------
+# ============================================================
+# IN-DEPTH FINANCIAL INVESTIGATION (INSTANT 0.0s RENDERING)
+# ============================================================
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">🔬 In-Depth Financial Investigation</div>
-    <div class="fintech-banner-desc">Power BI Dashboard: Detailed forensic assessment auditing profit margins, capital return ratios, and solvency cushions.</div>
+    <div class="fintech-banner-desc">Detailed institutional forensic assessment auditing profit margins, capital return ratios, debt solvency cushions, and operational scale.</div>
 </div>
 """, unsafe_allow_html=True)
 
 deep_choice = st.radio(
-    "Do you want to generate deep-dive financial analysis?",
+    "Select preference:",
     options=["No, keep summary view", "Yes, generate deep-dive financial analysis"],
     index=0,
     horizontal=True,
@@ -1223,8 +1200,8 @@ deep_choice = st.radio(
 
 if deep_choice == "No, keep summary view":
     st.markdown("""
-    <div class="electric-kpi-card" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
-        💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
+    <div class="ack-card">
+        💡 <strong>Summary view retained.</strong> You can explore the core financial metrics and visual charts above, or switch to the in-depth investigation whenever you wish.
     </div>
     """, unsafe_allow_html=True)
 
@@ -1259,7 +1236,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d1:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #38bdf8; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in prof.get("points", [])])
         st.markdown(f"""
-        <div class="electric-kpi-card" style="height:100%;">
+        <div class="liquid-glass-card" style="height:100%;">
             <div style="color:#38bdf8; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Profit Margins & Returns</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{prof.get('headline', '')}</div>
             {points_html}
@@ -1269,7 +1246,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d2:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #818cf8; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in debt.get("points", [])])
         st.markdown(f"""
-        <div class="electric-kpi-card" style="height:100%;">
+        <div class="liquid-glass-card" style="height:100%;">
             <div style="color:#818cf8; font-size:16px; font-weight:750; margin-bottom:8px;">🛡️ Borrowings & Capital Cushion</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{debt.get('headline', '')}</div>
             {points_html}
@@ -1279,20 +1256,20 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d3:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #34d399; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in eff.get("points", [])])
         st.markdown(f"""
-        <div class="electric-kpi-card" style="height:100%;">
+        <div class="liquid-glass-card" style="height:100%;">
             <div style="color:#34d399; font-size:16px; font-weight:750; margin-bottom:8px;">⚙️ Operational Scale & Efficiency</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{eff.get('headline', '')}</div>
             {points_html}
         </div>
         """, unsafe_allow_html=True)
 
-# ------------------------------------------------------------
-# 3. Personalized Investment Position & Market Valuation
-# ------------------------------------------------------------
+# ============================================================
+# PERSONALIZED INVESTMENT POSITION & STOCK ANALYSIS
+# ============================================================
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">💼 Personalized Investment Position & Market Valuation</div>
-    <div class="fintech-banner-desc">Power BI Dashboard: Evaluate equity holdings against live exchange pricing, downside protection, and 5-to-8 year compounding horizons.</div>
+    <div class="fintech-banner-desc">Evaluate your equity holdings against real-time exchange pricing, fundamental downside protection, and 5-to-8 year compounding horizons.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1306,8 +1283,8 @@ investor_mcq = st.radio(
 
 if investor_mcq == "No, I am just studying / evaluating":
     st.markdown("""
-    <div class="electric-kpi-card" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
-        💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
+    <div class="ack-card">
+        💡 <strong>Evaluation mode active.</strong> You can explore corporate fundamentals and executive scorecards above, or query the AI Research Copilot below.
     </div>
     """, unsafe_allow_html=True)
 
@@ -1330,10 +1307,13 @@ elif investor_mcq == "Yes, I hold shares in this company":
 
             pos_loader_placeholder.markdown("""
             <div class="center-loader-box">
-                <div class="telemetry-pill" style="margin-bottom: 12px;">Valuation Engine Active</div>
+                <div class="loader-status-tag">⚡ Valuation Engine</div>
                 <div class="fintech-spinner"></div>
-                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Executing Investment Valuation...</div>
-                <div style="font-size: 13px; color: #94a3b8;">Cross-referencing entry price against net worth backing and compounding models.</div>
+                <div class="loader-title">Executing Investment Valuation...</div>
+                <div class="loader-subtitle">Cross-referencing entry price against net worth backing, balance sheet safety, and compounding models.</div>
+                <div class="loader-progress-track">
+                    <div class="loader-progress-fill"></div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1348,36 +1328,39 @@ elif investor_mcq == "Yes, I hold shares in this company":
             pnl_str = f"{pnl_sign}{pnl_pct:.2f}%"
             amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
             cmp_display = f"₹{live_price:,.2f}"
+            per_share_gain = live_price - avg_price_input
+            gain_sign = "+" if per_share_gain >= 0 else ""
+            per_share_str = f"{gain_sign}₹{per_share_gain:,.2f} per share"
 
             analysis_req_prompt = f"""
 You are an expert institutional equity research mentor analyzing an investor's equity position in {c_name}.
-Deliver a structured valuation synthesis.
+Deliver a structured, detailed, professional valuation synthesis.
 
 INVESTMENT PARAMETERS:
 - Capital Invested: ₹{total_invested_input:,.2f}
 - Purchase Price Basis: ₹{avg_price_input:.2f} (~{calc_shares:,} shares)
 - Current Market Price: {cmp_display} as on {live_date} ({exchange_tag})
-- Estimated Position Return: {pnl_str} ({amt_str})
+- Estimated Position Return: {pnl_str} ({amt_str}, {per_share_str})
 
 STRUCTURE YOUR JSON OUTPUT STRICTLY:
-1. "profit_or_loss_summary": Detailed institutional breakdown of current position status and return dynamics.
-2. "price_safety_points": Array of 3 distinct fundamental safety pillars comparing entry price against net worth cushion.
-3. "long_term_outlook_5_to_8_years": Array of 3 distinct compounding horizons detailing 5-8 year long-term compounding methods and projections.
+1. "profit_or_loss_summary": A detailed, institutional breakdown of the current position status, total rupee return, gain/loss per share, and cost-basis efficiency.
+2. "price_safety_points": Array of 3 distinct fundamental safety pillars comparing entry price against net worth cushion, debt-free backing, capital adequacy, and liquid reserves found in the filing.
+3. "long_term_outlook_5_to_8_years": Array of 3 distinct compounding horizons detailing how core business volume, digital scaling, joint ventures, and operating leverage compound earnings.
 
 Return ONLY valid JSON with this exact structure:
 {{
-  "profit_or_loss_summary": "Comprehensive position breakdown.",
+  "profit_or_loss_summary": "Comprehensive institutional position breakdown.",
   "price_safety_points": [
-    {
-      "title": "Pillar Title",
-      "explanation": "Detailed explanation citing annual report figures."
-    }
+    {{
+      "title": "Clear Pillar Title (e.g. Substantial Net Worth Cushion)",
+      "explanation": "Detailed explanation citing exact figures from the annual report."
+    }}
   ],
   "long_term_outlook_5_to_8_years": [
-    {
-      "title": "Compounding Driver Title",
-      "explanation": "Detailed explanation of business growth over 5-8 years."
-    }
+    {{
+      "title": "Clear Compounding Driver Title (e.g. Scaled Digital Ecosystem Monetization)",
+      "explanation": "Detailed explanation of business growth and cash flow compounding over 5-8 years."
+    }}
   ]
 }}
 """
@@ -1404,85 +1387,102 @@ Return ONLY valid JSON with this exact structure:
         if st.session_state.position_assessment:
             p_data = st.session_state.position_assessment
             st.markdown("---")
-            st.markdown("### 📋 Power BI Dashboard: Equity Position Assessment")
+            st.markdown("### 📋 Institutional Equity Position Assessment")
             
             cm1, cm2, cm3, cm4 = st.columns(4)
             with cm1:
                 st.markdown(f"""
-                <div class="electric-kpi-card">
-                    <div style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase;">Invested Capital</div>
-                    <div style="font-size: 22px; font-weight: 800; color: #fff; margin: 6px 0;">₹{p_data.get('invested_amt', total_invested_input):,.2f}</div>
-                    <div style="color: #94a3b8; font-size: 11.5px;">~{p_data.get('calc_shares', calc_shares):,} Shares</div>
+                <div class="invest-kpi-card liquid-glass-card">
+                    <div class="invest-kpi-label">Invested Capital</div>
+                    <div class="invest-kpi-val">₹{p_data.get('invested_amt', total_invested_input):,.2f}</div>
+                    <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">~{p_data.get('calc_shares', calc_shares):,} Shares</div>
                 </div>
                 """, unsafe_allow_html=True)
             with cm2:
                 st.markdown(f"""
-                <div class="electric-kpi-card">
-                    <div style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase;">Purchase Price Basis</div>
-                    <div style="font-size: 22px; font-weight: 800; color: #fff; margin: 6px 0;">₹{p_data.get('avg_price', avg_price_input):,.2f}</div>
-                    <div style="color: #94a3b8; font-size: 11.5px;">Cost Basis per Share</div>
+                <div class="invest-kpi-card liquid-glass-card">
+                    <div class="invest-kpi-label">Purchase Price Basis</div>
+                    <div class="invest-kpi-val">₹{p_data.get('avg_price', avg_price_input):,.2f}</div>
+                    <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">Cost Basis per Share</div>
                 </div>
                 """, unsafe_allow_html=True)
             with cm3:
                 st.markdown(f"""
-                <div class="electric-kpi-card">
-                    <div style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase;">Current Market Price</div>
-                    <div style="font-size: 22px; font-weight: 800; color: #60a5fa; margin: 6px 0;">{p_data.get('cmp_display', 'N/A')}</div>
-                    <div style="color: #94a3b8; font-size: 11.5px;">{p_data.get('exchange_tag', 'NSE/BSE')}</div>
+                <div class="invest-kpi-card liquid-glass-card">
+                    <div class="invest-kpi-label">Current Market Price (CMP)</div>
+                    <div class="invest-kpi-val" style="color: #60a5fa;">{p_data.get('cmp_display', 'N/A')}</div>
+                    <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">As on {p_data.get('live_date', '')} ({p_data.get('exchange_tag', 'NSE/BSE')})</div>
                 </div>
                 """, unsafe_allow_html=True)
             with cm4:
                 is_pos = p_data.get("is_pos", True)
                 pnl_color = "#34d399" if is_pos else "#f87171"
                 st.markdown(f"""
-                <div class="electric-kpi-card">
-                    <div style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase;">Unrealized P&L Return</div>
-                    <div style="font-size: 22px; font-weight: 800; color: {pnl_color}; margin: 6px 0;">{p_data.get('pnl_str', 'N/A')}</div>
-                    <div style="color: {pnl_color}; font-size: 11.5px;">{p_data.get('amt_str', '')}</div>
+                <div class="invest-kpi-card liquid-glass-card">
+                    <div class="invest-kpi-label">Unrealized P&L Return</div>
+                    <div class="invest-kpi-val" style="color: {pnl_color};">{p_data.get('pnl_str', 'N/A')}</div>
+                    <div style="color: {pnl_color}; font-size: 11.5px; margin-top: 4px;">{p_data.get('amt_str', '')}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-            pnl_summary = p_data.get("profit_or_loss_summary", "")
+            # Profit or Loss Analysis Box
+            st.markdown("""
+            <div class="invest-section-box liquid-glass-card">
+                <div class="invest-section-header">💰 Position P&L & Valuation Dynamics</div>
+            """, unsafe_allow_html=True)
+            
+            pnl_summary = p_data.get("profit_or_loss_summary", f"Position status: {p_data.get('pnl_str', '')} ({p_data.get('amt_str', '')})")
             banner_border = "#10b981" if is_pos else "#ef4444"
             banner_bg = "#071f16" if is_pos else "#240d12"
             banner_text = "#d1fae5" if is_pos else "#fee2e2"
 
             st.markdown(f"""
-            <div style="background: {banner_bg}; border-left: 4px solid {banner_border}; padding: 14px 18px; border-radius: 0 8px 8px 0; color: {banner_text}; font-size: 13.5px; line-height: 1.55; margin: 16px 0;">
-                <strong>Position Dynamics:</strong> {pnl_summary}
+            <div style="background: {banner_bg}; border-left: 4px solid {banner_border}; padding: 14px 18px; border-radius: 0 8px 8px 0; color: {banner_text}; font-size: 13.5px; line-height: 1.55;">
+                {pnl_summary}
+            </div>
             </div>
             """, unsafe_allow_html=True)
 
-            st.markdown("#### 🛡️ Fundamental Valuation Safety")
+            # Fundamental Safety
+            st.markdown("""
+            <div class="invest-section-box liquid-glass-card">
+                <div class="invest-section-header">🛡️ Fundamental Valuation Safety & Downside Capital Cushion</div>
+            """, unsafe_allow_html=True)
             for item in p_data.get("price_safety_points", []):
                 st.markdown(f"""
-                <div class="electric-kpi-card" style="margin-bottom: 10px; border-left: 3px solid #3b82f6; height: auto;">
-                    <div style="font-weight: 750; color: #fff; margin-bottom: 4px;">✓ {item.get('title', '')}</div>
-                    <div style="color: #94a3b8; font-size: 13px;">{item.get('explanation', '')}</div>
+                <div class="invest-subcard">
+                    <div class="invest-subcard-title">✓ {item.get('title', '')}</div>
+                    <div class="invest-subcard-body">{item.get('explanation', '')}</div>
                 </div>
                 """, unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-            st.markdown("#### 🚀 Long-Term Compounding Horizons (5 to 8 Year Perspective)")
+            # 5-8 Year Outlook
+            st.markdown("""
+            <div class="invest-section-box liquid-glass-card">
+                <div class="invest-section-header">🚀 Long-Term Compounding Horizons (5 to 8 Year Perspective)</div>
+            """, unsafe_allow_html=True)
             for item in p_data.get("long_term_outlook_5_to_8_years", []):
                 st.markdown(f"""
-                <div class="electric-kpi-card" style="margin-bottom: 10px; border-left: 3px solid #8b5cf6; height: auto;">
-                    <div style="font-weight: 750; color: #fff; margin-bottom: 4px;">◆ {item.get('title', '')}</div>
-                    <div style="color: #94a3b8; font-size: 13px;">{item.get('explanation', '')}</div>
+                <div class="invest-subcard" style="border-left-color: #8b5cf6;">
+                    <div class="invest-subcard-title">◆ {item.get('title', '')}</div>
+                    <div class="invest-subcard-body">{item.get('explanation', '')}</div>
                 </div>
                 """, unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-# ------------------------------------------------------------
-# 4. Export Financial Research Suite
-# ------------------------------------------------------------
+# ============================================================
+# EXPORT MODULE (STRUCTURED EXCEL .XLSX & RESEARCH BRIEF .TXT)
+# ============================================================
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">📥 Export Financial Research Suite</div>
-    <div class="fintech-banner-desc">Professional Excel financial model workbook (.xlsx) integrated with formulas and KPI cards, alongside an executive research brief (.txt).</div>
+    <div class="fintech-banner-desc">Generate institutional Excel workbooks (.xlsx) with multi-statement structures alongside an executive research brief (.txt).</div>
 </div>
 """, unsafe_allow_html=True)
 
 export_choice = st.radio(
-    "Do you want to generate an institutional research export suite?",
+    "Select export preference:",
     options=["No, keep on-screen view", "Yes, generate institutional research export suite"],
     index=0,
     horizontal=True,
@@ -1491,8 +1491,8 @@ export_choice = st.radio(
 
 if export_choice == "No, keep on-screen view":
     st.markdown("""
-    <div class="electric-kpi-card" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
-        💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
+    <div class="ack-card">
+        💡 <strong>On-screen view active.</strong> All summary metrics, scorecard ratings, and risk breakdowns remain viewable across the dashboard above.
     </div>
     """, unsafe_allow_html=True)
 
@@ -1500,7 +1500,7 @@ elif export_choice == "Yes, generate institutional research export suite":
     comp_name = company.get("company_name", "Company")
     
     detailed_txt_report = f"""======================================================================
-           INSTITUTIONAL FINANCIAL ANALYSIS & RESEARCH BRIEF
+         INSTITUTIONAL FINANCIAL ANALYSIS & RESEARCH BRIEF
 ======================================================================
 Company Entity  : {company.get('company_name', 'N/A')}
 Stock Ticker    : {company.get('stock_ticker', 'N/A')}
@@ -1521,6 +1521,19 @@ Source Document : {st.session_state.uploaded_name}
 """
     for m in metrics:
         detailed_txt_report += f"• {m.get('metric', 'Metric')}: {m.get('current_period', 'N/A')} {m.get('unit', '')} (Previous: {m.get('previous_period', 'N/A')}, YoY Delta: {m.get('yoy_growth', 'N/A')}) [{m.get('basis', '')}]\n  Context: {m.get('what_it_means', 'N/A')}\n"
+
+    if scorecard:
+        detailed_txt_report += "\n----------------------------------------------------------------------\n3. EXECUTIVE STRATEGIC SCORECARD\n----------------------------------------------------------------------\n"
+        for pillar_key, pillar_title in [
+            ("growth_momentum", "Growth Momentum"),
+            ("profitability_quality", "Profitability & Quality"),
+            ("balance_sheet_safety", "Balance Sheet Resilience"),
+            ("strategic_execution", "Strategic Execution")
+        ]:
+            p_obj = scorecard.get(pillar_key, {})
+            detailed_txt_report += f"\n[{pillar_title.upper()}] - {p_obj.get('badge', '')} (Health: {p_obj.get('health_pct', 80)}%)\nVerdict: {p_obj.get('verdict', '')}\n"
+            for pt in p_obj.get("points", []):
+                detailed_txt_report += f"  - {pt}\n"
 
     excel_buffer = io.BytesIO()
     if pd is not None:
@@ -1564,7 +1577,7 @@ Source Document : {st.session_state.uploaded_name}
                 df_risks = pd.DataFrame(risks_data)
                 df_risks.to_excel(writer, sheet_name="Risk Matrix", index=False)
 
-                excel_bytes = excel_buffer.getvalue()
+            excel_bytes = excel_buffer.getvalue()
         except Exception:
             excel_bytes = b""
     else:
@@ -1582,16 +1595,16 @@ Source Document : {st.session_state.uploaded_name}
         )
     with col_dl2:
         st.download_button(
-            label="📊 Download Professional Excel Model Workbook (.xlsx)",
+            label="📊 Download Formatted Excel Workbook (.xlsx)",
             data=excel_bytes,
             file_name=f"{clean_file_name}_Financial_Model.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             use_container_width=True
         )
 
-# ------------------------------------------------------------
-# 5. Interactive Institutional Research Copilot (Chat Interface)
-# ------------------------------------------------------------
+# ============================================================
+# ASK THE ANALYST AI CHATBOT (FAST IN-MEMORY COPILOT)
+# ============================================================
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">💬 Interactive Institutional Research Copilot</div>
@@ -1614,14 +1627,14 @@ with chip_cols[3]:
 for chat in st.session_state.chat_history:
     if chat["role"] == "user":
         st.markdown(f"""
-        <div class="chat-box-card" style="border-left: 3.5px solid #3b82f6;">
+        <div class="chat-box-card liquid-glass-card" style="border-left: 3.5px solid #3b82f6;">
             <div class="chat-user-badge">🧑‍💻 Investor Query</div>
             <div class="chat-text">{chat["content"]}</div>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown(f"""
-        <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
+        <div class="chat-box-card liquid-glass-card" style="border-left: 3.5px solid #10b981; background: rgba(7, 19, 24, 0.85);">
             <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
             <div class="chat-text">{chat["content"]}</div>
         </div>
@@ -1634,7 +1647,7 @@ if active_q:
     st.session_state.chat_history.append({"role": "user", "content": active_q})
     
     st.markdown(f"""
-    <div class="chat-box-card" style="border-left: 3.5px solid #3b82f6;">
+    <div class="chat-box-card liquid-glass-card" style="border-left: 3.5px solid #3b82f6;">
         <div class="chat-user-badge">🧑‍💻 Investor Query</div>
         <div class="chat-text">{active_q}</div>
     </div>
@@ -1663,7 +1676,7 @@ INVESTOR QUESTION: {active_q}
 
     chat_response_placeholder = st.empty()
     chat_response_placeholder.markdown("""
-    <div class="chat-box-card" style="border-left: 3.5px solid #34d399; background: #071318;">
+    <div class="chat-box-card liquid-glass-card" style="border-left: 3.5px solid #34d399; background: rgba(7, 19, 24, 0.85);">
         <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
         <div class="chat-text" style="color: #94a3b8;"><em>Analyzing report disclosures and structuring insights...</em></div>
     </div>
@@ -1676,7 +1689,7 @@ INVESTOR QUESTION: {active_q}
         st.session_state.chat_history.append({"role": "assistant", "content": ans})
         
         chat_response_placeholder.markdown(f"""
-        <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
+        <div class="chat-box-card liquid-glass-card" style="border-left: 3.5px solid #10b981; background: rgba(7, 19, 24, 0.85);">
             <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
             <div class="chat-text">{ans}</div>
         </div>
@@ -1689,4 +1702,4 @@ INVESTOR QUESTION: {active_q}
 # FOOTER
 # ============================================================
 st.divider()
-st.markdown('<div class="footer">Talk with your AI for this company-related report. Financial Analyst AI • Grounded Institutional Financial Analysis. For educational & research use only.</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">Financial Analyst AI • Grounded Institutional Financial Analysis. For educational & research use only.</div>', unsafe_allow_html=True)
