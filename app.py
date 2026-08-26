@@ -20,10 +20,8 @@ except ImportError:
 
 try:
     import plotly.graph_objects as go
-    import plotly.express as px
 except ImportError:
     go = None
-    px = None
 
 from google import genai
 from google.genai import types
@@ -40,7 +38,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# INSTITUTIONAL POWER BI COCKPIT THEME
+# INSTITUTIONAL POWER BI COCKPIT THEME & CSS
 # ============================================================
 
 st.markdown("""
@@ -61,12 +59,11 @@ div[data-testid="stStatusWidget"] {
     visibility: hidden !important;
 }
 
-/* Smooth Entrance */
+/* Entry Animation */
 @keyframes fadeInSlide {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes pulseGlow {
     0%, 100% {
         box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9), 0 0 25px rgba(59, 130, 246, 0.25);
@@ -77,12 +74,10 @@ div[data-testid="stStatusWidget"] {
         border-color: rgba(96, 165, 250, 0.75);
     }
 }
-
 @keyframes spinGlow {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
 @keyframes shimmerBar {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
@@ -341,7 +336,7 @@ div[data-testid="stStatusWidget"] {
     border-radius: 4px;
 }
 
-/* Feature & Section Banners */
+/* Section Headings */
 .section-title {
     font-size: 23px;
     font-weight: 750;
@@ -539,10 +534,10 @@ client = create_client(API_KEY)
 # ============================================================
 
 ACTIVE_MODELS = [
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.5-flash-lite",
-    "gemini-3.1-pro-preview"
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro"
 ]
 
 def generate_with_fallback(contents, json_mode=False):
@@ -630,9 +625,9 @@ def parse_clean_float(val):
 def auto_classify_metric(name):
     """Guarantees every metric gets a clean BI category bucket"""
     n = str(name).lower()
-    if any(k in n for k in ["revenue", "income", "profit", "pat", "ebitda", "margin", "expense", "cost", "turnover", "fee"]):
+    if any(k in n for k in ["revenue", "income", "profit", "pat", "ebitda", "margin", "expense", "cost", "turnover", "fee", "sales"]):
         return "Income & Profit"
-    elif any(k in n for k in ["npa", "crar", "car", "ratio", "roe", "roa", "coverage", "pcr", "cushion", "leverage", "nim"]):
+    elif any(k in n for k in ["npa", "crar", "car", "ratio", "roe", "roa", "coverage", "pcr", "cushion", "leverage", "nim", "percentage", "%"]):
         return "Quality Ratios"
     else:
         return "Balance Sheet & Assets"
@@ -758,7 +753,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat2:
             st.markdown("""
-            <div class="feature-card">
+            <div class="feature-card feature-card-alt">
                 <div class="feature-icon">📈</div>
                 <div class="feature-title">Portfolio Intelligence</div>
                 <div class="feature-desc">Pulls live exchange quotes (NSE/BSE/Global) to compute exact P&L, fundamental purchase safety, and 5–8 year outlooks.</div>
@@ -774,7 +769,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat4:
             st.markdown("""
-            <div class="feature-card">
+            <div class="feature-card feature-card-alt">
                 <div class="feature-icon">💬</div>
                 <div class="feature-title">Grounded Research Copilot</div>
                 <div class="feature-desc">Interactive institutional Q&A answering custom financial queries strictly using facts from the uploaded report.</div>
@@ -833,7 +828,6 @@ STRICT CONTENT & PLAIN-ENGLISH RULES
 ============================================================
 1. NO DENSE JARGON: Translate complex metrics into real-world meaning without losing facts or exact numbers.
 2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report.
-   Assign each metric to a "category" from: ["Income & Profit", "Balance Sheet & Assets", "Quality Ratios"].
 3. INVESTOR_SCORECARD:
    - "growth_momentum": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
    - "profitability_quality": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
@@ -875,8 +869,7 @@ Return ONLY valid JSON with this exact structure:
       "previous_period": "",
       "yoy_growth": "",
       "unit": "",
-      "basis": "",
-      "category": "Income & Profit / Balance Sheet & Assets / Quality Ratios"
+      "basis": ""
     }
   ],
   "investor_scorecard": {
@@ -1095,19 +1088,19 @@ tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.t
     "⭐ Report Overview & Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks Matrix", "Investor Sentiment & Takeaways"
 ])
 
-# 1. BI Executive Scorecard (Interactive Plotly Gauges)
+# 1. BI Executive Scorecard (Resilient Clean HTML Gauges)
 with tab_scorecard:
     st.subheader("Executive Strategic Scorecard (BI Health Cockpit)")
     st.write("Diagnostic matrix evaluating operational momentum and downside resilience with real-time health dials:")
 
-    if scorecard and go is not None:
+    if scorecard:
         col_s1, col_s2 = st.columns(2)
 
         pillars = [
-            ("growth_momentum", "🚀 Growth Momentum", col_s1, "#38bdf8", 86),
-            ("profitability_quality", "💰 Profitability & Quality", col_s2, "#34d399", 80),
-            ("balance_sheet_safety", "🛡️ Balance Sheet Resilience", col_s1, "#818cf8", 93),
-            ("strategic_execution", "⚙️ Strategic & Commercial Scale", col_s2, "#fbbf24", 87)
+            ("growth_momentum", "🚀 Growth Momentum", col_s1, "#38bdf8", 84),
+            ("profitability_quality", "💰 Profitability & Quality", col_s2, "#34d399", 79),
+            ("balance_sheet_safety", "🛡️ Balance Sheet Resilience", col_s1, "#818cf8", 92),
+            ("strategic_execution", "⚙️ Strategic & Commercial Scale", col_s2, "#fbbf24", 88)
         ]
 
         for p_key, p_title, target_col, bar_color, default_pct in pillars:
@@ -1117,49 +1110,29 @@ with tab_scorecard:
             verdict = p_obj.get("verdict", "")
             tags = p_obj.get("tags", p_obj.get("points", []))
 
+            chips_html = "".join([
+                f'<div style="background:#0e1526; border:1px solid #1f2d45; color:#cbd5e1; font-size:12px; padding:6px 10px; border-radius:6px; line-height:1.4; margin-bottom:6px;">✓ {t}</div>'
+                for t in tags[:3]
+            ])
+
+            card_html = f"""<div style="background:#0b0f19; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:16px;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+<span style="font-size:16px; font-weight:750; color:#ffffff;">{p_title}</span>
+<span style="background:rgba(59,130,246,0.18); border:1px solid rgba(59,130,246,0.35); color:#93c5fd; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700;">{badge}</span>
+</div>
+<div style="color:#94a3b8; font-size:13.5px; line-height:1.45; margin-bottom:12px;">{verdict}</div>
+<div style="display:flex; justify-content:space-between; font-size:11.5px; color:#cbd5e1; font-weight:600; margin-bottom:4px;">
+<span>Pillar Diagnostic Score</span>
+<span style="color:{bar_color}; font-weight:800;">{score}%</span>
+</div>
+<div style="background:#172033; border-radius:8px; height:9px; width:100%; margin-bottom:14px; overflow:hidden;">
+<div style="width:{score}%; height:100%; background:{bar_color}; border-radius:8px;"></div>
+</div>
+<div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Performance Signals:</div>
+{chips_html}
+</div>"""
             with target_col:
-                # Gauge Chart
-                fig_gauge = go.Figure(go.Indicator(
-                    mode="gauge+number",
-                    value=score,
-                    number={'suffix': "%", 'font': {'size': 24, 'color': '#ffffff'}},
-                    title={'text': f"<b>{p_title}</b><br><span style='font-size:12px;color:#94a3b8'>{badge}</span>", 'font': {'size': 14, 'color': '#ffffff'}},
-                    gauge={
-                        'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#334155"},
-                        'bar': {'color': bar_color, 'thickness': 0.75},
-                        'bgcolor': "#172033",
-                        'borderwidth': 1,
-                        'bordercolor': "#1e293b",
-                        'steps': [
-                            {'range': [0, 50], 'color': '#1f1318'},
-                            {'range': [50, 75], 'color': '#1e1c12'},
-                            {'range': [75, 100], 'color': '#0f1d19'}
-                        ]
-                    }
-                ))
-                fig_gauge.update_layout(
-                    height=180,
-                    margin=dict(l=20, r=20, t=40, b=10),
-                    paper_bgcolor='rgba(14, 20, 34, 0.7)',
-                    plot_bgcolor='rgba(0,0,0,0)'
-                )
-                st.plotly_chart(fig_gauge, use_container_width=True, config={'displayModeBar': False})
-                
-                # Highlight Signal Chips
-                chips_html = "".join([
-                    f'<div style="background:#0e1526; border:1px solid #1f2d45; color:#cbd5e1; font-size:12px; padding:6px 10px; border-radius:6px; line-height:1.4; margin-bottom:5px;">✓ {t}</div>'
-                    for t in tags[:3]
-                ])
-                st.markdown(f"""
-                <div style="background:#0b0f19; border:1px solid #1a2234; border-radius:0 0 12px 12px; padding:12px 16px; margin-top:-10px; margin-bottom:16px;">
-                    <div style="color:#94a3b8; font-size:13px; line-height:1.45; margin-bottom:10px;">{verdict}</div>
-                    <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:6px;">Performance Signals:</div>
-                    {chips_html}
-                </div>
-                """, unsafe_allow_html=True)
-    elif scorecard:
-        # Fallback if Plotly isn't present
-        st.json(scorecard)
+                st.markdown(card_html, unsafe_allow_html=True)
 
 # 2. Financial Metrics Table
 with tab_metrics:
@@ -1189,10 +1162,10 @@ with tab_metrics:
         if filtered_rows and pd is not None:
             st.dataframe(filtered_rows, use_container_width=True, hide_index=True, height=400)
 
-# 3. BI Visual Charts with Plotly & Universal Slicers
+# 3. BI Visual Charts with Universal Category Slicers
 with tab_charts:
     st.subheader("Visual Financial Comparisons (Interactive BI Engine)")
-    st.write("Compare previous vs. current performance with interactive hover analytics and category filters:")
+    st.write("Compare previous vs. current performance across key metrics with interactive category filters:")
 
     categories = ["All Metrics", "Income & Profit", "Balance Sheet & Assets", "Quality Ratios"]
     selected_cat = st.radio("Select Financial Category Slicer:", options=categories, horizontal=True, key="bi_chart_slicer")
@@ -1215,47 +1188,48 @@ with tab_charts:
                     "Growth": m.get("yoy_growth", "")
                 })
 
-    if chart_records and go is not None:
+    if chart_records:
         chart_cols = st.columns(2)
         for idx, item in enumerate(chart_records[:8]):
             c_val, p_val, u_lbl, m_name, growth = item["Current"], item["Previous"], item["Unit"], item["Metric"], item["Growth"]
+            max_v = max(abs(c_val), abs(p_val)) if max(abs(c_val), abs(p_val)) > 0 else 1
+            prev_pct = max(int((abs(p_val) / max_v) * 100), 8)
+            curr_pct = max(int((abs(c_val) / max_v) * 100), 8)
             
-            fig = go.Figure()
-            fig.add_trace(go.Bar(
-                y=['Previous', 'Current'],
-                x=[p_val, c_val],
-                orientation='h',
-                marker=dict(
-                    color=['#334155', '#3b82f6'],
-                    line=dict(color=['#475569', '#60a5fa'], width=1)
-                ),
-                text=[f"{p_val:,.2f} {u_lbl}", f"{c_val:,.2f} {u_lbl}"],
-                textposition='auto',
-                hovertemplate="<b>%{y}</b>: %{x:,.2f} " + u_lbl + "<extra></extra>"
-            ))
-            
-            growth_sign = "▲ +" if not str(growth).startswith("-") else "▼ "
-            growth_color = "#34d399" if not str(growth).startswith("-") else "#f87171"
-            
-            fig.update_layout(
-                title=dict(
-                    text=f"<b>{m_name}</b> <span style='font-size:12px;color:{growth_color}'>({growth_sign}{growth} YoY)</span>",
-                    font=dict(color='#ffffff', size=14)
-                ),
-                paper_bgcolor='#0b0f19',
-                plot_bgcolor='rgba(15, 23, 42, 0.4)',
-                margin=dict(l=10, r=10, t=35, b=10),
-                height=160,
-                xaxis=dict(showgrid=True, gridcolor='#1e293b', zeroline=False, color='#94a3b8'),
-                yaxis=dict(color='#cbd5e1')
-            )
-            
+            growth_str = str(growth).strip()
+            if growth_str and growth_str.lower() not in ["n/a", "not available", ""]:
+                delta_html = f'<span style="color:#34d399; font-size:11.5px; font-weight:750;">▲ +{growth_str.replace("+","")} YoY</span>' if not growth_str.startswith("-") else f'<span style="color:#f87171; font-size:11.5px; font-weight:750;">▼ {growth_str} YoY</span>'
+            else:
+                delta_html = '<span style="color:#94a3b8; font-size:11.5px; font-weight:700;">Audited Level</span>'
+
+            chart_html = f"""<div style="background:#0b0f19; border:1px solid #1a2234; border-radius:14px; padding:18px; margin-bottom:14px;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+<span style="color:#ffffff; font-size:15px; font-weight:750;">{m_name}</span>
+{delta_html}
+</div>
+<div style="margin-bottom:10px;">
+<div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:#94a3b8; margin-bottom:4px;">
+<span>Previous Period</span>
+<span>{p_val:,.2f} {u_lbl}</span>
+</div>
+<div style="background:#172033; border-radius:6px; height:20px; width:100%; overflow:hidden;">
+<div style="width:{prev_pct}%; background:#334155; height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#ffffff; font-size:11px; font-weight:700;">{p_val:,.2f}</div>
+</div>
+</div>
+<div>
+<div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;">
+<span>Current Period</span>
+<span>{c_val:,.2f} {u_lbl}</span>
+</div>
+<div style="background:#172033; border-radius:6px; height:20px; width:100%; overflow:hidden;">
+<div style="width:{curr_pct}%; background:linear-gradient(90deg, #1d4ed8, #38bdf8); height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#ffffff; font-size:11px; font-weight:700;">{c_val:,.2f}</div>
+</div>
+</div>
+</div>"""
             with chart_cols[idx % 2]:
-                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-    elif chart_records:
-        st.write("Charts loaded.")
+                st.markdown(chart_html, unsafe_allow_html=True)
     else:
-        st.info("No comparative metrics found under this category.")
+        st.info("No comparative metrics found under this category slice.")
 
 # 4. Management Strategy
 with tab_mgmt:
@@ -1285,19 +1259,17 @@ with tab_risks:
             
             tag_color, tag_bg = severity_palette[impact]
             
-            risk_card_html = f"""
-            <div style="background:#0f0a0d; border:1px solid #2d1419; border-radius:12px; padding:16px; margin-bottom:12px; height:100%;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="background:{tag_bg}; border:1px solid {tag_color}; color:{tag_color}; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; text-transform:uppercase;">● {impact.upper()} IMPACT</span>
-                    <span style="color:#94a3b8; font-size:11.5px; font-weight:600;">{cat}</span>
-                </div>
-                <div style="color:#ffffff; font-weight:750; font-size:14.5px; margin-bottom:6px;">⚠️ {r.get('title')}</div>
-                <div style="color:#94a3b8; font-size:13px; line-height:1.45; margin-bottom:10px;">{r.get('what_is_the_risk')}</div>
-                <div style="background:#050203; border-left:3px solid #ef4444; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12.5px; color:#fca5a5;">
-                    <b>Earnings Impact:</b> {r.get('why_it_matters')}
-                </div>
-            </div>
-            """
+            risk_card_html = f"""<div style="background:#0f0a0d; border:1px solid #2d1419; border-radius:12px; padding:16px; margin-bottom:12px; height:100%;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+<span style="background:{tag_bg}; border:1px solid {tag_color}; color:{tag_color}; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; text-transform:uppercase;">● {impact.upper()} IMPACT</span>
+<span style="color:#94a3b8; font-size:11.5px; font-weight:600;">{cat}</span>
+</div>
+<div style="color:#ffffff; font-weight:750; font-size:14.5px; margin-bottom:6px;">⚠️ {r.get('title')}</div>
+<div style="color:#94a3b8; font-size:13px; line-height:1.45; margin-bottom:10px;">{r.get('what_is_the_risk')}</div>
+<div style="background:#050203; border-left:3px solid #ef4444; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12.5px; color:#fca5a5;">
+<b>Earnings Impact:</b> {r.get('why_it_matters')}
+</div>
+</div>"""
             with r_cols[idx % 2]:
                 st.markdown(risk_card_html, unsafe_allow_html=True)
 
@@ -1308,19 +1280,17 @@ with tab_investor:
     bull_pct = int(takeaway.get("sentiment_score", 74))
     bear_pct = 100 - bull_pct
 
-    st.markdown(f"""
-    <div style="background:#0b0f19; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:20px;">
-        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
-            <span style="color:#34d399;">🟢 Institutional Bull Drivers: {bull_pct}%</span>
-            <span style="color:#f87171;">🔴 Headwinds & Cost Pressures: {bear_pct}%</span>
-        </div>
-        <div style="display:flex; height:12px; border-radius:10px; overflow:hidden; margin:10px 0 6px 0;">
-            <div style="width:{bull_pct}%; background:linear-gradient(90deg, #059669, #10b981);"></div>
-            <div style="width:{bear_pct}%; background:linear-gradient(90deg, #ef4444, #b91c1c);"></div>
-        </div>
-        <div style="color:#64748b; font-size:11.5px;">Weighted sentiment derived from operating tailwinds vs downside risk disclosures.</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"""<div style="background:#0b0f19; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:20px;">
+<div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
+<span style="color:#34d399;">🟢 Institutional Bull Drivers: {bull_pct}%</span>
+<span style="color:#f87171;">🔴 Headwinds & Cost Pressures: {bear_pct}%</span>
+</div>
+<div style="display:flex; height:12px; border-radius:10px; overflow:hidden; margin:10px 0 6px 0;">
+<div style="width:{bull_pct}%; background:linear-gradient(90deg, #059669, #10b981);"></div>
+<div style="width:{bear_pct}%; background:linear-gradient(90deg, #ef4444, #b91c1c);"></div>
+</div>
+<div style="color:#64748b; font-size:11.5px;">Weighted sentiment derived from operating tailwinds vs downside risk disclosures.</div>
+</div>""", unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
@@ -1713,7 +1683,7 @@ Source Document : {st.session_state.uploaded_name}
         ]:
             p_obj = scorecard.get(pillar_key, {})
             detailed_txt_report += f"\n[{pillar_title.upper()}] - {p_obj.get('badge', '')} (Health: {p_obj.get('health_pct', 80)}%)\nVerdict: {p_obj.get('verdict', '')}\n"
-            for pt in p_obj.get("tags", p_obj.get("points", [])):
+            for pt in p_obj.get("tags", []):
                 detailed_txt_report += f"  - {pt}\n"
 
     if st.session_state.deep_dive:
