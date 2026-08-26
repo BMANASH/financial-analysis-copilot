@@ -1161,7 +1161,7 @@ with tab_risks:
 <span style="color:#94a3b8; font-size:11.5px; font-weight:600;">{cat}</span>
 </div>
 <div style="color:#ffffff; font-weight:750; font-size:14px; margin-bottom:6px;">⚠️ {r.get('title')}</div>
-<div style="color:#94a3b8; font-size:12.5px; line-height:1.45; margin-bottom:10px;">{r.get('what_it_his_the_risk', r.get('what_is_the_risk', ''))}</div>
+<div style="color:#94a3b8; font-size:12.5px; line-height:1.45; margin-bottom:10px;">{r.get('what_is_the_risk', '')}</div>
 <div style="background:#06080e; border-left:3px solid {tag_color}; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12px; color:#f1f5f9;">
 <b>Impact on Financials:</b> {r.get('why_it_matters')}
 </div>
@@ -1271,7 +1271,7 @@ Provide a detailed, natural-language predictive projection breakdown strictly ma
 
     f_res = st.session_state.forecast_data
 
-    st.markdown("""
+    st.markdown(f"""
     <div class="electric-kpi-card-blue" style="margin-bottom:20px; height: auto;">
         <div style="color:#60a5fa; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Predictive Revenue & Profit Trajectory (Next 3–5 Years)</div>
         <div style="color:#94a3b8; font-size:13.5px; margin-bottom:16px; line-height: 1.5;">
