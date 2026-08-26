@@ -1234,22 +1234,21 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
             c_name = company.get("company_name", "the company")
             c_ticker = company.get("stock_ticker", "")
             
-            web_forecast_prompt = f"""
-You are an expert institutional equity research analyst. 
-Analyze the company '{c_name}' (Ticker: {c_ticker}) using both the uploaded PDF report and live web search data regarding its past multi-year financial history, market trends, sector tailwinds, and compounding outlook.
-
-Provide a detailed, natural-language predictive projection breakdown strictly matching this JSON structure:
-{{
-  "cagr_value": "+16.4% p.a.",
-  "margin_outlook": "Expanding (+120 bps)",
-  "risk_scenario": "Base Case (Conservative)",
-  "rationale_points": [
-    "Detailed bullet point 1 explaining core long-term growth drivers backed by historical internet trend tracing.",
-    "Detailed bullet point 2 explaining operational efficiency and cost optimization leverage.",
-    "Detailed bullet point 3 explaining future enterprise risks, compounding potential, and solvency outlook over 3-5 years."
-  ]
-}
-"""
+            web_forecast_prompt = (
+                "You are an expert institutional equity research analyst. "
+                "Analyze the company '" + c_name + "' (Ticker: " + c_ticker + ") using both the uploaded PDF report and live web search data regarding its past multi-year financial history, market trends, sector tailwinds, and compounding outlook. "
+                "Provide a detailed, natural-language predictive projection breakdown strictly matching this JSON structure: "
+                "{"
+                "  \"cagr_value\": \"+16.4% p.a.\","
+                "  \"margin_outlook\": \"Expanding (+120 bps)\","
+                "  \"risk_scenario\": \"Base Case (Conservative)\","
+                "  \"rationale_points\": ["
+                "    \"Detailed bullet point 1 explaining core long-term growth drivers backed by historical internet trend tracing.\","
+                "    \"Detailed bullet point 2 explaining operational efficiency and cost optimization leverage.\","
+                "    \"Detailed bullet point 3 explaining future enterprise risks, compounding potential, and solvency outlook over 3-5 years.\""
+                "  ]"
+                "}"
+            )
             try:
                 res_f = generate_with_fallback(contents=[web_forecast_prompt, st.session_state.gemini_file], json_mode=True, use_search=True)
                 f_parsed = clean_json_response(res_f.text)
@@ -1271,7 +1270,7 @@ Provide a detailed, natural-language predictive projection breakdown strictly ma
 
     f_res = st.session_state.forecast_data
 
-    st.markdown(f"""
+    st.markdown("""
     <div class="electric-kpi-card-blue" style="margin-bottom:20px; height: auto;">
         <div style="color:#60a5fa; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Predictive Revenue & Profit Trajectory (Next 3–5 Years)</div>
         <div style="color:#94a3b8; font-size:13.5px; margin-bottom:16px; line-height: 1.5;">
@@ -1282,26 +1281,29 @@ Provide a detailed, natural-language predictive projection breakdown strictly ma
     
     fc1, fc2, fc3 = st.columns(3)
     with fc1:
+        cagr_val = f_res.get('cagr_value', '+16.4% p.a.')
         st.markdown(f"""
         <div class="electric-kpi-card-green" style="text-align: center;">
             <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Projected 3Y CAGR Growth</div>
-            <div style="color:#34d399; font-size:26px; font-weight:800; margin: 8px 0;">{f_res.get('cagr_value', '+16.4% p.a.')}</div>
+            <div style="color:#34d399; font-size:26px; font-weight:800; margin: 8px 0;">{cagr_val}</div>
             <div style="color:#94a3b8; font-size:11.5px;">Revenue Expansion Rate</div>
         </div>
         """, unsafe_allow_html=True)
     with fc2:
+        margin_val = f_res.get('margin_outlook', 'Expanding')
         st.markdown(f"""
         <div class="electric-kpi-card-blue" style="text-align: center;">
             <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Operating Margin Outlook</div>
-            <div style="color:#60a5fa; font-size:24px; font-weight:800; margin: 8px 0;">{f_res.get('margin_outlook', 'Expanding')}</div>
+            <div style="color:#60a5fa; font-size:24px; font-weight:800; margin: 8px 0;">{margin_val}</div>
             <div style="color:#94a3b8; font-size:11.5px;">Cost Optimization Leverage</div>
         </div>
         """, unsafe_allow_html=True)
     with fc3:
+        risk_val = f_res.get('risk_scenario', 'Base Case')
         st.markdown(f"""
         <div class="electric-kpi-card-yellow" style="text-align: center;">
             <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Risk-Adjusted Scenario</div>
-            <div style="color:#fbbf24; font-size:20px; font-weight:800; margin: 8px 0;">{f_res.get('risk_scenario', 'Base Case')}</div>
+            <div style="color:#fbbf24; font-size:20px; font-weight:800; margin: 8px 0;">{risk_val}</div>
             <div style="color:#94a3b8; font-size:11.5px;">Solvency Buffer Maintained</div>
         </div>
         """, unsafe_allow_html=True)
@@ -1467,38 +1469,16 @@ elif investor_mcq == "Yes, I hold shares in this company":
             amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
             cmp_display = f"₹{live_price:,.2f}"
 
-            analysis_req_prompt = f"""
-You are an expert institutional equity research mentor analyzing an investor's equity position in {c_name}.
-Deliver a structured valuation synthesis.
-
-INVESTMENT PARAMETERS:
-- Capital Invested: ₹{total_invested_input:,.2f}
-- Purchase Price Basis: ₹{avg_price_input:.2f} (~{calc_shares:,} shares)
-- Current Market Price: {cmp_display} as on {live_date} ({exchange_tag})
-- Estimated Position Return: {pnl_str} ({amt_str})
-
-STRUCTURE YOUR JSON OUTPUT STRICTLY:
-1. "profit_or_loss_summary": Detailed institutional breakdown of current position status and return dynamics.
-2. "price_safety_points": Array of 3 distinct fundamental safety pillars comparing entry price against net worth cushion.
-3. "long_term_outlook_5_to_8_years": Array of 3 distinct compounding horizons detailing 5-8 year long-term compounding methods and projections.
-
-Return ONLY valid JSON with this exact structure:
-{{
-  "profit_or_loss_summary": "Comprehensive position breakdown.",
-  "price_safety_points": [
-    {
-      "title": "Pillar Title",
-      "explanation": "Detailed explanation citing annual report figures."
-    }
-  ],
-  "long_term_outlook_5_to_8_years": [
-    {
-      "title": "Compounding Driver Title",
-      "explanation": "Detailed explanation of business growth over 5-8 years."
-    }
-  ]
-}}
-"""
+            analysis_req_prompt = (
+                "You are an expert institutional equity research mentor analyzing an investor's equity position in " + c_name + ". "
+                "Deliver a structured valuation synthesis. "
+                "INVESTMENT PARAMETERS: "
+                "- Capital Invested: ₹" + str(total_invested_input) + " "
+                "- Purchase Price Basis: ₹" + str(avg_price_input) + " "
+                "- Current Market Price: " + cmp_display + " "
+                "STRUCTURE YOUR JSON OUTPUT STRICTLY: "
+                "{\"profit_or_loss_summary\": \"Detailed breakdown.\", \"price_safety_points\": [{\"title\": \"Title\", \"explanation\": \"Exp\"}], \"long_term_outlook_5_to_8_years\": [{\"title\": \"Title\", \"explanation\": \"Exp\"}]}"
+            )
             try:
                 pos_res = generate_with_fallback(contents=[analysis_req_prompt, st.session_state.gemini_file], json_mode=True)
                 parsed_pos = clean_json_response(pos_res.text)
