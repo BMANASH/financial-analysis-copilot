@@ -45,7 +45,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# INSTITUTIONAL FINTECH COCKPIT THEME & CSS
+# INSTITUTIONAL FINTECH COCKPIT THEME & CSS (ANIMATIONS & ELECTRIC BORDERS)
 # ============================================================
 
 st.markdown("""
@@ -68,28 +68,103 @@ div[data-testid="stStatusWidget"] {
     visibility: hidden !important;
 }
 
-/* Animations */
+/* Animations: Sliding Down with Gentle Bouncing */
+@keyframes slideDownBounce {
+    0% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(8px);
+    }
+    80% {
+        transform: translateY(-4px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes fadeInSlide {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-@keyframes pulseGlow {
+
+@keyframes electricPulseGreen {
     0%, 100% {
-        box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.9), 0 0 25px rgba(59, 130, 246, 0.2);
-        border-color: rgba(59, 130, 246, 0.4);
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4), inset 0 0 10px rgba(16, 185, 129, 0.2);
+        border-color: rgba(16, 185, 129, 0.8);
     }
     50% {
-        box-shadow: 0 25px 55px -10px rgba(0, 0, 0, 0.95), 0 0 35px rgba(96, 165, 250, 0.4);
-        border-color: rgba(96, 165, 250, 0.7);
+        box-shadow: 0 0 30px rgba(52, 211, 153, 0.8), inset 0 0 20px rgba(52, 211, 153, 0.4);
+        border-color: #34d399;
     }
 }
+
+@keyframes electricPulseBlue {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4), inset 0 0 10px rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.8);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(96, 165, 250, 0.8), inset 0 0 20px rgba(96, 165, 250, 0.4);
+        border-color: #60a5fa;
+    }
+}
+
+@keyframes electricPulseRed {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.8);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(248, 113, 113, 0.8), inset 0 0 20px rgba(248, 113, 113, 0.4);
+        border-color: #f87171;
+    }
+}
+
 @keyframes spinGlow {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
 @keyframes shimmerBar {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
+}
+
+/* Applied Animations */
+.animated-header {
+    animation: slideDownBounce 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.electric-upload-box {
+    border: 2px dashed #3b82f6;
+    background: linear-gradient(135deg, rgba(11, 17, 32, 0.95) 0%, rgba(6, 9, 19, 0.95) 100%);
+    border-radius: 16px;
+    padding: 24px;
+    animation: electricPulseBlue 3s infinite ease-in-out;
+    transition: all 0.3s ease;
+}
+
+.electric-upload-box:hover {
+    border-color: #60a5fa;
+}
+
+/* Status Border classes */
+.border-green {
+    border: 2px solid #10b981 !important;
+    animation: electricPulseGreen 3s infinite ease-in-out;
+}
+.border-blue {
+    border: 2px solid #3b82f6 !important;
+    animation: electricPulseBlue 3s infinite ease-in-out;
+}
+.border-red {
+    border: 2px solid #ef4444 !important;
+    animation: electricPulseRed 3s infinite ease-in-out;
 }
 
 /* Institutional Terminal Hero */
@@ -101,7 +176,6 @@ div[data-testid="stStatusWidget"] {
     padding: 28px 32px;
     margin-bottom: 20px;
     box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.75);
-    animation: fadeInSlide 0.4s ease-out forwards;
 }
 .hero-title {
     font-size: 34px;
@@ -153,7 +227,6 @@ div[data-testid="stStatusWidget"] {
     margin: 25px auto !important;
     text-align: center;
     max-width: 620px;
-    animation: fadeInSlide 0.4s ease-out forwards, pulseGlow 3s infinite ease-in-out !important;
 }
 .loader-status-tag {
     display: inline-flex;
@@ -465,7 +538,6 @@ div[data-testid="stStatusWidget"] {
     border-radius: 12px;
     padding: 16px 18px;
     margin-bottom: 14px;
-    animation: fadeInSlide 0.3s ease-out forwards;
 }
 .chat-user-badge {
     color: #60a5fa;
@@ -553,7 +625,7 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# ACTIVE PRODUCTION AI MODELS
+# ACTIVE GEMINI 3-SERIES PRODUCTION MODELS
 # ============================================================
 
 ACTIVE_MODELS = [
@@ -719,11 +791,11 @@ def upload_pdf_to_gemini(uploaded_file):
                 pass
 
 # ============================================================
-# HERO SECTION & WELCOME DASHBOARD
+# ANIMATED HERO SECTION & ELECTRIC UPLOAD BOX
 # ============================================================
 
 st.markdown("""
-<div class="hero">
+<div class="hero animated-header">
     <div class="hero-title">Financial Analyst AI</div>
     <div class="hero-subtitle">Institutional Equity Research & Corporate Fundamental Intelligence Terminal</div>
     <div class="fintech-badge-row">
@@ -738,12 +810,15 @@ st.markdown("""
 st.markdown('<div class="section-title">Upload Financial Report</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Upload any corporate annual report or financial filing (PDF) to initiate institutional analysis.</div>', unsafe_allow_html=True)
 
+# Wrapped in electric glow container
+st.markdown('<div class="electric-upload-box">', unsafe_allow_html=True)
 uploaded_file = st.file_uploader(
     "Upload Financial Report (PDF)",
     type=["pdf"],
     label_visibility="collapsed",
     key="main_pdf_uploader"
 )
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("""
 <div class="processing-note-card">
@@ -801,7 +876,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
 
 # ============================================================
-# AUTOMATIC GENERATION ON UPLOAD (FAST LIGHTWEIGHT PASS)
+# AUTOMATIC GENERATION ON UPLOAD
 # ============================================================
 
 if uploaded_file:
@@ -873,6 +948,11 @@ Analyze the uploaded PDF and return valid JSON strictly matching this structure:
     "balance_sheet_safety": { "badge": "Secure", "verdict": "Summary sentence", "health_pct": 92, "points": ["Point 1", "Point 2", "Point 3"] },
     "strategic_execution": { "badge": "Active", "verdict": "Summary sentence", "health_pct": 88, "points": ["Point 1", "Point 2", "Point 3"] }
   },
+  "in_depth_investigation": {
+    "profitability_and_margins": { "headline": "Verdict sentence", "points": ["Point 1", "Point 2", "Point 3"] },
+    "borrowings_and_capital_cushion": { "headline": "Verdict sentence", "points": ["Point 1", "Point 2", "Point 3"] },
+    "operating_efficiency_and_scale": { "headline": "Verdict sentence", "points": ["Point 1", "Point 2", "Point 3"] }
+  },
   "management_commentary": [
     { "title": "Theme title", "summary": "Summary explanation" }
   ],
@@ -924,6 +1004,7 @@ data = st.session_state.analysis
 company = data.get("company_overview", {})
 metrics = data.get("key_metrics", [])
 scorecard = data.get("investor_scorecard", {})
+deep_investigation = data.get("in_depth_investigation", {})
 management = data.get("management_commentary", [])
 risks = data.get("risks", [])
 takeaway = data.get("analyst_takeaway", {})
@@ -978,7 +1059,7 @@ for column, item in zip(overview_columns, overview_items):
         """, unsafe_allow_html=True)
 
 # ============================================================
-# HEADLINE FINANCIAL METRICS TILES
+# HEADLINE FINANCIAL METRICS TILES (STATUS COLOR-CODED BORDERS)
 # ============================================================
 
 st.markdown('<div class="section-title">Headline Financial Metrics</div>', unsafe_allow_html=True)
@@ -1012,22 +1093,25 @@ if headline_metrics:
             badge_html = ""
             spark_color = "#3b82f6"
             spark_width = 75
+            border_class = "border-blue" # Default moderate/steady
 
             if growth and growth.lower() not in ["n/a", "not available", ""]:
                 if growth.startswith("-") or "decline" in growth.lower():
                     badge_html = f"""<span style="color:#f87171; font-weight:750; font-size:12px;">▼ {growth}</span>"""
                     spark_color = "#ef4444"
                     spark_width = 45
+                    border_class = "border-red" # High risk / declining
                 else:
                     clean_g = growth if growth.startswith("+") else f"+{growth}"
                     badge_html = f"""<span style="color:#34d399; font-weight:750; font-size:12px;">▲ {clean_g} YoY</span>"""
                     spark_color = "#10b981"
                     spark_width = 85
+                    border_class = "border-green" # Profitable / growing well
             else:
                 badge_html = """<span style="color:#94a3b8; font-weight:700; font-size:12px;">Reported Level</span>"""
 
             st.markdown(f"""
-            <div class="bi-kpi-card">
+            <div class="bi-kpi-card {border_class}">
                 <div>
                     <div class="kpi-header-row">
                         <span class="kpi-title">{name}</span>
@@ -1291,7 +1375,6 @@ forecast_toggle = st.radio(
 )
 
 if forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
-    # Instant rendering using pre-extracted metrics or simulated institutional forecast path
     st.markdown("""
     <div style="background:#0a0e1a; border:1px solid #1e293b; border-radius:14px; padding:22px; margin-bottom:20px;">
         <div style="color:#60a5fa; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Predictive Revenue & Profit Trajectory (Next 3–5 Years)</div>
