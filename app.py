@@ -457,13 +457,14 @@ div[data-testid="stStatusWidget"] {
     border: 1px solid #1a2234;
     border-radius: 12px;
     padding: 16px 18px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+    animation: fadeInSlide 0.3s ease-out forwards;
 }
 .chat-user-badge {
     color: #60a5fa;
     font-weight: 750;
     font-size: 13px;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -472,7 +473,7 @@ div[data-testid="stStatusWidget"] {
     color: #34d399;
     font-weight: 750;
     font-size: 13px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -480,7 +481,7 @@ div[data-testid="stStatusWidget"] {
 .chat-text {
     color: #e2e8f0;
     font-size: 13.5px;
-    line-height: 1.55;
+    line-height: 1.6;
 }
 
 .slicer-card {
@@ -545,7 +546,7 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# ACTIVE GEMINI 3 SERIES PRODUCTION MODELS
+# ACTIVE PRODUCTION AI MODELS
 # ============================================================
 
 ACTIVE_MODELS = [
@@ -573,8 +574,8 @@ def generate_with_fallback(contents, json_mode=False):
                     )
                 else:
                     config = types.GenerateContentConfig(
-                        temperature=0.3,
-                        max_output_tokens=8192
+                        temperature=0.2,
+                        max_output_tokens=4096
                     )
 
                 response = client.models.generate_content(
@@ -589,7 +590,7 @@ def generate_with_fallback(contents, json_mode=False):
             except Exception as error:
                 err_str = str(error)
                 if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                    time.sleep(2.5)
+                    time.sleep(2.0)
                     continue
                 errors.append(f"{model}: {err_str}")
                 break
@@ -1327,7 +1328,7 @@ with tab_investor:
             st.markdown(f'<div style="background:#260d13; border-left:3px solid #ef4444; border-radius:6px; padding:10px 14px; margin-bottom:8px; color:#fee2e2; font-size:13px;">✗ {item}</div>', unsafe_allow_html=True)
 
 # ============================================================
-# IN-DEPTH FINANCIAL INVESTIGATION (INSTANT RENDERING)
+# IN-DEPTH FINANCIAL INVESTIGATION (INSTANT & DYNAMIC)
 # ============================================================
 st.markdown("""
 <div class="fintech-banner">
@@ -1352,7 +1353,36 @@ if deep_choice == "No, keep summary view":
     """, unsafe_allow_html=True)
 
 elif deep_choice == "Yes, generate deep-dive financial analysis":
-    if deep_investigation:
+    # If not already present in the parsed data, fetch dynamically via LLM
+    if not deep_investigation or not deep_investigation.get("profitability_and_margins"):
+        with st.spinner("Conducting in-depth financial investigation..."):
+            deep_prompt = """
+Analyze the uploaded annual report PDF and extract 3 core financial pillars:
+1. "profitability_and_margins": headline (1 sentence), points (3 detailed bullet points with numbers)
+2. "borrowings_and_capital_cushion": headline (1 sentence), points (3 detailed bullet points with numbers)
+3. "operating_efficiency_and_scale": headline (1 sentence), points (3 detailed bullet points with numbers)
+
+Return ONLY valid JSON:
+{
+  "profitability_and_margins": { "headline": "", "points": [] },
+  "borrowings_and_capital_cushion": { "headline": "", "points": [] },
+  "operating_efficiency_and_scale": { "headline": "", "points": [] }
+}
+"""
+            try:
+                deep_res = generate_with_fallback(
+                    contents=[deep_prompt, st.session_state.gemini_file],
+                    json_mode=True
+                )
+                deep_data = clean_json_response(deep_res.text)
+                if deep_data and "profitability_and_margins" in deep_data:
+                    data["in_depth_investigation"] = deep_data
+                    deep_investigation = deep_data
+                    st.session_state.analysis = data
+            except Exception as e:
+                st.error(f"In-depth analysis error: {e}")
+
+    if deep_investigation and deep_investigation.get("profitability_and_margins"):
         prof = deep_investigation.get("profitability_and_margins", {})
         debt = deep_investigation.get("borrowings_and_capital_cushion", {})
         eff = deep_investigation.get("operating_efficiency_and_scale", {})
@@ -1789,7 +1819,7 @@ Position Dynamics:
         )
 
 # ============================================================
-# ASK THE ANALYST AI CHATBOT (INSTITUTIONAL COPILOT)
+# ASK THE ANALYST AI CHATBOT (HIGH-PERFORMANCE COPILOT)
 # ============================================================
 st.markdown("""
 <div class="fintech-banner">
@@ -1809,7 +1839,7 @@ with chip_cols[2]:
 with chip_cols[3]:
     if st.button("⚠️ Material Operational Risks", key="c4"): suggested_q = "What are the primary operational, credit, regulatory, and market risks outlined in the report?"
 
-# Render conversational history inside styled chat boxes
+# Render conversational history inside styled interactive boxes
 for chat in st.session_state.chat_history:
     if chat["role"] == "user":
         st.markdown(f"""
@@ -1839,28 +1869,49 @@ if active_q:
     </div>
     """, unsafe_allow_html=True)
 
-    q_prompt = f"""
-You are an institutional financial analyst answering a query about the uploaded annual report.
-Deliver a thorough, professional, facts-backed answer using ONLY disclosures from the filing.
-Format using clean bullet points and exact figures. Avoid textbook jargon.
-
-Query: {active_q}
+    # High-performance context injection for fast natural response
+    summary_context = f"""
+COMPANY PROFILE:
+- Entity: {company.get('company_name', 'Company')}
+- Industry: {company.get('industry', 'N/A')}
+- Business Model: {company.get('business_type', 'N/A')}
+- Metrics Extracted: {json.dumps(metrics[:12])}
+- Scorecard Verdicts: {json.dumps(scorecard)}
+- Risks: {json.dumps(risks[:5])}
 """
-    with st.spinner("🤖 Financial Analyst AI is cross-referencing report disclosures..."):
-        try:
-            res = generate_with_fallback(contents=[q_prompt, st.session_state.gemini_file], json_mode=False)
-            ans = res.text.strip() if res.text else "No factual disclosure found in document."
-            
-            st.session_state.chat_history.append({"role": "assistant", "content": ans})
-            
-            st.markdown(f"""
-            <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
-                <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
-                <div class="chat-text">{ans}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        except Exception as e:
-            st.error(f"Error: {e}")
+
+    q_prompt = f"""
+You are an expert institutional financial analyst responding to an investor's query about the uploaded annual report.
+Answer directly, thoroughly, and factually using the document disclosures.
+Use clear bullet points, exact rupee/percentage numbers, and simple language. Avoid robotic fluff.
+
+{summary_context}
+
+INVESTOR QUERY: {active_q}
+"""
+    chat_response_placeholder = st.empty()
+    chat_response_placeholder.markdown("""
+    <div class="chat-box-card" style="border-left: 3.5px solid #34d399; background: #071318;">
+        <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
+        <div class="chat-text" style="color: #94a3b8;"><em>Analyzing document disclosures and synthesizing insights...</em></div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    try:
+        res = generate_with_fallback(contents=[q_prompt, st.session_state.gemini_file], json_mode=False)
+        ans = res.text.strip() if res.text else "No factual disclosure found in document regarding this query."
+        
+        st.session_state.chat_history.append({"role": "assistant", "content": ans})
+        
+        chat_response_placeholder.markdown(f"""
+        <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
+            <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
+            <div class="chat-text">{ans}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    except Exception as e:
+        chat_response_placeholder.empty()
+        st.error(f"Error answering research query: {e}")
 
 # ============================================================
 # FOOTER
