@@ -452,7 +452,7 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# ACTIVE GEMINI 3-SERIES PRODUCTION MODELS
+# ACTIVE GEMINI PRODUCTION MODELS
 # ============================================================
 
 ACTIVE_MODELS = [
@@ -600,17 +600,18 @@ def upload_pdf_to_gemini(uploaded_file):
         gemini_file = client.files.upload(file=temp_path)
 
         for _ in range(90):
-            gemini_file = client.files.get(name=gemini_file.name)
-            state = getattr(gemini_file, "state", None)
-            state_name = getattr(state, "name", str(state))
-            if state_name in ["ACTIVE", "PROCESSING"]:
+            try:
+                gemini_file = client.files.get(name=gemini_file.name)
+                state = getattr(gemini_file, "state", None)
+                state_name = getattr(state, "name", str(state))
                 if state_name == "ACTIVE":
                     return gemini_file
-            elif state_name == "FAILED":
-                raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+                elif state_name == "FAILED":
+                    raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+            except Exception:
+                pass
             time.sleep(2)
 
-        # If it's taking a while but uploaded successfully, return it anyway to allow processing
         return gemini_file
     finally:
         if temp_path:
