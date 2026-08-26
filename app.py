@@ -50,7 +50,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# INSTITUTIONAL LIQUID GLASS FINTECH THEME & CSS
+# INSTITUTIONAL LIQUID GLASS FINTECH COCKPIT THEME & CSS
 # ============================================================
 
 st.markdown("""
@@ -612,7 +612,23 @@ def upload_pdf_to_gemini(uploaded_file):
             temp_file.write(uploaded_file.getbuffer())
             temp_path = temp_file.name
 
-        gemini_file = client.files.upload(file=temp_path, mime_type="application/pdf")
+        # Direct, reliable upload to Gemini without the unsupported mime_type argument
+        gemini_file = client.files.upload(file=temp_path)
+        
+        # Polling loop to wait until the file is ACTIVE and completely processed
+        for _ in range(90):
+            try:
+                gemini_file = client.files.get(name=gemini_file.name)
+                state = getattr(gemini_file, "state", None)
+                state_name = getattr(state, "name", str(state))
+                if state_name == "ACTIVE":
+                    return gemini_file
+                elif state_name == "FAILED":
+                    raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+            except Exception:
+                pass
+            time.sleep(2)
+
         return gemini_file
     finally:
         if temp_path:
@@ -812,8 +828,7 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
 """
             response = generate_with_fallback(
                 contents=[analysis_prompt, gemini_file],
-                json_mode=True,
-                use_search=False
+                json_mode=True
             )
             data = clean_json_response(response.text)
             elapsed_time = round(time.time() - start_time, 1)
@@ -827,7 +842,7 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
                 st.success(f"Institutional analysis completed successfully in {elapsed_time}s!")
                 st.rerun()
             else:
-                st.error("The document could not be completely parsed. Please re-upload or try again.")
+                st.error("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
         except Exception as e:
             loader_container.empty()
             st.error(f"Processing error: {e}")
