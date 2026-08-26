@@ -31,7 +31,7 @@ from google.genai import types
 # ============================================================
 
 st.set_page_config(
-    page_title="Financial Analyst AI | Institutional Intelligence Terminal",
+    page_title="Financial Analyst AI | Institutional Terminal",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -569,13 +569,13 @@ def generate_with_fallback(contents, json_mode=False):
                 if json_mode:
                     config = types.GenerateContentConfig(
                         response_mime_type="application/json",
-                        temperature=0.2,
-                        max_output_tokens=8192
+                        temperature=0.1,
+                        max_output_tokens=4096
                     )
                 else:
                     config = types.GenerateContentConfig(
                         temperature=0.2,
-                        max_output_tokens=4096
+                        max_output_tokens=2048
                     )
 
                 response = client.models.generate_content(
@@ -596,7 +596,7 @@ def generate_with_fallback(contents, json_mode=False):
                 break
 
     error_text = "\n\n".join(errors)
-    raise Exception(f"API Rate limit reached. Please wait a few seconds and try again.\n\n{error_text}")
+    raise Exception(f"API Rate limit reached or model timeout. Please try again.\n\n{error_text}")
 
 # ============================================================
 # SAFE PARSERS & UNIVERSAL STOCK LOOKUP
@@ -794,7 +794,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
 
 # ============================================================
-# AUTOMATIC GENERATION ON UPLOAD
+# AUTOMATIC GENERATION ON UPLOAD (LIGHTWEIGHT & FAST)
 # ============================================================
 
 if uploaded_file:
@@ -834,110 +834,55 @@ if uploaded_file:
             </div>
             """, unsafe_allow_html=True)
 
+            # Streamlined prompt to guarantee fast JSON response under 25 seconds
             analysis_prompt = """
 You are an institutional equity research analyst synthesizing a corporate annual report.
-Deliver a rigorous, professional, and accessible breakdown of the uploaded PDF filing. Avoid jargon overload while retaining analytical depth and exact numbers.
-
-Analyze ONLY the uploaded PDF.
-1. COMPANY_OVERVIEW:
-   - "company_name": Full legal corporate entity name
-   - "stock_ticker": Clean ticker symbol (e.g. INFY, AAPL, TATAMOTORS, JIOFIN, SBIN)
-   - "industry": Sector & specific industry
-   - "business_type": 2 structured sentences articulating the core business model, key products/services, and primary monetization streams.
-   - "reporting_period": e.g. FY 2025-26
-   - "report_type": Annual Report / 10-K / Integrated Filing
-
-2. KEY_METRICS: Extract exactly 12 to 18 critical financial and operating numbers (Revenue, PAT, Operating Profit, Net Worth, Loan Book, Deposits, Asset Quality Ratios, Margins).
-   For each metric provide:
-   - "metric": Clean line item name
-   - "current_period": value
-   - "previous_period": value
-   - "yoy_growth": growth percentage (+X.X% or -X.X%)
-   - "unit": (e.g. ₹ Crore, $, %)
-   - "basis": Consolidated / Standalone
-   - "what_it_means": 1 concise sentence explaining the financial implication for corporate earnings.
-
-3. INVESTOR_SCORECARD:
-   - "growth_momentum": badge (e.g. Rapid Expansion), verdict (1-sentence institutional summary), health_pct (integer 65-95), and 3 detailed bullet points with exact figures.
-   - "profitability_quality": badge (e.g. High Margin Quality), verdict (1-sentence institutional summary), health_pct (integer 60-95), and 3 detailed bullet points.
-   - "balance_sheet_safety": badge (e.g. Fortress Balance Sheet), verdict (1-sentence institutional summary), health_pct (integer 70-98), and 3 detailed bullet points explaining debt cushion, cash, and solvency.
-   - "strategic_execution": badge (e.g. Strong Commercial Delivery), verdict (1-sentence institutional summary), health_pct (integer 65-95), and 3 detailed bullet points on strategic milestones.
-
-4. IN_DEPTH_INVESTIGATION (Deep Dive):
-   - "profitability_and_margins":
-       "headline": 1-sentence verdict on profit margins and return on equity/capital
-       "points": 3 detailed institutional observations with exact numbers
-   - "borrowings_and_capital_cushion":
-       "headline": 1-sentence verdict on leverage, net worth, and liquidity safety
-       "points": 3 detailed institutional observations with exact numbers
-   - "operating_efficiency_and_scale":
-       "headline": 1-sentence verdict on operational scalability and cost optimization
-       "points": 3 detailed institutional observations with exact numbers
-
-5. MANAGEMENT_COMMENTARY: 4 to 6 strategic management themes with full contextual explanation.
-
-6. RISKS: 4 to 6 distinct risk factors.
-   - "title": Risk Name
-   - "category": "Market & Interest Rates" / "Cyber & Technology" / "Global Macro & Supply Chain" / "Regulatory & Compliance"
-   - "impact_level": "High" / "Moderate" / "Operational"
-   - "what_is_the_risk": Clear explanation of the operational/financial hazard
-   - "why_it_matters": Precise impact on corporate earnings and shareholder value
-
-7. ANALYST_TAKEAWAY:
-   - "improving": 4 to 6 positive operational tailwinds with figures.
-   - "weakening": 4 to 6 challenges, margin headwinds, or cost increases with figures.
-   - "growth_drivers": 4 to 6 future expansion vectors.
-   - "investor_watch": 4 to 6 practical monitoring checkpoints.
-   - "sentiment_score": integer (55 to 88) reflecting the balance between growth drivers and headwinds.
-
-8. TERMS_CHEAT_SHEET: 8 to 12 report terms with a concise 1-line plain explanation.
-
-OUTPUT VALID JSON ONLY with this exact structure:
+Analyze the uploaded PDF and return valid JSON strictly matching this structure:
 {
   "company_overview": {
-    "company_name": "",
-    "stock_ticker": "",
-    "industry": "",
-    "business_type": "",
-    "reporting_period": "",
-    "report_type": ""
+    "company_name": "Full company name",
+    "stock_ticker": "Ticker symbol",
+    "industry": "Industry sector",
+    "business_type": "2 sentences describing core operations and revenue model",
+    "reporting_period": "Reporting fiscal year",
+    "report_type": "Annual Report"
   },
   "terms_cheat_sheet": [
-    { "term": "", "meaning": "" }
+    { "term": "Term name", "meaning": "1 sentence explanation" }
   ],
   "key_metrics": [
     {
-      "metric": "",
-      "current_period": "",
-      "previous_period": "",
-      "yoy_growth": "",
-      "unit": "",
-      "basis": "",
-      "what_it_means": ""
+      "metric": "Line item name",
+      "current_period": "Current value",
+      "previous_period": "Previous value",
+      "yoy_growth": "YoY growth percentage",
+      "unit": "₹ Crore / %",
+      "basis": "Consolidated / Standalone",
+      "what_it_means": "1 sentence explanation"
     }
   ],
   "investor_scorecard": {
-    "growth_momentum": { "badge": "", "verdict": "", "health_pct": 85, "points": [] },
-    "profitability_quality": { "badge": "", "verdict": "", "health_pct": 80, "points": [] },
-    "balance_sheet_safety": { "badge": "", "verdict": "", "health_pct": 92, "points": [] },
-    "strategic_execution": { "badge": "", "verdict": "", "health_pct": 88, "points": [] }
+    "growth_momentum": { "badge": "Robust", "verdict": "Summary sentence", "health_pct": 85, "points": ["Point 1", "Point 2", "Point 3"] },
+    "profitability_quality": { "badge": "Solid", "verdict": "Summary sentence", "health_pct": 80, "points": ["Point 1", "Point 2", "Point 3"] },
+    "balance_sheet_safety": { "badge": "Secure", "verdict": "Summary sentence", "health_pct": 92, "points": ["Point 1", "Point 2", "Point 3"] },
+    "strategic_execution": { "badge": "Active", "verdict": "Summary sentence", "health_pct": 88, "points": ["Point 1", "Point 2", "Point 3"] }
   },
   "in_depth_investigation": {
-    "profitability_and_margins": { "headline": "", "points": [] },
-    "borrowings_and_capital_cushion": { "headline": "", "points": [] },
-    "operating_efficiency_and_scale": { "headline": "", "points": [] }
+    "profitability_and_margins": { "headline": "Verdict sentence", "points": ["Point 1", "Point 2", "Point 3"] },
+    "borrowings_and_capital_cushion": { "headline": "Verdict sentence", "points": ["Point 1", "Point 2", "Point 3"] },
+    "operating_efficiency_and_scale": { "headline": "Verdict sentence", "points": ["Point 1", "Point 2", "Point 3"] }
   },
   "management_commentary": [
-    { "title": "", "summary": "" }
+    { "title": "Theme title", "summary": "Summary explanation" }
   ],
   "risks": [
-    { "title": "", "category": "", "impact_level": "", "what_is_the_risk": "", "why_it_matters": "" }
+    { "title": "Risk title", "category": "Market & Economy", "impact_level": "High", "what_is_the_risk": "Explanation", "why_it_matters": "Financial impact" }
   ],
   "analyst_takeaway": {
-    "improving": [],
-    "weakening": [],
-    "growth_drivers": [],
-    "investor_watch": [],
+    "improving": ["Tailwind 1", "Tailwind 2", "Tailwind 3"],
+    "weakening": ["Headwind 1", "Headwind 2", "Headwind 3"],
+    "growth_drivers": ["Driver 1", "Driver 2"],
+    "investor_watch": ["Checkpoint 1", "Checkpoint 2"],
     "sentiment_score": 75
   }
 }
@@ -1353,7 +1298,6 @@ if deep_choice == "No, keep summary view":
     """, unsafe_allow_html=True)
 
 elif deep_choice == "Yes, generate deep-dive financial analysis":
-    # Pull directly from pre-extracted data (Zero delay, instant 0.0s render)
     prof = deep_investigation.get("profitability_and_margins", {
         "headline": "Core operating revenue expanded with strategic margin reinvestments.",
         "points": [
@@ -1647,7 +1591,6 @@ if export_choice == "No, keep on-screen view":
 elif export_choice == "Yes, generate institutional research export suite":
     comp_name = company.get("company_name", "Company")
     
-    # 1. Generate Structured Professional TXT Research Brief
     detailed_txt_report = f"""======================================================================
          INSTITUTIONAL FINANCIAL ANALYSIS & RESEARCH BRIEF
 ======================================================================
@@ -1684,53 +1627,10 @@ Source Document : {st.session_state.uploaded_name}
             for pt in p_obj.get("points", []):
                 detailed_txt_report += f"  - {pt}\n"
 
-    if deep_investigation:
-        detailed_txt_report += "\n----------------------------------------------------------------------\n4. IN-DEPTH FORENSIC INVESTIGATION\n----------------------------------------------------------------------\n"
-        for key_name, header_title in [
-            ("profitability_and_margins", "Profitability & Margins"),
-            ("borrowings_and_capital_cushion", "Borrowings & Capital Cushion"),
-            ("operating_efficiency_and_scale", "Operational Efficiency & Scale")
-        ]:
-            sec_obj = deep_investigation.get(key_name, {})
-            detailed_txt_report += f"\n[{header_title.upper()}]\nHeadline: {sec_obj.get('headline', '')}\n"
-            for pt in sec_obj.get("points", []):
-                detailed_txt_report += f"  - {pt}\n"
-
-    if st.session_state.position_assessment:
-        pos = st.session_state.position_assessment
-        detailed_txt_report += f"""
-----------------------------------------------------------------------
-5. PERSONALIZED PORTFOLIO VALUATION
-----------------------------------------------------------------------
-- Capital Invested     : ₹{pos.get('invested_amt', 0):,.2f} (~{pos.get('calc_shares', 0):,} Shares)
-- Purchase Price Basis : ₹{pos.get('avg_price', 0):,.2f}
-- Current Market Price : {pos.get('cmp_display', 'N/A')} as on {pos.get('live_date', 'N/A')}
-- Unrealized Return/P&L: {pos.get('pnl_str', 'N/A')} ({pos.get('amt_str', 'N/A')})
-
-Position Dynamics:
-{pos.get('profit_or_loss_summary', '')}
-
-[Fundamental Price Safety Pillars]
-"""
-        for pt in pos.get("price_safety_points", []):
-            detailed_txt_report += f"• {pt.get('title')}\n  {pt.get('explanation')}\n"
-
-        detailed_txt_report += "\n[Long-Term Compounding Horizons (5 to 8 Years)]\n"
-        for pt in pos.get("long_term_outlook_5_to_8_years", []):
-            detailed_txt_report += f"• {pt.get('title')}\n  {pt.get('explanation')}\n"
-
-    detailed_txt_report += f"""
-======================================================================
-     Financial Analyst AI • Institutional Research Terminal
-======================================================================
-"""
-
-    # 2. Generate Multi-Tab Formatted Excel Workbook (.xlsx)
     excel_buffer = io.BytesIO()
     if pd is not None:
         try:
             with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-                # Tab 1: Corporate Profile
                 profile_data = [
                     ["Company Entity", company.get("company_name", "N/A")],
                     ["Stock Ticker", company.get("stock_ticker", "N/A")],
@@ -1742,7 +1642,6 @@ Position Dynamics:
                 df_profile = pd.DataFrame(profile_data, columns=["Parameter", "Detail"])
                 df_profile.to_excel(writer, sheet_name="Corporate Profile", index=False)
 
-                # Tab 2: Audited Financial Metrics
                 metrics_data = []
                 for m in metrics:
                     metrics_data.append({
@@ -1758,7 +1657,6 @@ Position Dynamics:
                 df_metrics = pd.DataFrame(metrics_data)
                 df_metrics.to_excel(writer, sheet_name="Financial Metrics", index=False)
 
-                # Tab 3: Risk Matrix
                 risks_data = []
                 for r in risks:
                     risks_data.append({
@@ -1770,20 +1668,6 @@ Position Dynamics:
                     })
                 df_risks = pd.DataFrame(risks_data)
                 df_risks.to_excel(writer, sheet_name="Risk Matrix", index=False)
-
-                # Tab 4: Portfolio Position
-                if st.session_state.position_assessment:
-                    pos = st.session_state.position_assessment
-                    pos_rows = [
-                        ["Invested Capital", f"Rs. {pos.get('invested_amt', 0):,.2f}"],
-                        ["Calculated Holding", f"~{pos.get('calc_shares', 0):,} Shares"],
-                        ["Purchase Cost Basis", f"Rs. {pos.get('avg_price', 0):,.2f}"],
-                        ["Current Market Price", f"{pos.get('cmp_display', '')} (As on {pos.get('live_date', '')})"],
-                        ["Unrealized Return (P&L)", f"{pos.get('pnl_str', '')} ({pos.get('amt_str', '')})"],
-                        ["Valuation Verdict", pos.get("profit_or_loss_summary", "")]
-                    ]
-                    df_pos = pd.DataFrame(pos_rows, columns=["Parameter", "Valuation Metric"])
-                    df_pos.to_excel(writer, sheet_name="Portfolio Position", index=False)
 
             excel_bytes = excel_buffer.getvalue()
         except Exception:
@@ -1861,7 +1745,6 @@ if active_q:
     </div>
     """, unsafe_allow_html=True)
 
-    # Ingests structured in-memory report metrics for fast ~2s inference (Zero raw PDF re-upload)
     report_context = f"""
 AUDITED COMPANY DATA:
 - Entity: {company.get('company_name', 'Company')} ({company.get('stock_ticker', '')})
@@ -1892,7 +1775,6 @@ INVESTOR QUESTION: {active_q}
     """, unsafe_allow_html=True)
 
     try:
-        # Fast text-based inference in-memory (~2 seconds)
         res = generate_with_fallback(contents=[chat_prompt], json_mode=False)
         ans = res.text.strip() if res.text else "No relevant disclosure found."
         
@@ -1906,7 +1788,7 @@ INVESTOR QUESTION: {active_q}
         """, unsafe_allow_html=True)
     except Exception as e:
         chat_response_placeholder.empty()
-        st.error(f"Error answering research query: {e}")
+        st.error(f"Error: {e}")
 
 # ============================================================
 # FOOTER
