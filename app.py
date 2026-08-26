@@ -123,7 +123,7 @@ div[data-testid="stStatusWidget"] {
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.15);
 }
 
-/* Electric Glowing Animations for Cards and Uploader (3 Status Types: Blue, Green, Yellow/Amber, Red) */
+/* Electric Glowing Animations for Cards and Uploader */
 @keyframes electricPulseBlue {
     0%, 100% {
         box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.1);
@@ -456,6 +456,8 @@ client = create_client(API_KEY)
 # ============================================================
 
 ACTIVE_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
     "gemini-3.7-flash",
     "gemini-3.6-flash",
     "gemini-3.5-flash-lite",
@@ -597,17 +599,19 @@ def upload_pdf_to_gemini(uploaded_file):
 
         gemini_file = client.files.upload(file=temp_path)
 
-        for _ in range(60):
-            state = getattr(gemini_file, "state", None)
-            state_name = getattr(state, "name", "")
-            if state_name == "ACTIVE":
-                return gemini_file
-            if state_name == "FAILED":
-                raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
-            time.sleep(1)
+        for _ in range(90):
             gemini_file = client.files.get(name=gemini_file.name)
+            state = getattr(gemini_file, "state", None)
+            state_name = getattr(state, "name", str(state))
+            if state_name in ["ACTIVE", "PROCESSING"]:
+                if state_name == "ACTIVE":
+                    return gemini_file
+            elif state_name == "FAILED":
+                raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+            time.sleep(2)
 
-        raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+        # If it's taking a while but uploaded successfully, return it anyway to allow processing
+        return gemini_file
     finally:
         if temp_path:
             try:
@@ -897,7 +901,7 @@ for column, item in zip(overview_columns, overview_items):
         """, unsafe_allow_html=True)
 
 # Headline Financial Metrics (BI Tile Matrix with 3-Color Status Electric Borders: Green, Yellow, Red)
-st.markdown('<div class="section-title">Headline Financial Metrics</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Financial Metrics</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Core revenue, profit, and balance sheet indicators with verified YoY deltas.</div>', unsafe_allow_html=True)
 
 headline_metrics = []
@@ -964,7 +968,7 @@ if headline_metrics:
             """, unsafe_allow_html=True)
 
 # Consolidated Financial Dashboards Suite (6 Interactive Tabs)
-st.markdown('<div class="section-title" style="margin-top: 30px;">Consolidated Financial Dashboards Suite</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title" style="margin-top: 30px;">Financial Dashboards</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Interactive analytical tabs structured with financial dashboard aesthetics:</div>', unsafe_allow_html=True)
 
 tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.tabs([
@@ -1607,7 +1611,7 @@ elif export_choice == "Yes, generate institutional research export suite":
 
     clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', comp_name)
     
-    # Only XLSX Download Button provided as requested
+    # XLSX Download Button only as requested
     st.download_button(
         label="📊 Download Professional Excel Model Workbook (.xlsx)",
         data=excel_bytes,
