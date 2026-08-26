@@ -31,29 +31,31 @@ from google.genai import types
 # ============================================================
 
 st.set_page_config(
-    page_title="Financial Analyst AI | BI Terminal",
+    page_title="Financial Analyst AI | Executive BI Terminal",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # ============================================================
-# INSTITUTIONAL POWER BI COCKPIT THEME & CSS
+# PLEASANT DARK FINTECH & BI COLOR PALETTE (CSS)
 # ============================================================
 
 st.markdown("""
 <style>
+/* Base Dark Canvas */
 .stApp {
     background: #06080e;
     color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 .block-container {
-    max-width: 1460px;
+    max-width: 1450px;
     padding-top: 1.8rem;
     padding-bottom: 4rem;
 }
 
-/* Hide Streamlit Status Widget */
+/* Hide Default Streamlit Status Widget */
 div[data-testid="stStatusWidget"] {
     display: none !important;
     visibility: hidden !important;
@@ -66,12 +68,12 @@ div[data-testid="stStatusWidget"] {
 }
 @keyframes pulseGlow {
     0%, 100% {
-        box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9), 0 0 25px rgba(59, 130, 246, 0.25);
-        border-color: rgba(59, 130, 246, 0.45);
+        box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.9), 0 0 25px rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.4);
     }
     50% {
-        box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 40px rgba(96, 165, 250, 0.45);
-        border-color: rgba(96, 165, 250, 0.75);
+        box-shadow: 0 25px 55px -10px rgba(0, 0, 0, 0.95), 0 0 35px rgba(96, 165, 250, 0.4);
+        border-color: rgba(96, 165, 250, 0.7);
     }
 }
 @keyframes spinGlow {
@@ -83,21 +85,21 @@ div[data-testid="stStatusWidget"] {
     100% { transform: translateX(100%); }
 }
 
-/* Center Glassmorphic Loader */
+/* Elevated Center Loading Hub */
 .center-loader-box {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(14, 20, 34, 0.92) !important;
+    background: rgba(13, 18, 30, 0.92) !important;
     backdrop-filter: blur(24px) !important;
     -webkit-backdrop-filter: blur(24px) !important;
-    border: 1px solid rgba(59, 130, 246, 0.5) !important;
-    border-radius: 20px !important;
-    padding: 38px 36px !important;
+    border: 1px solid rgba(59, 130, 246, 0.45) !important;
+    border-radius: 18px !important;
+    padding: 36px 32px !important;
     margin: 25px auto !important;
     text-align: center;
-    max-width: 640px;
+    max-width: 620px;
     animation: fadeInSlide 0.4s ease-out forwards, pulseGlow 3s infinite ease-in-out !important;
 }
 .loader-status-tag {
@@ -108,36 +110,36 @@ div[data-testid="stStatusWidget"] {
     border: 1px solid rgba(59, 130, 246, 0.35);
     color: #60a5fa;
     font-size: 11px;
-    font-weight: 750;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     padding: 4px 12px;
     border-radius: 20px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 .fintech-spinner {
-    width: 54px;
-    height: 54px;
+    width: 50px;
+    height: 50px;
     border: 3.5px solid rgba(59, 130, 246, 0.15);
     border-top: 3.5px solid #60a5fa;
     border-right: 3.5px solid #3b82f6;
     border-radius: 50%;
     animation: spinGlow 0.85s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-    margin-bottom: 18px;
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    margin-bottom: 16px;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
 }
 .loader-title {
     color: #ffffff;
-    font-size: 20.5px;
-    font-weight: 800;
-    margin-bottom: 8px;
+    font-size: 20px;
+    font-weight: 750;
+    margin-bottom: 6px;
 }
 .loader-subtitle {
     color: #94a3b8;
     font-size: 13.5px;
-    line-height: 1.55;
-    margin-bottom: 22px;
-    max-width: 500px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    max-width: 480px;
 }
 .loader-progress-track {
     background: rgba(15, 23, 42, 0.9);
@@ -157,17 +159,17 @@ div[data-testid="stStatusWidget"] {
 
 /* Header & Telemetry */
 .hero {
-    background: linear-gradient(135deg, #0c1222 0%, #070a12 100%);
+    background: linear-gradient(135deg, #0d1322 0%, #070a12 100%);
     border: 1px solid #1e293b;
     border-top: 3px solid #3b82f6;
     border-radius: 16px;
-    padding: 28px 32px;
+    padding: 26px 30px;
     margin-bottom: 18px;
     box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.7);
     animation: fadeInSlide 0.4s ease-out forwards;
 }
 .hero-title {
-    font-size: 36px;
+    font-size: 34px;
     font-weight: 800;
     line-height: 1.15;
     margin-bottom: 6px;
@@ -176,7 +178,7 @@ div[data-testid="stStatusWidget"] {
     -webkit-text-fill-color: transparent;
 }
 .hero-subtitle {
-    font-size: 15px;
+    font-size: 14.5px;
     color: #94a3b8;
     line-height: 1.5;
 }
@@ -205,16 +207,16 @@ div[data-testid="stStatusWidget"] {
     margin-top: 10px;
     margin-bottom: 20px;
     padding: 10px 14px;
-    background: rgba(15, 23, 42, 0.6);
+    background: rgba(13, 18, 30, 0.6);
     border: 1px solid #1e293b;
     border-radius: 10px;
 }
 .telemetry-pill {
-    background: #0e1526;
+    background: #0b101d;
     border: 1px solid #23334d;
     color: #93c5fd;
     font-size: 12px;
-    font-weight: 650;
+    font-weight: 600;
     padding: 4px 12px;
     border-radius: 20px;
     display: inline-flex;
@@ -231,7 +233,7 @@ div[data-testid="stStatusWidget"] {
     margin-bottom: 20px;
 }
 .ack-card {
-    background: rgba(14, 20, 34, 0.7);
+    background: rgba(13, 18, 30, 0.7);
     border: 1px solid rgba(59, 130, 246, 0.3);
     border-left: 4px solid #3b82f6;
     border-radius: 10px;
@@ -245,11 +247,11 @@ div[data-testid="stStatusWidget"] {
 
 /* Symmetrical Overview Cards */
 .company-card {
-    background: #0b0f19;
+    background: #0a0e1a;
     border: 1px solid #1a2234;
-    border-radius: 14px;
-    padding: 16px;
-    height: 145px;
+    border-radius: 12px;
+    padding: 15px;
+    height: 140px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -265,24 +267,24 @@ div[data-testid="stStatusWidget"] {
     color: #fbbf24;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.9px;
-    margin-bottom: 6px;
+    letter-spacing: 0.8px;
+    margin-bottom: 5px;
     font-weight: 700;
 }
 .company-value {
     color: #f8fafc;
     font-size: 13.5px;
     font-weight: 550;
-    line-height: 1.45;
+    line-height: 1.4;
 }
 
 /* BI Power KPI Cards */
 .bi-kpi-card {
-    background: linear-gradient(145deg, #0d121f 0%, #080b13 100%);
+    background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
     border: 1px solid #1e293b;
-    border-radius: 14px;
-    padding: 18px 20px;
-    min-height: 160px;
+    border-radius: 12px;
+    padding: 16px 18px;
+    min-height: 150px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -290,8 +292,8 @@ div[data-testid="stStatusWidget"] {
 }
 .bi-kpi-card:hover {
     border-color: #3b82f6;
-    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.35);
-    transform: translateY(-4px);
+    box-shadow: 0 8px 24px -5px rgba(59, 130, 246, 0.3);
+    transform: translateY(-3px);
 }
 .kpi-header-row {
     display: flex;
@@ -303,45 +305,30 @@ div[data-testid="stStatusWidget"] {
     font-size: 11.5px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.5px;
 }
 .kpi-main-val {
     color: #ffffff;
-    font-size: 26px;
-    font-weight: 850;
-    margin: 6px 0;
-    letter-spacing: -0.5px;
+    font-size: 24px;
+    font-weight: 800;
+    margin: 5px 0;
+    letter-spacing: -0.3px;
 }
 .spark-track {
-    background: #172033;
+    background: #151d2f;
     border-radius: 4px;
     height: 5px;
     width: 100%;
     margin-top: 8px;
     overflow: hidden;
 }
-.spark-fill-pos {
-    background: linear-gradient(90deg, #059669, #10b981);
-    height: 100%;
-    border-radius: 4px;
-}
-.spark-fill-neg {
-    background: linear-gradient(90deg, #dc2626, #ef4444);
-    height: 100%;
-    border-radius: 4px;
-}
-.spark-fill-neutral {
-    background: #3b82f6;
-    height: 100%;
-    border-radius: 4px;
-}
 
 /* Section Headings */
 .section-title {
-    font-size: 23px;
+    font-size: 22px;
     font-weight: 750;
     color: #f8fafc;
-    margin-top: 28px;
+    margin-top: 26px;
     margin-bottom: 4px;
 }
 .section-description {
@@ -350,47 +337,47 @@ div[data-testid="stStatusWidget"] {
     margin-bottom: 16px;
 }
 .fintech-banner {
-    background: linear-gradient(135deg, #0d121f 0%, #080b13 100%);
+    background: linear-gradient(135deg, #0b101c 0%, #060911 100%);
     border: 1px solid #1a2234;
     border-left: 4px solid #3b82f6;
     border-radius: 12px;
-    padding: 18px 22px;
-    margin-top: 32px;
+    padding: 16px 20px;
+    margin-top: 30px;
     margin-bottom: 16px;
 }
 .fintech-banner-title {
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 750;
     color: #ffffff;
     margin-bottom: 4px;
 }
 .fintech-banner-desc {
-    font-size: 13.5px;
+    font-size: 13px;
     color: #94a3b8;
 }
 
-/* Feature Cards on Welcome Screen */
+/* Welcome Feature Cards */
 .feature-card {
-    background: #0b0f19;
+    background: #0a0e1a;
     border: 1px solid #1a2234;
-    border-radius: 14px;
-    padding: 22px;
+    border-radius: 12px;
+    padding: 20px;
     height: 100%;
-    transition: all 0.35s ease;
+    transition: all 0.3s ease;
     box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
 }
 .feature-card:hover {
-    transform: translateY(-6px) scale(1.02);
+    transform: translateY(-5px);
     border-color: #60a5fa !important;
-    box-shadow: 0 16px 35px -5px rgba(59, 130, 246, 0.45);
+    box-shadow: 0 14px 30px -5px rgba(59, 130, 246, 0.35);
 }
 .feature-icon {
-    font-size: 26px;
-    margin-bottom: 10px;
+    font-size: 24px;
+    margin-bottom: 8px;
 }
 .feature-title {
     color: #ffffff;
-    font-size: 15.5px;
+    font-size: 15px;
     font-weight: 750;
     margin-bottom: 6px;
 }
@@ -400,35 +387,23 @@ div[data-testid="stStatusWidget"] {
     line-height: 1.45;
 }
 
-/* BI Charts & Position Boxes */
-.bi-chart-card {
-    background: #0b0f19;
+/* Slicer & Deep Dive Cards */
+.deep-card {
+    background: #0a0e1a;
     border: 1px solid #1a2234;
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 20px;
     margin-bottom: 16px;
-    transition: all 0.3s ease;
-}
-.bi-chart-card:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.25);
-}
-.deep-card {
-    background: #0b0f19;
-    border: 1px solid #1a2234;
-    border-radius: 14px;
-    padding: 22px;
-    margin-bottom: 16px;
-    min-height: 240px;
+    min-height: 230px;
 }
 .deep-card-title {
     color: #60a5fa;
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 750;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 .invest-kpi-card {
-    background: #10182b;
+    background: #0d1322;
     border: 1px solid #1e293b;
     border-radius: 12px;
     padding: 16px;
@@ -443,12 +418,12 @@ div[data-testid="stStatusWidget"] {
 }
 .invest-kpi-val {
     color: #ffffff;
-    font-size: 21px;
+    font-size: 20px;
     font-weight: 800;
     margin-top: 5px;
 }
 .invest-section-box {
-    background: #070a12;
+    background: #060911;
     border: 1px solid #1a2234;
     border-radius: 12px;
     padding: 18px;
@@ -461,7 +436,7 @@ div[data-testid="stStatusWidget"] {
     margin-bottom: 12px;
 }
 .invest-subcard {
-    background: #111827;
+    background: #0d121f;
     border: 1px solid #1f2d45;
     border-left: 3px solid #3b82f6;
     border-radius: 8px;
@@ -470,7 +445,7 @@ div[data-testid="stStatusWidget"] {
 }
 .invest-subcard-title {
     color: #ffffff;
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 750;
     margin-bottom: 4px;
 }
@@ -480,7 +455,7 @@ div[data-testid="stStatusWidget"] {
     line-height: 1.45;
 }
 .slicer-card {
-    background: #0b0f19;
+    background: #0a0e1a;
     border: 1px solid #1a2234;
     border-left: 3px solid #3b82f6;
     border-radius: 8px;
@@ -503,7 +478,7 @@ div[data-testid="stStatusWidget"] {
 """, unsafe_allow_html=True)
 
 # ============================================================
-# SESSION STATE & RECOVERY
+# SESSION STATE
 # ============================================================
 
 defaults = {
@@ -542,7 +517,7 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# ACTIVE 2026 GEMINI 3 SERIES PRODUCTION MODELS
+# ACTIVE GEMINI PRODUCTION MODELS
 # ============================================================
 
 ACTIVE_MODELS = [
@@ -635,12 +610,12 @@ def parse_clean_float(val):
     return None
 
 def auto_classify_metric(name):
-    """Guarantees every metric gets a clean BI category bucket"""
+    """Guarantees every metric gets a clean category bucket"""
     n = str(name).lower()
     if any(k in n for k in ["revenue", "income", "profit", "pat", "ebitda", "margin", "expense", "cost", "turnover", "fee", "sales"]):
-        return "Income & Profit"
-    elif any(k in n for k in ["npa", "crar", "car", "ratio", "roe", "roa", "coverage", "pcr", "cushion", "leverage", "nim", "percentage", "%"]):
-        return "Quality Ratios"
+        return "Revenue & Profit"
+    elif any(k in n for k in ["npa", "crar", "car", "ratio", "roe", "roa", "coverage", "pcr", "cushion", "leverage", "nim", "%"]):
+        return "Financial Health Ratios"
     else:
         return "Balance Sheet & Assets"
 
@@ -713,18 +688,18 @@ def upload_pdf_to_gemini(uploaded_file):
 st.markdown("""
 <div class="hero">
     <div class="hero-title">Financial Analyst AI</div>
-    <div class="hero-subtitle">Institutional-grade BI financial intelligence & portfolio analytics from annual reports</div>
+    <div class="hero-subtitle">Simple, plain-English executive analysis and portfolio insights from corporate annual reports</div>
     <div class="fintech-badge-row">
-        <span class="fintech-pill">📈 Real-Time Equity Tracking</span>
-        <span class="fintech-pill">📊 Balance Sheet Auditing</span>
-        <span class="fintech-pill">⚡ Institutional LLM Intelligence</span>
-        <span class="fintech-pill">🛡️ Risk & Solvency Assessment</span>
+        <span class="fintech-pill">📈 Live Stock Tracking</span>
+        <span class="fintech-pill">📊 Core Numbers Auditing</span>
+        <span class="fintech-pill">⚡ Plain-English Explanations</span>
+        <span class="fintech-pill">🛡️ Financial Safety Checks</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="section-title">Upload Financial Report</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Drag and drop any company annual report PDF below to automatically start the analysis.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Upload any company annual report PDF below to start automatic analysis.</div>', unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader(
     "Upload Financial Report (PDF)",
@@ -736,10 +711,10 @@ uploaded_file = st.file_uploader(
 st.markdown("""
 <div class="processing-note-card">
     <div style="font-weight: 700; color: #fbbf24; margin-bottom: 4px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-        ⏱️ <span>Document Size & Processing Time Advisory</span>
+        ⏱️ <span>Document Size & Processing Time Note</span>
     </div>
     <div style="color: #94a3b8; font-size: 12.5px; line-height: 1.5;">
-        Comprehensive annual reports with multi-hundred page disclosures (100–350+ pages) undergo complete table parsing, balance sheet reconciliation, and metric auditing. Processing time scales with document length and may take 1 to 3 minutes for large institutional filings.
+        Large corporate annual reports (100–350+ pages) require deep statement reading and table cross-checks. Processing usually takes 1 to 2 minutes for complete institutional filings.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -751,40 +726,40 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
     if not uploaded_file:
         st.info("👆 Upload an annual report PDF above to begin automatic financial analysis.")
         st.markdown("---")
-        st.markdown('<div class="section-title" style="margin-top:0;">⚡ Analysis Engines & Terminal Capabilities</div>', unsafe_allow_html=True)
-        st.markdown('<div class="section-description">What this AI analyst generates once your PDF report is uploaded:</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title" style="margin-top:0;">⚡ What This Platform Analyzes For You</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-description">Summary of features generated once your report is uploaded:</div>', unsafe_allow_html=True)
         
         c_feat1, c_feat2, c_feat3, c_feat4 = st.columns(4)
         with c_feat1:
             st.markdown("""
             <div class="feature-card">
                 <div class="feature-icon">📊</div>
-                <div class="feature-title">Financial Extraction</div>
-                <div class="feature-desc">Extracts 12–18 core balance sheet, revenue, loan book, and PAT numbers with exact YoY growth percentages.</div>
+                <div class="feature-title">Key Numbers Extraction</div>
+                <div class="feature-desc">Extracts 12–18 essential revenue, profit, loan, and balance sheet figures with exact yearly growth percentages.</div>
             </div>
             """, unsafe_allow_html=True)
         with c_feat2:
             st.markdown("""
-            <div class="feature-card feature-card-alt">
+            <div class="feature-card">
                 <div class="feature-icon">📈</div>
-                <div class="feature-title">Portfolio Intelligence</div>
-                <div class="feature-desc">Pulls live exchange quotes (NSE/BSE/Global) to compute exact P&L, fundamental purchase safety, and 5–8 year outlooks.</div>
+                <div class="feature-title">Live Portfolio Value</div>
+                <div class="feature-desc">Pulls live market stock prices (NSE/BSE/Global) to compute your profit/loss, buying price safety, and 5–8 year outlook.</div>
             </div>
             """, unsafe_allow_html=True)
         with c_feat3:
             st.markdown("""
             <div class="feature-card">
                 <div class="feature-icon">🛡️</div>
-                <div class="feature-title">Executive Scorecard</div>
-                <div class="feature-desc">4-pillar evaluation matrix analyzing Growth Momentum, Profit Quality, Balance Sheet Cushion, and Execution.</div>
+                <div class="feature-title">Company Health Rating</div>
+                <div class="feature-desc">Clear 4-pillar evaluation checking Business Growth, Profit Quality, Financial Safety, and Project Delivery.</div>
             </div>
             """, unsafe_allow_html=True)
         with c_feat4:
             st.markdown("""
-            <div class="feature-card feature-card-alt">
+            <div class="feature-card">
                 <div class="feature-icon">💬</div>
-                <div class="feature-title">Grounded Research Copilot</div>
-                <div class="feature-desc">Interactive institutional Q&A answering custom financial queries strictly using facts from the uploaded report.</div>
+                <div class="feature-title">Interactive AI Copilot</div>
+                <div class="feature-desc">Ask any custom question in simple words. Answers are grounded strictly in the facts from your uploaded PDF.</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -804,8 +779,8 @@ if uploaded_file:
         <div class="center-loader-box">
             <div class="loader-status-tag">⚡ AI Terminal Active • Document Processing</div>
             <div class="fintech-spinner"></div>
-            <div class="loader-title">Hang Tight! Reading Financial Report...</div>
-            <div class="loader-subtitle">Parsing financial statements, balance sheet disclosures & computing segment growths in real time.</div>
+            <div class="loader-title">Reading & Analyzing Financial Report...</div>
+            <div class="loader-subtitle">Parsing balance sheets, profit statements, and growth figures from the document.</div>
             <div class="loader-progress-track">
                 <div class="loader-progress-fill"></div>
             </div>
@@ -821,8 +796,8 @@ if uploaded_file:
             <div class="center-loader-box">
                 <div class="loader-status-tag">🎯 Finalizing Synthesis • Executive Scorecard</div>
                 <div class="fintech-spinner"></div>
-                <div class="loader-title">Almost There! Structuring Financial Insights...</div>
-                <div class="loader-subtitle">Extracting balance sheet cushions, strategic drivers & live market fundamentals.</div>
+                <div class="loader-title">Almost Done! Structuring Insights...</div>
+                <div class="loader-subtitle">Translating complex ratios into simple, plain-English executive summaries.</div>
                 <div class="loader-progress-track">
                     <div class="loader-progress-fill"></div>
                 </div>
@@ -830,108 +805,80 @@ if uploaded_file:
             """, unsafe_allow_html=True)
 
             analysis_prompt = """
-You are an expert financial mentor explaining an annual report to everyday investors and finance students in simple, clean, professional English without textbook jargon.
+You are a friendly, expert financial mentor explaining an annual report to an everyday investor in simple, clean, professional English. Avoid dense textbook jargon and robotic buzzwords.
 
-Analyze ONLY the uploaded PDF. It can belong to ANY company worldwide.
-Identify the company name, stock ticker (if applicable), industry, reporting period, report type, and describe what the business actually does and how it earns revenue in 2 plain sentences.
-
-============================================================
-STRICT CONTENT & PLAIN-ENGLISH RULES
-============================================================
-1. NO DENSE JARGON: Translate complex metrics into real-world meaning without losing facts or exact numbers.
-2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report.
-   Assign each metric to a "category" from: ["Income & Profit", "Balance Sheet & Assets", "Quality Ratios"].
+Analyze ONLY the uploaded PDF.
+1. COMPANY_OVERVIEW: Company name, ticker (if any), industry, reporting period, report type, and explain what the company actually sells and how it earns revenue in 2 plain sentences.
+2. KEY_METRICS: Extract 12 to 18 of the most important financial numbers (Revenue, PAT, Loans, Deposits, Expenses, Net Worth, Key Ratios).
+   For each metric, provide:
+   - "metric": clean name
+   - "current_period": value
+   - "previous_period": value
+   - "yoy_growth": growth percentage (+X% or -X%)
+   - "unit": (e.g. ₹ Crore, $, %)
+   - "what_it_means": 1 short plain English sentence explaining what this number means for the company's business.
 3. INVESTOR_SCORECARD:
-   - "growth_momentum": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
-   - "profitability_quality": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
-   - "balance_sheet_safety": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
-   - "strategic_execution": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
-4. MANAGEMENT_COMMENTARY: Provide 4 to 6 strategic management themes or future plans in plain words.
-5. RISKS: Provide 4 to 6 distinct risk factors with a varied category tag ("Geopolitical", "Credit & Market", "Technology & Cyber", "Regulatory") and distinct impact_level ("High", "Moderate", "Operational").
+   - "growth_momentum": badge (e.g. Rapid Expansion), verdict (1 plain sentence), health_pct (integer 65-95), and 3 short takeaway points with exact numbers.
+   - "profitability_quality": badge (e.g. Healthy Earnings), verdict (1 plain sentence), health_pct (integer 60-95), and 3 short takeaway points.
+   - "balance_sheet_safety": badge (e.g. Well-Protected), verdict (1 plain sentence), health_pct (integer 70-98), and 3 short takeaway points explaining debt/cash cushion.
+   - "strategic_execution": badge (e.g. Steady Delivery), verdict (1 plain sentence), health_pct (integer 65-95), and 3 short takeaway points on milestones reached.
+4. MANAGEMENT_COMMENTARY: 4 to 6 strategic management themes in simple conversational English.
+5. RISKS: 4 to 6 distinct risk factors.
+   - "title": Risk Name
+   - "category": "Market & Interest Rates" / "Cyber & Tech" / "Global & Economy" / "Rules & Regulations"
+   - "impact_level": "High" / "Moderate" / "Low"
+   - "what_is_the_risk": Clear, simple explanation of the danger
+   - "why_it_matters": Plain explanation of how this hurts future earnings
 6. ANALYST_TAKEAWAY:
-   - "improving": 4 to 6 positive points with figures.
-   - "weakening": 4 to 6 challenges, drops, or costs with figures.
-   - "growth_drivers": 4 to 6 future revenue growth opportunities.
-   - "investor_watch": 4 to 6 specific checkpoints an investor should track next.
-   - "sentiment_score": integer (55 to 88) representing institutional bullishness vs headwinds.
-7. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF. Provide a clear 1-line plain English explanation of what it means for this company.
+   - "improving": 4 to 6 positive growth points with numbers.
+   - "weakening": 4 to 6 cost pressures or challenges with numbers.
+   - "growth_drivers": 4 to 6 future opportunities.
+   - "investor_watch": 4 to 6 practical checkpoints to track next.
+   - "sentiment_score": integer (55 to 88) representing positive catalysts vs headwinds.
+7. TERMS_CHEAT_SHEET: 8 to 12 report terms with a 1-line plain English explanation.
 
-============================================================
-OUTPUT FORMAT (JSON ONLY)
-============================================================
-Return ONLY valid JSON with this exact structure:
+OUTPUT VALID JSON ONLY with this exact structure:
 {
   "company_overview": {
     "company_name": "",
-    "stock_ticker": "e.g. INFY, AAPL, TATAMOTORS, SBIN, JIOFIN",
+    "stock_ticker": "",
     "industry": "",
-    "business_type": "2 clear sentences on what the company actually does and how it earns revenue",
+    "business_type": "",
     "reporting_period": "",
     "report_type": ""
   },
   "terms_cheat_sheet": [
-    {
-      "term": "Term Name",
-      "meaning": "1 short plain English sentence explaining what it means for this company"
-    }
+    { "term": "", "meaning": "" }
   ],
   "key_metrics": [
     {
-      "metric": "Clean name e.g. Total Revenue, Net Profit (PAT), Total Loan Book",
+      "metric": "",
       "current_period": "",
       "previous_period": "",
       "yoy_growth": "",
       "unit": "",
-      "basis": ""
+      "basis": "",
+      "what_it_means": ""
     }
   ],
   "investor_scorecard": {
-    "growth_momentum": {
-      "badge": "e.g. Robust Expansion",
-      "verdict": "1-sentence plain English summary",
-      "health_pct": 84,
-      "tags": ["Deposit growth up 11% YoY", "Credit book expanded 16.8%", "Historic volume milestone"]
-    },
-    "profitability_quality": {
-      "badge": "e.g. Solid Profitability",
-      "verdict": "1-sentence plain English summary",
-      "health_pct": 79,
-      "tags": ["PAT grew 12.8% to 80k Cr", "Cost-to-income improved to 50.1%", "Return on Equity at 18.5%"]
-    },
-    "balance_sheet_safety": {
-      "badge": "e.g. Extremely Safe",
-      "verdict": "1-sentence plain English summary",
-      "health_pct": 92,
-      "tags": ["Net NPA declined to 0.39%", "PCR stood at 91.9%", "CRAR fortified at 15.4%"]
-    },
-    "strategic_execution": {
-      "badge": "e.g. Aggressive Scale",
-      "verdict": "1-sentence plain English summary",
-      "health_pct": 88,
-      "tags": ["Digital platform crossed 10M users", "Green advances passed 1T target", "Branch operations centralized"]
-    }
+    "growth_momentum": { "badge": "", "verdict": "", "health_pct": 85, "points": [] },
+    "profitability_quality": { "badge": "", "verdict": "", "health_pct": 80, "points": [] },
+    "balance_sheet_safety": { "badge": "", "verdict": "", "health_pct": 92, "points": [] },
+    "strategic_execution": { "badge": "", "verdict": "", "health_pct": 88, "points": [] }
   },
   "management_commentary": [
-    {
-      "title": "Strategy Title",
-      "summary": "Plain English summary"
-    }
+    { "title": "", "summary": "" }
   ],
   "risks": [
-    {
-      "title": "Risk Name",
-      "category": "Geopolitical / Credit & Market / Technology & Cyber / Regulatory",
-      "impact_level": "High / Moderate / Operational",
-      "what_is_the_risk": "Clear explanation of the danger",
-      "why_it_matters": "Plain-English explanation of earnings impact"
-    }
+    { "title": "", "category": "", "impact_level": "", "what_is_the_risk": "", "why_it_matters": "" }
   ],
   "analyst_takeaway": {
-    "improving": ["4 to 6 bullet points"],
-    "weakening": ["4 to 6 bullet points"],
-    "growth_drivers": ["4 to 6 bullet points"],
-    "investor_watch": ["4 to 6 bullet points"],
-    "sentiment_score": 74
+    "improving": [],
+    "weakening": [],
+    "growth_drivers": [],
+    "investor_watch": [],
+    "sentiment_score": 75
   }
 }
 """
@@ -949,10 +896,10 @@ Return ONLY valid JSON with this exact structure:
                 st.session_state.deep_dive = None
                 st.session_state.position_assessment = None
                 st.session_state.chat_history = []
-                st.success(f"Financial analysis generated successfully in {elapsed_time}s!")
+                st.success(f"Financial analysis completed in {elapsed_time}s!")
                 st.rerun()
             else:
-                st.error("Could not parse response. Please re-upload.")
+                st.error("Could not read response correctly. Please try re-uploading.")
         except Exception as e:
             loader_container.empty()
             st.error(f"Error processing document: {e}")
@@ -983,13 +930,13 @@ model_name = st.session_state.get("selected_model", "Gemini Engine")
 st.markdown(f"""
 <div class="telemetry-bar">
     <span class="telemetry-pill">⏱️ Processing Time: <b>{proc_time}s</b></span>
-    <span class="telemetry-pill">🧠 Model Engine: <b>{model_name}</b></span>
-    <span class="telemetry-pill">📄 Filing Size: <b>{f_size} MB</b></span>
-    <span class="telemetry-pill" style="border-color: #059669; color: #34d399;">🟢 Status: <b>Audited & Reconciled</b></span>
+    <span class="telemetry-pill">🧠 AI Model: <b>{model_name}</b></span>
+    <span class="telemetry-pill">📄 Report File Size: <b>{f_size} MB</b></span>
+    <span class="telemetry-pill" style="border-color: #059669; color: #34d399;">🟢 Status: <b>Reconciled & Audited</b></span>
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander("📌 Financial Glossary & Report Terms", expanded=False):
+with st.expander("📌 Financial Glossary & Simple Report Terms", expanded=False):
     cheat_terms = data.get("terms_cheat_sheet", [])
     if cheat_terms:
         term_map = {item.get("term", "").strip(): item.get("meaning", "").strip() for item in cheat_terms if item.get("term")}
@@ -1005,7 +952,7 @@ with st.expander("📌 Financial Glossary & Report Terms", expanded=False):
 
 # Company Overview Cards
 st.markdown('<div class="section-title">Company Overview</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">A quick snapshot of the company and its primary revenue engine.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">A quick snapshot of what the business does and how it earns money.</div>', unsafe_allow_html=True)
 
 overview_items = [
     ("Company", company.get("company_name", "Not available")),
@@ -1026,11 +973,11 @@ for column, item in zip(overview_columns, overview_items):
         """, unsafe_allow_html=True)
 
 # ============================================================
-# BI POWER KPI TILES
+# TOP KEY FINANCIAL METRICS TILES
 # ============================================================
 
-st.markdown('<div class="section-title">Key Financial Metrics (BI Tile Matrix)</div>', unsafe_allow_html=True)
-st.markdown('<div class="section-description">Core revenue, profit, and balance sheet KPIs with directional momentum indicators.</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Key Financial Highlights</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">The main revenue, profit, and balance sheet numbers at a glance:</div>', unsafe_allow_html=True)
 
 headline_metrics = []
 priority_words = ["total income", "revenue", "profit after tax", "pat", "net profit", "operating profit", "ebitda", "net interest income"]
@@ -1058,18 +1005,18 @@ if headline_metrics:
             basis = m.get("basis", "")
 
             badge_html = ""
-            spark_class = "spark-fill-neutral"
+            spark_color = "#3b82f6"
             spark_width = 75
 
             if growth and growth.lower() not in ["n/a", "not available", ""]:
                 if growth.startswith("-") or "decline" in growth.lower():
                     badge_html = f"""<span style="color:#f87171; font-weight:750; font-size:12px;">▼ {growth}</span>"""
-                    spark_class = "spark-fill-neg"
+                    spark_color = "#ef4444"
                     spark_width = 45
                 else:
                     clean_g = growth if growth.startswith("+") else f"+{growth}"
                     badge_html = f"""<span style="color:#34d399; font-weight:750; font-size:12px;">▲ {clean_g} YoY</span>"""
-                    spark_class = "spark-fill-pos"
+                    spark_color = "#10b981"
                     spark_width = 85
             else:
                 badge_html = """<span style="color:#94a3b8; font-weight:700; font-size:12px;">Current Level</span>"""
@@ -1081,10 +1028,10 @@ if headline_metrics:
                         <span class="kpi-title">{name}</span>
                         {badge_html}
                     </div>
-                    <div class="kpi-main-val">{curr} <span style="font-size:15px; font-weight:600; color:#94a3b8;">{unit}</span></div>
+                    <div class="kpi-main-val">{curr} <span style="font-size:14px; font-weight:600; color:#94a3b8;">{unit}</span></div>
                 </div>
                 <div>
-                    <div class="spark-track"><div class="{spark_class}" style="width: {spark_width}%;"></div></div>
+                    <div class="spark-track"><div style="width:{spark_width}%; height:100%; background:{spark_color}; border-radius:4px;"></div></div>
                     <div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; margin-top:6px;">
                         <span>Basis: {basis if basis else 'Reported'}</span>
                         <span>Audited</span>
@@ -1098,50 +1045,50 @@ if headline_metrics:
 # ============================================================
 
 tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.tabs([
-    "⭐ Report Overview & Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks Matrix", "Investor Sentiment & Takeaways"
+    "⭐ Company Health Scorecard", "All Financial Numbers", "📊 Growth & Trends", "Future Plans", "Key Risks Matrix", "Overall Takeaways"
 ])
 
-# 1. BI Executive Scorecard (Resilient Clean HTML Gauges)
+# 1. Company Health Scorecard
 with tab_scorecard:
-    st.subheader("Executive Strategic Scorecard (BI Health Cockpit)")
-    st.write("Diagnostic matrix evaluating operational momentum and downside resilience with real-time health dials:")
+    st.subheader("Company Performance & Health Rating")
+    st.write("A structured 4-part health check evaluating business growth, earnings quality, financial safety, and execution:")
 
     if scorecard:
         col_s1, col_s2 = st.columns(2)
 
         pillars = [
-            ("growth_momentum", "🚀 Growth Momentum", col_s1, "#38bdf8", 84),
-            ("profitability_quality", "💰 Profitability & Quality", col_s2, "#34d399", 79),
-            ("balance_sheet_safety", "🛡️ Balance Sheet Resilience", col_s1, "#818cf8", 92),
-            ("strategic_execution", "⚙️ Strategic & Commercial Scale", col_s2, "#fbbf24", 88)
+            ("growth_momentum", "🚀 Business Growth Momentum", col_s1, "#38bdf8", 84),
+            ("profitability_quality", "💰 Earnings & Profit Quality", col_s2, "#34d399", 79),
+            ("balance_sheet_safety", "🛡️ Financial Safety & Cash Cushion", col_s1, "#818cf8", 92),
+            ("strategic_execution", "⚙️ Strategic Delivery & Execution", col_s2, "#fbbf24", 88)
         ]
 
         for p_key, p_title, target_col, bar_color, default_pct in pillars:
             p_obj = scorecard.get(p_key, {})
             score = int(p_obj.get("health_pct", default_pct))
-            badge = p_obj.get("badge", "Strong Expansion")
+            badge = p_obj.get("badge", "Healthy")
             verdict = p_obj.get("verdict", "")
-            tags = p_obj.get("tags", p_obj.get("points", []))
+            points = p_obj.get("points", p_obj.get("tags", []))
 
             chips_html = "".join([
-                f'<div style="background:#0e1526; border:1px solid #1f2d45; color:#cbd5e1; font-size:12px; padding:6px 10px; border-radius:6px; line-height:1.4; margin-bottom:6px;">✓ {t}</div>'
-                for t in tags[:3]
+                f'<div style="background:#0c1220; border:1px solid #1f2d45; color:#cbd5e1; font-size:12.5px; padding:7px 11px; border-radius:6px; line-height:1.4; margin-bottom:6px;">✓ {t}</div>'
+                for t in points[:3]
             ])
 
-            card_html = f"""<div style="background:#0b0f19; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:16px;">
+            card_html = f"""<div style="background:#0a0e1a; border:1px solid #1a2234; border-radius:12px; padding:18px; margin-bottom:16px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-<span style="font-size:16px; font-weight:750; color:#ffffff;">{p_title}</span>
+<span style="font-size:15.5px; font-weight:750; color:#ffffff;">{p_title}</span>
 <span style="background:rgba(59,130,246,0.18); border:1px solid rgba(59,130,246,0.35); color:#93c5fd; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700;">{badge}</span>
 </div>
-<div style="color:#94a3b8; font-size:13.5px; line-height:1.45; margin-bottom:12px;">{verdict}</div>
+<div style="color:#94a3b8; font-size:13px; line-height:1.45; margin-bottom:12px;">{verdict}</div>
 <div style="display:flex; justify-content:space-between; font-size:11.5px; color:#cbd5e1; font-weight:600; margin-bottom:4px;">
-<span>Pillar Diagnostic Score</span>
+<span>Health Score</span>
 <span style="color:{bar_color}; font-weight:800;">{score}%</span>
 </div>
-<div style="background:#172033; border-radius:8px; height:9px; width:100%; margin-bottom:14px; overflow:hidden;">
+<div style="background:#151d2f; border-radius:8px; height:8px; width:100%; margin-bottom:14px; overflow:hidden;">
 <div style="width:{score}%; height:100%; background:{bar_color}; border-radius:8px;"></div>
 </div>
-<div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Performance Signals:</div>
+<div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Key Observations:</div>
 {chips_html}
 </div>"""
             with target_col:
@@ -1153,7 +1100,7 @@ with tab_metrics:
     if metrics:
         col_search, col_filter = st.columns([2, 1])
         with col_search:
-            search_query = st.text_input("🔍 Search line item...", placeholder="e.g. Revenue, Deposit, Loan, NPA", key="metric_search").lower()
+            search_query = st.text_input("🔍 Search number...", placeholder="e.g. Revenue, Deposit, Loan, PAT", key="metric_search").lower()
         with col_filter:
             all_bases = list(set([m.get("basis", "").strip() for m in metrics if m.get("basis", "").strip()]))
             basis_filter = st.selectbox("Filter by Basis", options=["All"] + all_bases, key="basis_filter")
@@ -1164,10 +1111,10 @@ with tab_metrics:
             basis_val = m.get("basis", "")
             if (not search_query or search_query in metric_name.lower()) and (basis_filter == "All" or basis_val.lower() == basis_filter.lower()):
                 filtered_rows.append({
-                    "Metric Name": metric_name,
+                    "Line Item": metric_name,
                     "Current Period": m.get("current_period", ""),
                     "Previous Period": m.get("previous_period", ""),
-                    "YoY Growth": m.get("yoy_growth", ""),
+                    "Yearly Growth": m.get("yoy_growth", ""),
                     "Unit": m.get("unit", ""),
                     "Basis": basis_val,
                     "Category": auto_classify_metric(metric_name)
@@ -1175,13 +1122,13 @@ with tab_metrics:
         if filtered_rows and pd is not None:
             st.dataframe(filtered_rows, use_container_width=True, hide_index=True, height=400)
 
-# 3. BI Visual Charts with Universal Category Slicers
+# 3. Growth & Trends (Visual Comparisons)
 with tab_charts:
-    st.subheader("Visual Financial Comparisons (Interactive BI Engine)")
-    st.write("Compare previous vs. current performance across key metrics with interactive category filters:")
+    st.subheader("Visual Growth & Financial Comparisons")
+    st.write("Compare previous vs. current numbers with clear yearly growth and what each movement means:")
 
-    categories = ["All Metrics", "Income & Profit", "Balance Sheet & Assets", "Quality Ratios"]
-    selected_cat = st.radio("Select Financial Category Slicer:", options=categories, horizontal=True, key="bi_chart_slicer")
+    categories = ["All Metrics", "Revenue & Profit", "Balance Sheet & Assets", "Financial Health Ratios"]
+    selected_cat = st.radio("Select Category Filter:", options=categories, horizontal=True, key="bi_chart_slicer")
 
     chart_records = []
     for m in metrics:
@@ -1189,6 +1136,7 @@ with tab_charts:
         prev_val = parse_clean_float(m.get("previous_period"))
         m_name = m.get("metric", "").strip()
         auto_cat = auto_classify_metric(m_name)
+        meaning = m.get("what_it_means", "Key financial indicator for business health.")
         
         # Match category slicer reliably
         if selected_cat == "All Metrics" or selected_cat.lower() == auto_cat.lower():
@@ -1198,13 +1146,14 @@ with tab_charts:
                     "Previous": prev_val,
                     "Current": curr_val,
                     "Unit": m.get("unit", "").strip(),
-                    "Growth": m.get("yoy_growth", "")
+                    "Growth": m.get("yoy_growth", ""),
+                    "Meaning": meaning
                 })
 
     if chart_records:
         chart_cols = st.columns(2)
         for idx, item in enumerate(chart_records[:8]):
-            c_val, p_val, u_lbl, m_name, growth = item["Current"], item["Previous"], item["Unit"], item["Metric"], item["Growth"]
+            c_val, p_val, u_lbl, m_name, growth, meaning = item["Current"], item["Previous"], item["Unit"], item["Metric"], item["Growth"], item["Meaning"]
             max_v = max(abs(c_val), abs(p_val)) if max(abs(c_val), abs(p_val)) > 0 else 1
             prev_pct = max(int((abs(p_val) / max_v) * 100), 8)
             curr_pct = max(int((abs(c_val) / max_v) * 100), 8)
@@ -1215,113 +1164,117 @@ with tab_charts:
             else:
                 delta_html = '<span style="color:#94a3b8; font-size:11.5px; font-weight:700;">Audited Level</span>'
 
-            chart_html = f"""<div style="background:#0b0f19; border:1px solid #1a2234; border-radius:14px; padding:18px; margin-bottom:14px;">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-<span style="color:#ffffff; font-size:15px; font-weight:750;">{m_name}</span>
+            chart_html = f"""<div style="background:#0a0e1a; border:1px solid #1a2234; border-radius:12px; padding:16px; margin-bottom:14px;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+<span style="color:#ffffff; font-size:14.5px; font-weight:750;">{m_name}</span>
 {delta_html}
 </div>
-<div style="margin-bottom:10px;">
-<div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:#94a3b8; margin-bottom:4px;">
+<div style="margin-bottom:8px;">
+<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#94a3b8; margin-bottom:3px;">
 <span>Previous Period</span>
 <span>{p_val:,.2f} {u_lbl}</span>
 </div>
-<div style="background:#172033; border-radius:6px; height:20px; width:100%; overflow:hidden;">
+<div style="background:#151d2f; border-radius:6px; height:18px; width:100%; overflow:hidden;">
 <div style="width:{prev_pct}%; background:#334155; height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#ffffff; font-size:11px; font-weight:700;">{p_val:,.2f}</div>
 </div>
 </div>
-<div>
-<div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;">
+<div style="margin-bottom:10px;">
+<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#cbd5e1; margin-bottom:3px;">
 <span>Current Period</span>
 <span>{c_val:,.2f} {u_lbl}</span>
 </div>
-<div style="background:#172033; border-radius:6px; height:20px; width:100%; overflow:hidden;">
+<div style="background:#151d2f; border-radius:6px; height:18px; width:100%; overflow:hidden;">
 <div style="width:{curr_pct}%; background:linear-gradient(90deg, #1d4ed8, #38bdf8); height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#ffffff; font-size:11px; font-weight:700;">{c_val:,.2f}</div>
 </div>
+</div>
+<div style="color:#94a3b8; font-size:12px; line-height:1.4; border-top:1px solid #1a2234; padding-top:8px;">
+💡 <b>What this means:</b> {meaning}
 </div>
 </div>"""
             with chart_cols[idx % 2]:
                 st.markdown(chart_html, unsafe_allow_html=True)
     else:
-        st.info("No comparative metrics found under this category slice.")
+        st.info("No comparative numbers found for this category.")
 
 # 4. Management Strategy
 with tab_mgmt:
-    st.subheader("Management Strategy & Strategic Themes")
+    st.subheader("Future Strategy & Leadership Plans")
     for item in management:
-        with st.expander(f"🎯 {item.get('title', 'Strategic Pillar')}", expanded=False):
+        with st.expander(f"🎯 {item.get('title', 'Strategic Priority')}", expanded=False):
             st.write(item.get("summary", ""))
 
-# 5. BI 2x2 Risk Heatmap Matrix
+# 5. Key Risks Matrix
 with tab_risks:
-    st.subheader("Potential Risks & Headwinds (BI Heatmap Grid)")
-    st.write("Multi-vector categorization of operational, credit, regulatory, and market threats:")
+    st.subheader("Key Risks & Business Challenges")
+    st.write("Identified risks color-coded by potential impact on future earnings:")
 
     if risks:
         r_cols = st.columns(2)
         severity_palette = {
-            "high": ("#ef4444", "rgba(239, 68, 68, 0.15)"),
-            "moderate": ("#fbbf24", "rgba(245, 158, 11, 0.15)"),
-            "operational": ("#60a5fa", "rgba(59, 130, 246, 0.15)")
+            "high": ("#ef4444", "rgba(239, 68, 68, 0.15)", "#18090c"),
+            "moderate": ("#fbbf24", "rgba(245, 158, 11, 0.15)", "#181409"),
+            "low": ("#60a5fa", "rgba(59, 130, 246, 0.15)", "#09121c"),
+            "operational": ("#60a5fa", "rgba(59, 130, 246, 0.15)", "#09121c")
         }
         
         for idx, r in enumerate(risks):
-            cat = r.get("category", "Credit & Market")
+            cat = r.get("category", "Market & Economy")
             impact = str(r.get("impact_level", "Moderate")).lower()
             if impact not in severity_palette:
                 impact = "moderate"
             
-            tag_color, tag_bg = severity_palette[impact]
+            tag_color, tag_bg, card_bg = severity_palette[impact]
             
-            risk_card_html = f"""<div style="background:#0f0a0d; border:1px solid #2d1419; border-radius:12px; padding:16px; margin-bottom:12px; height:100%;">
+            risk_card_html = f"""<div style="background:{card_bg}; border:1px solid {tag_color}40; border-radius:12px; padding:16px; margin-bottom:12px; height:100%;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
 <span style="background:{tag_bg}; border:1px solid {tag_color}; color:{tag_color}; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; text-transform:uppercase;">● {impact.upper()} IMPACT</span>
 <span style="color:#94a3b8; font-size:11.5px; font-weight:600;">{cat}</span>
 </div>
-<div style="color:#ffffff; font-weight:750; font-size:14.5px; margin-bottom:6px;">⚠️ {r.get('title')}</div>
-<div style="color:#94a3b8; font-size:13px; line-height:1.45; margin-bottom:10px;">{r.get('what_is_the_risk')}</div>
-<div style="background:#050203; border-left:3px solid #ef4444; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12.5px; color:#fca5a5;">
-<b>Earnings Impact:</b> {r.get('why_it_matters')}
+<div style="color:#ffffff; font-weight:750; font-size:14px; margin-bottom:6px;">⚠️ {r.get('title')}</div>
+<div style="color:#94a3b8; font-size:12.5px; line-height:1.45; margin-bottom:10px;">{r.get('what_is_the_risk')}</div>
+<div style="background:#06080e; border-left:3px solid {tag_color}; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12px; color:#f1f5f9;">
+<b>Impact on Profits:</b> {r.get('why_it_matters')}
 </div>
 </div>"""
             with r_cols[idx % 2]:
                 st.markdown(risk_card_html, unsafe_allow_html=True)
 
-# 6. BI Sentiment Barometer & Signal Takeaways
+# 6. Overall Takeaways
 with tab_investor:
-    st.subheader("Institutional Sentiment & Analyst Signals")
+    st.subheader("Overall Business Health & Key Takeaways")
     
     bull_pct = int(takeaway.get("sentiment_score", 74))
     bear_pct = 100 - bull_pct
 
-    st.markdown(f"""<div style="background:#0b0f19; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:20px;">
+    st.markdown(f"""<div style="background:#0a0e1a; border:1px solid #1a2234; border-radius:12px; padding:18px; margin-bottom:20px;">
 <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
-<span style="color:#34d399;">🟢 Institutional Bull Drivers: {bull_pct}%</span>
-<span style="color:#f87171;">🔴 Headwinds & Cost Pressures: {bear_pct}%</span>
+<span style="color:#34d399;">🟢 Positive Growth Catalysts: {bull_pct}%</span>
+<span style="color:#f87171;">🔴 Cost Pressures & Challenges: {bear_pct}%</span>
 </div>
-<div style="display:flex; height:12px; border-radius:10px; overflow:hidden; margin:10px 0 6px 0;">
+<div style="display:flex; height:10px; border-radius:10px; overflow:hidden; margin:10px 0 6px 0;">
 <div style="width:{bull_pct}%; background:linear-gradient(90deg, #059669, #10b981);"></div>
 <div style="width:{bear_pct}%; background:linear-gradient(90deg, #ef4444, #b91c1c);"></div>
 </div>
-<div style="color:#64748b; font-size:11.5px;">Weighted sentiment derived from operating tailwinds vs downside risk disclosures.</div>
+<div style="color:#64748b; font-size:11.5px;">Overall balance between revenue expansion momentum and risk factors found in the report.</div>
 </div>""", unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("#### 🟢 Improving Tailwinds")
+        st.markdown("#### 🟢 Key Strengths & Growth Areas")
         for item in takeaway.get("improving", []):
-            st.markdown(f'<div style="background:#0b1e17; border-left:3px solid #10b981; border-radius:6px; padding:10px 14px; margin-bottom:8px; color:#d1fae5; font-size:13.5px;">✓ {item}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="background:#062319; border-left:3px solid #10b981; border-radius:6px; padding:10px 14px; margin-bottom:8px; color:#d1fae5; font-size:13px;">✓ {item}</div>', unsafe_allow_html=True)
     with col2:
-        st.markdown("#### 🔴 Weakening Headwinds")
+        st.markdown("#### 🔴 Challenges & Points to Watch")
         for item in takeaway.get("weakening", []):
-            st.markdown(f'<div style="background:#240e13; border-left:3px solid #ef4444; border-radius:6px; padding:10px 14px; margin-bottom:8px; color:#fee2e2; font-size:13.5px;">✗ {item}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="background:#260d13; border-left:3px solid #ef4444; border-radius:6px; padding:10px 14px; margin-bottom:8px; color:#fee2e2; font-size:13px;">✗ {item}</div>', unsafe_allow_html=True)
 
 # ========================================================
 # USER-CONTROLLED FORENSIC DEEP-DIVE
 # ========================================================
 st.markdown("""
 <div class="fintech-banner">
-    <div class="fintech-banner-title">🔬 Deep-Dive Financial Analysis</div>
-    <div class="fintech-banner-desc">Would you like to view an in-depth financial investigation covering profitability margins, debt & balance sheet safety, and operating efficiency?</div>
+    <div class="fintech-banner-title">🔬 In-Depth Financial Investigation</div>
+    <div class="fintech-banner-desc">Would you like to view an in-depth assessment covering profit margins, borrowing safety, and operating efficiency?</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1345,10 +1298,10 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
         deep_loader = st.empty()
         deep_loader.markdown("""
         <div class="center-loader-box">
-            <div class="loader-status-tag">🔬 Forensic Audit Engine</div>
+            <div class="loader-status-tag">🔬 Deep Investigation Engine</div>
             <div class="fintech-spinner"></div>
-            <div class="loader-title">Conducting In-Depth Financial Investigation...</div>
-            <div class="loader-subtitle">Auditing profit margins, capital return ratios, debt solvency cushion & operational efficiency.</div>
+            <div class="loader-title">Auditing Financial Health...</div>
+            <div class="loader-subtitle">Evaluating profit margins, borrowing cushions, and operational efficiency in simple words.</div>
             <div class="loader-progress-track">
                 <div class="loader-progress-fill"></div>
             </div>
@@ -1367,15 +1320,15 @@ Return ONLY valid JSON with this structure:
 {
   "profitability_depth": {
     "headline": "Short plain English verdict on profitability",
-    "insights": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
+    "insights": ["Point 1 in simple words", "Point 2 in simple words", "Point 3 in simple words"]
   },
   "debt_and_liquidity": {
-    "headline": "Short plain English verdict on debt and balance sheet safety",
-    "insights": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
+    "headline": "Short plain English verdict on debt and safety",
+    "insights": ["Point 1 in simple words", "Point 2 in simple words", "Point 3 in simple words"]
   },
   "operating_efficiency": {
-    "headline": "Short plain English verdict on operational efficiency and scale",
-    "insights": ["Point 1 with numbers in simple words", "Point 2 with numbers in simple words", "Point 3 with numbers in simple words"]
+    "headline": "Short plain English verdict on operational scale",
+    "insights": ["Point 1 in simple words", "Point 2 in simple words", "Point 3 in simple words"]
   }
 }
 """
@@ -1405,8 +1358,8 @@ Return ONLY valid JSON with this structure:
         with col_d1:
             st.markdown(f"""
             <div class="deep-card">
-                <div class="deep-card-title">📊 Profitability & Margins</div>
-                <div style="color: #ffffff; font-weight: 650; font-size: 14px; margin-bottom: 12px;">{prof.get('headline', '')}</div>
+                <div class="deep-card-title">📊 Profit Margins & Returns</div>
+                <div style="color: #ffffff; font-weight: 650; font-size: 13.5px; margin-bottom: 12px;">{prof.get('headline', '')}</div>
             """, unsafe_allow_html=True)
             for pt in prof.get("insights", []):
                 st.markdown(f"• {pt}")
@@ -1415,8 +1368,8 @@ Return ONLY valid JSON with this structure:
         with col_d2:
             st.markdown(f"""
             <div class="deep-card">
-                <div class="deep-card-title">🛡️ Debt & Balance Sheet Safety</div>
-                <div style="color: #ffffff; font-weight: 650; font-size: 14px; margin-bottom: 12px;">{debt.get('headline', '')}</div>
+                <div class="deep-card-title">🛡️ Borrowings & Cash Cushion</div>
+                <div style="color: #ffffff; font-weight: 650; font-size: 13.5px; margin-bottom: 12px;">{debt.get('headline', '')}</div>
             """, unsafe_allow_html=True)
             for pt in debt.get("insights", []):
                 st.markdown(f"• {pt}")
@@ -1425,8 +1378,8 @@ Return ONLY valid JSON with this structure:
         with col_d3:
             st.markdown(f"""
             <div class="deep-card">
-                <div class="deep-card-title">⚙️ Operating Efficiency & Scale</div>
-                <div style="color: #ffffff; font-weight: 650; font-size: 14px; margin-bottom: 12px;">{eff.get('headline', '')}</div>
+                <div class="deep-card-title">⚙️ Operational Efficiency</div>
+                <div style="color: #ffffff; font-weight: 650; font-size: 13.5px; margin-bottom: 12px;">{eff.get('headline', '')}</div>
             """, unsafe_allow_html=True)
             for pt in eff.get("insights", []):
                 st.markdown(f"• {pt}")
@@ -1437,8 +1390,8 @@ Return ONLY valid JSON with this structure:
 # ========================================================
 st.markdown("""
 <div class="fintech-banner">
-    <div class="fintech-banner-title">💼 Personalized Investment Position & Market Analysis</div>
-    <div class="fintech-banner-desc">Evaluate your personal investment against live stock market pricing and the fundamental safety cushion in this annual report.</div>
+    <div class="fintech-banner-title">💼 Personalized Investment & Stock Analysis</div>
+    <div class="fintech-banner-desc">Evaluate your personal investment against live stock market pricing and the safety cushion in this annual report.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1470,16 +1423,16 @@ elif investor_mcq == "Yes, I hold shares in this company":
         
         pos_loader_placeholder = st.empty()
 
-        if st.button("⚡ Analyse The Investment", type="primary"):
+        if st.button("⚡ Analyze My Investment", type="primary"):
             c_name = company.get('company_name', 'this company')
             t_hint = company.get('stock_ticker', '')
 
             pos_loader_placeholder.markdown("""
             <div class="center-loader-box">
-                <div class="loader-status-tag">⚡ Portfolio Valuation Engine</div>
+                <div class="loader-status-tag">⚡ Valuation Engine</div>
                 <div class="fintech-spinner"></div>
-                <div class="loader-title">Auditing Investment Fundamentals...</div>
-                <div class="loader-subtitle">Evaluating your entry price against total net worth, loan safety cushions & 5-8 year compounding outlooks.</div>
+                <div class="loader-title">Analyzing Your Investment...</div>
+                <div class="loader-subtitle">Checking live stock price, purchase safety cushions, and 5-8 year compounding outlooks.</div>
                 <div class="loader-progress-track">
                     <div class="loader-progress-fill"></div>
                 </div>
@@ -1550,7 +1503,7 @@ Return ONLY valid JSON with this exact structure:
         if st.session_state.position_assessment:
             p_data = st.session_state.position_assessment
             st.markdown("---")
-            st.markdown("### 📋 Analyst Portfolio Assessment")
+            st.markdown("### 📋 Portfolio Position Assessment")
             
             cm1, cm2, cm3, cm4 = st.columns(4)
             with cm1:
@@ -1572,7 +1525,7 @@ Return ONLY valid JSON with this exact structure:
             with cm3:
                 st.markdown(f"""
                 <div class="invest-kpi-card">
-                    <div class="invest-kpi-label">Current Market Price (CMP)</div>
+                    <div class="invest-kpi-label">Current Market Price</div>
                     <div class="invest-kpi-val" style="color: #60a5fa;">{p_data.get('cmp_display', 'N/A')}</div>
                     <div style="color: #94a3b8; font-size: 11.5px; margin-top: 4px;">As on {p_data.get('live_date', '')} ({p_data.get('exchange_tag', 'NSE/BSE')})</div>
                 </div>
@@ -1596,11 +1549,11 @@ Return ONLY valid JSON with this exact structure:
             
             pnl_summary = p_data.get("profit_or_loss_summary", f"Position status: {p_data.get('pnl_str', '')} ({p_data.get('amt_str', '')})")
             banner_border = "#10b981" if is_pos else "#ef4444"
-            banner_bg = "#0b1f16" if is_pos else "#260e13"
+            banner_bg = "#071f16" if is_pos else "#240d12"
             banner_text = "#d1fae5" if is_pos else "#fee2e2"
 
             st.markdown(f"""
-            <div style="background: {banner_bg}; border-left: 4px solid {banner_border}; padding: 14px 16px; border-radius: 0 8px 8px 0; color: {banner_text}; font-size: 14px; line-height: 1.5;">
+            <div style="background: {banner_bg}; border-left: 4px solid {banner_border}; padding: 14px 16px; border-radius: 0 8px 8px 0; color: {banner_text}; font-size: 13.5px; line-height: 1.5;">
                 {pnl_summary}
             </div>
             </div>
@@ -1609,7 +1562,7 @@ Return ONLY valid JSON with this exact structure:
             # Fundamental Safety
             st.markdown("""
             <div class="invest-section-box">
-                <div class="invest-section-header">🛡️ The Price At Which Stock Is Bought Is Fundamentally Safe</div>
+                <div class="invest-section-header">🛡️ Why This Buying Price Is Fundamentally Safe</div>
             """, unsafe_allow_html=True)
             for item in p_data.get("price_safety_points", []):
                 st.markdown(f"""
@@ -1623,7 +1576,7 @@ Return ONLY valid JSON with this exact structure:
             # 5-8 Year Outlook
             st.markdown("""
             <div class="invest-section-box">
-                <div class="invest-section-header">🚀 Outlook For The Next 5 To 8 Years (Long-Term Horizon)</div>
+                <div class="invest-section-header">🚀 Long-Term Outlook (Next 5 to 8 Years)</div>
             """, unsafe_allow_html=True)
             for item in p_data.get("long_term_outlook_5_to_8_years", []):
                 st.markdown(f"""
@@ -1639,8 +1592,8 @@ Return ONLY valid JSON with this exact structure:
 # ========================================================
 st.markdown("""
 <div class="fintech-banner">
-    <div class="fintech-banner-title">📥 Export Financial Dashboard Summary</div>
-    <div class="fintech-banner-desc">Do you want to download the summary of the whole report that has been generated in the dashboard?</div>
+    <div class="fintech-banner-title">📥 Export Financial Summary Report</div>
+    <div class="fintech-banner-desc">Do you want to download a summary copy of this report?</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1661,7 +1614,7 @@ if export_choice == "No, thank you":
 
 elif export_choice == "Yes, download dashboard summary report":
     comp_name = company.get("company_name", "Company")
-    st.info("💡 **Disclaimer:** Exported files may require minor column width adjustments depending on your editor.")
+    st.info("💡 **Disclaimer:** Exported files may require minor column width adjustments depending on your spreadsheet editor.")
     
     detailed_txt_report = f"""======================================================================
                FINANCIAL ANALYSIS & EXECUTIVE REPORT
@@ -1696,7 +1649,7 @@ Source Document : {st.session_state.uploaded_name}
         ]:
             p_obj = scorecard.get(pillar_key, {})
             detailed_txt_report += f"\n[{pillar_title.upper()}] - {p_obj.get('badge', '')} (Health: {p_obj.get('health_pct', 80)}%)\nVerdict: {p_obj.get('verdict', '')}\n"
-            for pt in p_obj.get("tags", []):
+            for pt in p_obj.get("points", []):
                 detailed_txt_report += f"  - {pt}\n"
 
     if st.session_state.deep_dive:
@@ -1802,7 +1755,7 @@ Summary:
     col_dl1, col_dl2 = st.columns(2)
     with col_dl1:
         st.download_button(
-            label="📄 Download Executive Summary Report (.txt)",
+            label="📄 Download Summary Report (.txt)",
             data=detailed_txt_report,
             file_name=f"{comp_name.replace(' ', '_')}_Executive_Report.txt",
             mime="text/plain",
@@ -1810,7 +1763,7 @@ Summary:
         )
     with col_dl2:
         st.download_button(
-            label="📊 Download Structured Executive Report (.csv / Excel)",
+            label="📊 Download Dataset (.csv / Excel)",
             data=csv_bytes,
             file_name=f"{comp_name.replace(' ', '_')}_Structured_Dashboard.csv",
             mime="text/csv",
@@ -1823,20 +1776,20 @@ Summary:
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">💬 Ask Questions About This Financial Report</div>
-    <div class="fintech-banner-desc">Ask any custom question in plain English, or click one of the suggested prompts below.</div>
+    <div class="fintech-banner-desc">Ask any question in plain English, or click one of the suggested prompts below.</div>
 </div>
 """, unsafe_allow_html=True)
 
 chip_cols = st.columns(4)
 suggested_q = None
 with chip_cols[0]:
-    if st.button("📈 Why profits changed YoY?", key="c1"): suggested_q = "Why did profits change compared with the previous year?"
+    if st.button("📈 Why profits moved YoY?", key="c1"): suggested_q = "Why did profits change compared with the previous year?"
 with chip_cols[1]:
-    if st.button("🚀 Growth drivers", key="c2"): suggested_q = "What are the company's major growth drivers?"
+    if st.button("🚀 Main growth drivers", key="c2"): suggested_q = "What are the company's major growth drivers?"
 with chip_cols[2]:
-    if st.button("💰 Debt & cash position", key="c3"): suggested_q = "How is the company's debt and liquidity position?"
+    if st.button("💰 Borrowing & cash safety", key="c3"): suggested_q = "How is the company's debt and liquidity position?"
 with chip_cols[3]:
-    if st.button("⚠️ Key investor risks", key="c4"): suggested_q = "What are the primary operational and financial risks?"
+    if st.button("⚠️ Top business risks", key="c4"): suggested_q = "What are the primary operational and financial risks?"
 
 for chat in st.session_state.chat_history:
     with st.chat_message(chat["role"]):
@@ -1852,7 +1805,7 @@ if active_q:
 
     q_prompt = f"Answer the user's question using ONLY facts from the uploaded report in simple English:\n\n{active_q}"
     with st.chat_message("assistant"):
-        with st.spinner("Analyzing report..."):
+        with st.spinner("Reading report..."):
             try:
                 res = generate_with_fallback(contents=[q_prompt, st.session_state.gemini_file], json_mode=False)
                 ans = res.text.strip() if res.text else "No response generated."
