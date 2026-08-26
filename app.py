@@ -31,7 +31,7 @@ from google.genai import types
 # ============================================================
 
 st.set_page_config(
-    page_title="Financial Analyst AI | Institutional Intelligence Terminal",
+    page_title="Financial Analyst AI | Institutional Terminal",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -451,6 +451,38 @@ div[data-testid="stStatusWidget"] {
     line-height: 1.45;
 }
 
+/* Chat Styling */
+.chat-box-card {
+    background: #0a0e1a;
+    border: 1px solid #1a2234;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+}
+.chat-user-badge {
+    color: #60a5fa;
+    font-weight: 750;
+    font-size: 13px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.chat-bot-badge {
+    color: #34d399;
+    font-weight: 750;
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.chat-text {
+    color: #e2e8f0;
+    font-size: 13.5px;
+    line-height: 1.55;
+}
+
 .slicer-card {
     background: #0a0e1a;
     border: 1px solid #1a2234;
@@ -482,7 +514,6 @@ defaults = {
     "gemini_file": None,
     "uploaded_name": None,
     "analysis": None,
-    "deep_dive": None,
     "selected_model": None,
     "position_assessment": None,
     "chat_history": [],
@@ -514,7 +545,7 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# ACTIVE PRODUCTION AI MODELS
+# ACTIVE GEMINI 3 SERIES PRODUCTION MODELS
 # ============================================================
 
 ACTIVE_MODELS = [
@@ -921,7 +952,6 @@ OUTPUT VALID JSON ONLY with this exact structure:
             loader_container.empty()
             if data and "company_overview" in data:
                 st.session_state.analysis = data
-                st.session_state.deep_dive = data.get("in_depth_investigation", None)
                 st.session_state.position_assessment = None
                 st.session_state.chat_history = []
                 st.success(f"Institutional analysis completed in {elapsed_time}s!")
@@ -1297,7 +1327,7 @@ with tab_investor:
             st.markdown(f'<div style="background:#260d13; border-left:3px solid #ef4444; border-radius:6px; padding:10px 14px; margin-bottom:8px; color:#fee2e2; font-size:13px;">✗ {item}</div>', unsafe_allow_html=True)
 
 # ============================================================
-# IN-DEPTH FINANCIAL INVESTIGATION (DEEP-DIVE MODULE)
+# IN-DEPTH FINANCIAL INVESTIGATION (INSTANT RENDERING)
 # ============================================================
 st.markdown("""
 <div class="fintech-banner">
@@ -1322,60 +1352,6 @@ if deep_choice == "No, keep summary view":
     """, unsafe_allow_html=True)
 
 elif deep_choice == "Yes, generate deep-dive financial analysis":
-    if not deep_investigation:
-        deep_loader = st.empty()
-        deep_loader.markdown("""
-        <div class="center-loader-box">
-            <div class="loader-status-tag">🔬 Forensic Audit Engine</div>
-            <div class="fintech-spinner"></div>
-            <div class="loader-title">Conducting In-Depth Investigation...</div>
-            <div class="loader-subtitle">Auditing profit margins, borrowing health, capital cushions, and operational scale.</div>
-            <div class="loader-progress-track">
-                <div class="loader-progress-fill"></div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        deep_prompt = """
-You are a senior financial analyst providing a specialized deep-dive assessment of the uploaded annual report in professional, accessible English.
-
-Extract and analyze three core financial pillars from the uploaded PDF:
-1. PROFITABILITY & MARGINS: Profit margins, return on capital, drivers of net earnings, and cost pressures.
-2. DEBT, LIQUIDITY & CAPITAL HEALTH: Borrowing levels, cash reserves, capital adequacy, and solvency.
-3. OPERATING EFFICIENCY & REVENUE COMPOSITION: Operational scaling, employee/technology costs, and recurring revenue shift.
-
-Return ONLY valid JSON with this structure:
-{
-  "profitability_and_margins": {
-    "headline": "Short institutional verdict on profitability",
-    "points": ["Point 1 with exact numbers", "Point 2 with exact numbers", "Point 3 with exact numbers"]
-  },
-  "borrowings_and_capital_cushion": {
-    "headline": "Short institutional verdict on balance sheet safety",
-    "points": ["Point 1 with exact numbers", "Point 2 with exact numbers", "Point 3 with exact numbers"]
-  },
-  "operating_efficiency_and_scale": {
-    "headline": "Short institutional verdict on operational scale",
-    "points": ["Point 1 with exact numbers", "Point 2 with exact numbers", "Point 3 with exact numbers"]
-  }
-}
-"""
-        try:
-            deep_res = generate_with_fallback(
-                contents=[deep_prompt, st.session_state.gemini_file],
-                json_mode=True
-            )
-            deep_data = clean_json_response(deep_res.text)
-            deep_loader.empty()
-            if deep_data and "profitability_and_margins" in deep_data:
-                st.session_state.deep_dive = deep_data
-                deep_investigation = deep_data
-            else:
-                st.warning("Could not structure in-depth analysis. Please re-select.")
-        except Exception as e:
-            deep_loader.empty()
-            st.error(f"In-depth analysis error: {e}")
-
     if deep_investigation:
         prof = deep_investigation.get("profitability_and_margins", {})
         debt = deep_investigation.get("borrowings_and_capital_cushion", {})
@@ -1732,7 +1708,7 @@ Position Dynamics:
     if pd is not None:
         try:
             with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-                # Tab 1: Company Profile & Scorecard
+                # Tab 1: Corporate Profile
                 profile_data = [
                     ["Company Entity", company.get("company_name", "N/A")],
                     ["Stock Ticker", company.get("stock_ticker", "N/A")],
@@ -1760,7 +1736,7 @@ Position Dynamics:
                 df_metrics = pd.DataFrame(metrics_data)
                 df_metrics.to_excel(writer, sheet_name="Financial Metrics", index=False)
 
-                # Tab 3: Risk Matrix & Catalysts
+                # Tab 3: Risk Matrix
                 risks_data = []
                 for r in risks:
                     risks_data.append({
@@ -1773,7 +1749,7 @@ Position Dynamics:
                 df_risks = pd.DataFrame(risks_data)
                 df_risks.to_excel(writer, sheet_name="Risk Matrix", index=False)
 
-                # Tab 4: Portfolio Position (if evaluated)
+                # Tab 4: Portfolio Position
                 if st.session_state.position_assessment:
                     pos = st.session_state.position_assessment
                     pos_rows = [
@@ -1789,8 +1765,7 @@ Position Dynamics:
 
             excel_bytes = excel_buffer.getvalue()
         except Exception:
-            # Safe Fallback to standard bytes
-            excel_bytes = io.BytesIO().getvalue()
+            excel_bytes = b""
     else:
         excel_bytes = b""
 
@@ -1813,9 +1788,9 @@ Position Dynamics:
             use_container_width=True
         )
 
-# ========================================================
+# ============================================================
 # ASK THE ANALYST AI CHATBOT (INSTITUTIONAL COPILOT)
-# ========================================================
+# ============================================================
 st.markdown("""
 <div class="fintech-banner">
     <div class="fintech-banner-title">💬 Interactive Institutional Research Copilot</div>
@@ -1834,17 +1809,35 @@ with chip_cols[2]:
 with chip_cols[3]:
     if st.button("⚠️ Material Operational Risks", key="c4"): suggested_q = "What are the primary operational, credit, regulatory, and market risks outlined in the report?"
 
+# Render conversational history inside styled chat boxes
 for chat in st.session_state.chat_history:
-    with st.chat_message(chat["role"]):
-        st.markdown(chat["content"])
+    if chat["role"] == "user":
+        st.markdown(f"""
+        <div class="chat-box-card" style="border-left: 3.5px solid #3b82f6;">
+            <div class="chat-user-badge">🧑‍💻 Investor Research Query</div>
+            <div class="chat-text">{chat["content"]}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
+            <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
+            <div class="chat-text">{chat["content"]}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 user_q = st.chat_input("Ask a research query about this corporate report...", key="main_chat_input")
 active_q = user_q if user_q else suggested_q
 
 if active_q:
     st.session_state.chat_history.append({"role": "user", "content": active_q})
-    with st.chat_message("user"):
-        st.markdown(active_q)
+    
+    st.markdown(f"""
+    <div class="chat-box-card" style="border-left: 3.5px solid #3b82f6;">
+        <div class="chat-user-badge">🧑‍💻 Investor Research Query</div>
+        <div class="chat-text">{active_q}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     q_prompt = f"""
 You are an institutional financial analyst answering a query about the uploaded annual report.
@@ -1853,15 +1846,21 @@ Format using clean bullet points and exact figures. Avoid textbook jargon.
 
 Query: {active_q}
 """
-    with st.chat_message("assistant"):
-        with st.spinner("Analyzing document disclosures..."):
-            try:
-                res = generate_with_fallback(contents=[q_prompt, st.session_state.gemini_file], json_mode=False)
-                ans = res.text.strip() if res.text else "No response generated."
-                st.markdown(ans)
-                st.session_state.chat_history.append({"role": "assistant", "content": ans})
-            except Exception as e:
-                st.error(f"Error: {e}")
+    with st.spinner("🤖 Financial Analyst AI is cross-referencing report disclosures..."):
+        try:
+            res = generate_with_fallback(contents=[q_prompt, st.session_state.gemini_file], json_mode=False)
+            ans = res.text.strip() if res.text else "No factual disclosure found in document."
+            
+            st.session_state.chat_history.append({"role": "assistant", "content": ans})
+            
+            st.markdown(f"""
+            <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
+                <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
+                <div class="chat-text">{ans}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"Error: {e}")
 
 # ============================================================
 # FOOTER
