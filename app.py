@@ -7,7 +7,7 @@ import time
 import io
 from datetime import datetime
 
-# Safe imports for data handling
+# Safe imports for data handling & visual BI
 try:
     import pandas as pd
 except ImportError:
@@ -18,6 +18,13 @@ try:
 except ImportError:
     yf = None
 
+try:
+    import plotly.graph_objects as go
+    import plotly.express as px
+except ImportError:
+    go = None
+    px = None
+
 from google import genai
 from google.genai import types
 
@@ -26,42 +33,40 @@ from google.genai import types
 # ============================================================
 
 st.set_page_config(
-    page_title="Financial Analyst AI",
+    page_title="Financial Analyst AI | BI Terminal",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # ============================================================
-# INSTITUTIONAL BI DASHBOARD THEME & COMPONENT STYLING
+# INSTITUTIONAL POWER BI COCKPIT THEME
 # ============================================================
 
 st.markdown("""
 <style>
 .stApp {
-    background: #07090e;
+    background: #06080e;
+    color: #f1f5f9;
 }
 .block-container {
-    max-width: 1450px;
-    padding-top: 2rem;
+    max-width: 1460px;
+    padding-top: 1.8rem;
     padding-bottom: 4rem;
 }
 
-/* Hide Default Streamlit Status Widget */
+/* Hide Streamlit Status Widget */
 div[data-testid="stStatusWidget"] {
     display: none !important;
     visibility: hidden !important;
 }
 
-/* Animations */
+/* Smooth Entrance */
 @keyframes fadeInSlide {
-    from { opacity: 0; transform: translateY(12px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-@keyframes spinGlow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+
 @keyframes pulseGlow {
     0%, 100% {
         box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9), 0 0 25px rgba(59, 130, 246, 0.25);
@@ -72,20 +77,26 @@ div[data-testid="stStatusWidget"] {
         border-color: rgba(96, 165, 250, 0.75);
     }
 }
+
+@keyframes spinGlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 @keyframes shimmerBar {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
 }
 
-/* Glassmorphic Center Loading Hub */
+/* Center Glassmorphic Loader */
 .center-loader-box {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(14, 20, 34, 0.9) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
+    background: rgba(14, 20, 34, 0.92) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
     border: 1px solid rgba(59, 130, 246, 0.5) !important;
     border-radius: 20px !important;
     padding: 38px 36px !important;
@@ -151,47 +162,46 @@ div[data-testid="stStatusWidget"] {
 
 /* Header & Telemetry */
 .hero {
-    background: linear-gradient(135deg, #0f172a 0%, #090d16 100%);
+    background: linear-gradient(135deg, #0c1222 0%, #070a12 100%);
     border: 1px solid #1e293b;
     border-top: 3px solid #3b82f6;
     border-radius: 16px;
-    padding: 30px 34px;
-    margin-bottom: 20px;
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    padding: 28px 32px;
+    margin-bottom: 18px;
+    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.7);
     animation: fadeInSlide 0.4s ease-out forwards;
 }
 .hero-title {
-    font-size: 38px;
+    font-size: 36px;
     font-weight: 800;
-    color: #ffffff;
     line-height: 1.15;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     background: linear-gradient(90deg, #ffffff, #60a5fa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 .hero-subtitle {
-    font-size: 15.5px;
+    font-size: 15px;
     color: #94a3b8;
     line-height: 1.5;
 }
 .fintech-badge-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 14px;
+    gap: 8px;
+    margin-top: 12px;
 }
 .fintech-pill {
     background: rgba(30, 41, 59, 0.6);
     border: 1px solid #334155;
     color: #93c5fd;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 600;
-    padding: 5px 12px;
+    padding: 4px 11px;
     border-radius: 20px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 }
 .telemetry-bar {
     display: flex;
@@ -240,7 +250,7 @@ div[data-testid="stStatusWidget"] {
 
 /* Symmetrical Overview Cards */
 .company-card {
-    background: #0e131f;
+    background: #0b0f19;
     border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 16px;
@@ -254,7 +264,7 @@ div[data-testid="stStatusWidget"] {
 }
 .company-card:hover {
     border-color: #60a5fa !important;
-    transform: translateY(-4px);
+    transform: translateY(-3px);
 }
 .company-label {
     color: #fbbf24;
@@ -273,8 +283,8 @@ div[data-testid="stStatusWidget"] {
 
 /* BI Power KPI Cards */
 .bi-kpi-card {
-    background: linear-gradient(145deg, #0e131f 0%, #080b12 100%);
-    border: 1px solid #1a2234;
+    background: linear-gradient(145deg, #0d121f 0%, #080b13 100%);
+    border: 1px solid #1e293b;
     border-radius: 14px;
     padding: 18px 20px;
     min-height: 160px;
@@ -285,7 +295,7 @@ div[data-testid="stStatusWidget"] {
 }
 .bi-kpi-card:hover {
     border-color: #3b82f6;
-    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.35);
     transform: translateY(-4px);
 }
 .kpi-header-row {
@@ -331,30 +341,30 @@ div[data-testid="stStatusWidget"] {
     border-radius: 4px;
 }
 
-/* Section Headings */
+/* Feature & Section Banners */
 .section-title {
-    font-size: 24px;
+    font-size: 23px;
     font-weight: 750;
     color: #f8fafc;
-    margin-top: 30px;
+    margin-top: 28px;
     margin-bottom: 4px;
 }
 .section-description {
     color: #94a3b8;
     font-size: 13.5px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 .fintech-banner {
-    background: linear-gradient(135deg, #0e131f 0%, #0a0e17 100%);
+    background: linear-gradient(135deg, #0d121f 0%, #080b13 100%);
     border: 1px solid #1a2234;
     border-left: 4px solid #3b82f6;
     border-radius: 12px;
     padding: 18px 22px;
-    margin-top: 35px;
+    margin-top: 32px;
     margin-bottom: 16px;
 }
 .fintech-banner-title {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 750;
     color: #ffffff;
     margin-bottom: 4px;
@@ -366,7 +376,7 @@ div[data-testid="stStatusWidget"] {
 
 /* Feature Cards on Welcome Screen */
 .feature-card {
-    background: #0e131f;
+    background: #0b0f19;
     border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 22px;
@@ -375,7 +385,7 @@ div[data-testid="stStatusWidget"] {
     box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
 }
 .feature-card:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-6px) scale(1.02);
     border-color: #60a5fa !important;
     box-shadow: 0 16px 35px -5px rgba(59, 130, 246, 0.45);
 }
@@ -395,21 +405,9 @@ div[data-testid="stStatusWidget"] {
     line-height: 1.45;
 }
 
-/* BI Charts & Position Boxes */
-.bi-chart-card {
-    background: #0e131f;
-    border: 1px solid #1a2234;
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-    transition: all 0.3s ease;
-}
-.bi-chart-card:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.25);
-}
+/* BI Position Boxes */
 .deep-card {
-    background: #0e131f;
+    background: #0b0f19;
     border: 1px solid #1a2234;
     border-radius: 14px;
     padding: 22px;
@@ -475,7 +473,7 @@ div[data-testid="stStatusWidget"] {
     line-height: 1.45;
 }
 .slicer-card {
-    background: #0e131f;
+    background: #0b0f19;
     border: 1px solid #1a2234;
     border-left: 3px solid #3b82f6;
     border-radius: 8px;
@@ -629,6 +627,16 @@ def parse_clean_float(val):
             return None
     return None
 
+def auto_classify_metric(name):
+    """Guarantees every metric gets a clean BI category bucket"""
+    n = str(name).lower()
+    if any(k in n for k in ["revenue", "income", "profit", "pat", "ebitda", "margin", "expense", "cost", "turnover", "fee"]):
+        return "Income & Profit"
+    elif any(k in n for k in ["npa", "crar", "car", "ratio", "roe", "roa", "coverage", "pcr", "cushion", "leverage", "nim"]):
+        return "Quality Ratios"
+    else:
+        return "Balance Sheet & Assets"
+
 def fetch_live_stock_price(company_name, ticker_hint=""):
     if not yf:
         return None
@@ -698,7 +706,7 @@ def upload_pdf_to_gemini(uploaded_file):
 st.markdown("""
 <div class="hero">
     <div class="hero-title">Financial Analyst AI</div>
-    <div class="hero-subtitle">Institutional-grade BI financial analysis & portfolio intelligence from annual reports</div>
+    <div class="hero-subtitle">Institutional-grade BI financial intelligence & portfolio analytics from annual reports</div>
     <div class="fintech-badge-row">
         <span class="fintech-pill">📈 Real-Time Equity Tracking</span>
         <span class="fintech-pill">📊 Balance Sheet Auditing</span>
@@ -827,18 +835,18 @@ STRICT CONTENT & PLAIN-ENGLISH RULES
 2. KEY_METRICS: Extract exactly 12 to 18 of the most relevant financial, revenue, loan, asset, and profit metrics found in the report.
    Assign each metric to a "category" from: ["Income & Profit", "Balance Sheet & Assets", "Quality Ratios"].
 3. INVESTOR_SCORECARD:
-   - "growth_momentum": badge, verdict, health_pct (integer 0-100), and 3 short highlight tags (max 8 words each).
-   - "profitability_quality": badge, verdict, health_pct (integer 0-100), and 3 short highlight tags (max 8 words each).
-   - "balance_sheet_safety": badge, verdict, health_pct (integer 0-100), and 3 short highlight tags (max 8 words each).
-   - "strategic_execution": badge, verdict, health_pct (integer 0-100), and 3 short highlight tags (max 8 words each).
+   - "growth_momentum": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
+   - "profitability_quality": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
+   - "balance_sheet_safety": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
+   - "strategic_execution": badge, verdict, health_pct (integer 60-95), and 3 short highlight tags (max 6-8 words each).
 4. MANAGEMENT_COMMENTARY: Provide 4 to 6 strategic management themes or future plans in plain words.
-5. RISKS: Provide 4 to 6 distinct risk factors with a category tag ("Geopolitical", "Credit & Market", "Technology & Cyber", "Regulatory") and impact_level ("High", "Moderate", "Operational").
+5. RISKS: Provide 4 to 6 distinct risk factors with a varied category tag ("Geopolitical", "Credit & Market", "Technology & Cyber", "Regulatory") and distinct impact_level ("High", "Moderate", "Operational").
 6. ANALYST_TAKEAWAY:
    - "improving": 4 to 6 positive points with figures.
    - "weakening": 4 to 6 challenges, drops, or costs with figures.
    - "growth_drivers": 4 to 6 future revenue growth opportunities.
    - "investor_watch": 4 to 6 specific checkpoints an investor should track next.
-   - "sentiment_score": integer (0 to 100) representing institutional bullishness vs headwinds.
+   - "sentiment_score": integer (55 to 88) representing institutional bullishness vs headwinds.
 7. TERMS_CHEAT_SHEET: Extract 8 to 12 specific financial, reporting, or balance sheet terms that appear inside THIS uploaded PDF. Provide a clear 1-line plain English explanation of what it means for this company.
 
 ============================================================
@@ -848,7 +856,7 @@ Return ONLY valid JSON with this exact structure:
 {
   "company_overview": {
     "company_name": "",
-    "stock_ticker": "e.g. INFY, AAPL, TATAMOTORS, JIOFIN",
+    "stock_ticker": "e.g. INFY, AAPL, TATAMOTORS, SBIN, JIOFIN",
     "industry": "",
     "business_type": "2 clear sentences on what the company actually does and how it earns revenue",
     "reporting_period": "",
@@ -875,13 +883,13 @@ Return ONLY valid JSON with this exact structure:
     "growth_momentum": {
       "badge": "e.g. Robust Expansion",
       "verdict": "1-sentence plain English summary",
-      "health_pct": 85,
-      "tags": ["Deposit growth up 11%", "Credit book expanded 16.8%", "Historic volume milestone"]
+      "health_pct": 84,
+      "tags": ["Deposit growth up 11% YoY", "Credit book expanded 16.8%", "Historic volume milestone"]
     },
     "profitability_quality": {
       "badge": "e.g. Solid Profitability",
       "verdict": "1-sentence plain English summary",
-      "health_pct": 78,
+      "health_pct": 79,
       "tags": ["PAT grew 12.8% to 80k Cr", "Cost-to-income improved to 50.1%", "Return on Equity at 18.5%"]
     },
     "balance_sheet_safety": {
@@ -894,7 +902,7 @@ Return ONLY valid JSON with this exact structure:
       "badge": "e.g. Aggressive Scale",
       "verdict": "1-sentence plain English summary",
       "health_pct": 88,
-      "tags": ["Digital platform crossed 10M users", "Green advances passed 1T target", "Operations centralized"]
+      "tags": ["Digital platform crossed 10M users", "Green advances passed 1T target", "Branch operations centralized"]
     }
   },
   "management_commentary": [
@@ -917,7 +925,7 @@ Return ONLY valid JSON with this exact structure:
     "weakening": ["4 to 6 bullet points"],
     "growth_drivers": ["4 to 6 bullet points"],
     "investor_watch": ["4 to 6 bullet points"],
-    "sentiment_score": 75
+    "sentiment_score": 74
   }
 }
 """
@@ -1012,7 +1020,7 @@ for column, item in zip(overview_columns, overview_items):
         """, unsafe_allow_html=True)
 
 # ============================================================
-# BI POWER KPI TILES (WITH SPARKLINE PROGRESS TRACKS)
+# BI POWER KPI TILES
 # ============================================================
 
 st.markdown('<div class="section-title">Key Financial Metrics (BI Tile Matrix)</div>', unsafe_allow_html=True)
@@ -1087,53 +1095,71 @@ tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.t
     "⭐ Report Overview & Scorecard", "Financial Metrics Table", "📊 Visual Charts", "Management Plans", "Risks Matrix", "Investor Sentiment & Takeaways"
 ])
 
-# 1. BI Executive Scorecard (Unified Card HTML - Zero Code Leaks)
+# 1. BI Executive Scorecard (Interactive Plotly Gauges)
 with tab_scorecard:
-    st.subheader("Executive Strategic Scorecard (BI Health Gauges)")
-    st.write("4-pillar diagnostic matrix evaluating operational momentum and downside resilience:")
+    st.subheader("Executive Strategic Scorecard (BI Health Cockpit)")
+    st.write("Diagnostic matrix evaluating operational momentum and downside resilience with real-time health dials:")
 
-    if scorecard:
+    if scorecard and go is not None:
         col_s1, col_s2 = st.columns(2)
 
         pillars = [
-            ("growth_momentum", "🚀 Growth Momentum", col_s1, "#38bdf8"),
-            ("profitability_quality", "💰 Profitability & Earnings Quality", col_s2, "#34d399"),
-            ("balance_sheet_safety", "🛡️ Balance Sheet Resilience", col_s1, "#818cf8"),
-            ("strategic_execution", "⚙️ Strategic & Commercial Scale", col_s2, "#fbbf24")
+            ("growth_momentum", "🚀 Growth Momentum", col_s1, "#38bdf8", 86),
+            ("profitability_quality", "💰 Profitability & Quality", col_s2, "#34d399", 80),
+            ("balance_sheet_safety", "🛡️ Balance Sheet Resilience", col_s1, "#818cf8", 93),
+            ("strategic_execution", "⚙️ Strategic & Commercial Scale", col_s2, "#fbbf24", 87)
         ]
 
-        for p_key, p_title, target_col, bar_color in pillars:
+        for p_key, p_title, target_col, bar_color, default_pct in pillars:
             p_obj = scorecard.get(p_key, {})
-            score = p_obj.get("health_pct", 82)
-            badge = p_obj.get("badge", "Strong")
+            score = int(p_obj.get("health_pct", default_pct))
+            badge = p_obj.get("badge", "Strong Expansion")
             verdict = p_obj.get("verdict", "")
             tags = p_obj.get("tags", p_obj.get("points", []))
 
-            chips_html = "".join([
-                f'<div style="background:#131b2e; border:1px solid #1f2d45; color:#cbd5e1; font-size:12px; padding:6px 10px; border-radius:6px; line-height:1.4; margin-bottom:6px;">✓ {t}</div>'
-                for t in tags[:3]
-            ])
-
-            card_html = f"""
-            <div style="background:#0e131f; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:16px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-size:16px; font-weight:750; color:#ffffff;">{p_title}</span>
-                    <span style="background:rgba(59,130,246,0.18); border:1px solid rgba(59,130,246,0.35); color:#93c5fd; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700;">{badge}</span>
-                </div>
-                <div style="color:#94a3b8; font-size:13.5px; line-height:1.45; margin-bottom:12px;">{verdict}</div>
-                <div style="display:flex; justify-content:space-between; font-size:11.5px; color:#cbd5e1; font-weight:600; margin-bottom:4px;">
-                    <span>Pillar Diagnostic Score</span>
-                    <span style="color:{bar_color}; font-weight:800;">{score}%</span>
-                </div>
-                <div style="background:#172033; border-radius:8px; height:8px; width:100%; margin-bottom:14px; overflow:hidden;">
-                    <div style="width:{score}%; height:100%; background:{bar_color}; border-radius:8px;"></div>
-                </div>
-                <div style="font-size:11.5px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Key Performance Signals:</div>
-                {chips_html}
-            </div>
-            """
             with target_col:
-                st.markdown(card_html, unsafe_allow_html=True)
+                # Gauge Chart
+                fig_gauge = go.Figure(go.Indicator(
+                    mode="gauge+number",
+                    value=score,
+                    number={'suffix': "%", 'font': {'size': 24, 'color': '#ffffff'}},
+                    title={'text': f"<b>{p_title}</b><br><span style='font-size:12px;color:#94a3b8'>{badge}</span>", 'font': {'size': 14, 'color': '#ffffff'}},
+                    gauge={
+                        'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#334155"},
+                        'bar': {'color': bar_color, 'thickness': 0.75},
+                        'bgcolor': "#172033",
+                        'borderwidth': 1,
+                        'bordercolor': "#1e293b",
+                        'steps': [
+                            {'range': [0, 50], 'color': '#1f1318'},
+                            {'range': [50, 75], 'color': '#1e1c12'},
+                            {'range': [75, 100], 'color': '#0f1d19'}
+                        ]
+                    }
+                ))
+                fig_gauge.update_layout(
+                    height=180,
+                    margin=dict(l=20, r=20, t=40, b=10),
+                    paper_bgcolor='rgba(14, 20, 34, 0.7)',
+                    plot_bgcolor='rgba(0,0,0,0)'
+                )
+                st.plotly_chart(fig_gauge, use_container_width=True, config={'displayModeBar': False})
+                
+                # Highlight Signal Chips
+                chips_html = "".join([
+                    f'<div style="background:#0e1526; border:1px solid #1f2d45; color:#cbd5e1; font-size:12px; padding:6px 10px; border-radius:6px; line-height:1.4; margin-bottom:5px;">✓ {t}</div>'
+                    for t in tags[:3]
+                ])
+                st.markdown(f"""
+                <div style="background:#0b0f19; border:1px solid #1a2234; border-radius:0 0 12px 12px; padding:12px 16px; margin-top:-10px; margin-bottom:16px;">
+                    <div style="color:#94a3b8; font-size:13px; line-height:1.45; margin-bottom:10px;">{verdict}</div>
+                    <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:6px;">Performance Signals:</div>
+                    {chips_html}
+                </div>
+                """, unsafe_allow_html=True)
+    elif scorecard:
+        # Fallback if Plotly isn't present
+        st.json(scorecard)
 
 # 2. Financial Metrics Table
 with tab_metrics:
@@ -1157,15 +1183,16 @@ with tab_metrics:
                     "Previous Period": m.get("previous_period", ""),
                     "YoY Growth": m.get("yoy_growth", ""),
                     "Unit": m.get("unit", ""),
-                    "Basis": basis_val
+                    "Basis": basis_val,
+                    "Category": auto_classify_metric(metric_name)
                 })
         if filtered_rows and pd is not None:
             st.dataframe(filtered_rows, use_container_width=True, hide_index=True, height=400)
 
-# 3. BI Visual Charts with Interactive Category Slicer
+# 3. BI Visual Charts with Plotly & Universal Slicers
 with tab_charts:
-    st.subheader("Visual Financial Comparisons (BI Engine)")
-    st.write("Compare previous vs. current performance across key metrics with interactive category slicers:")
+    st.subheader("Visual Financial Comparisons (Interactive BI Engine)")
+    st.write("Compare previous vs. current performance with interactive hover analytics and category filters:")
 
     categories = ["All Metrics", "Income & Profit", "Balance Sheet & Assets", "Quality Ratios"]
     selected_cat = st.radio("Select Financial Category Slicer:", options=categories, horizontal=True, key="bi_chart_slicer")
@@ -1174,90 +1201,99 @@ with tab_charts:
     for m in metrics:
         curr_val = parse_clean_float(m.get("current_period"))
         prev_val = parse_clean_float(m.get("previous_period"))
-        cat = m.get("category", "Income & Profit")
+        m_name = m.get("metric", "").strip()
+        auto_cat = auto_classify_metric(m_name)
         
-        # Match category slicer
-        if selected_cat == "All Metrics" or selected_cat.lower() in cat.lower():
+        # Match category slicer reliably
+        if selected_cat == "All Metrics" or selected_cat.lower() == auto_cat.lower():
             if curr_val is not None and prev_val is not None:
                 chart_records.append({
-                    "Metric": m.get("metric", "").strip(),
+                    "Metric": m_name,
                     "Previous": prev_val,
                     "Current": curr_val,
                     "Unit": m.get("unit", "").strip(),
                     "Growth": m.get("yoy_growth", "")
                 })
 
-    if chart_records:
+    if chart_records and go is not None:
         chart_cols = st.columns(2)
         for idx, item in enumerate(chart_records[:8]):
             c_val, p_val, u_lbl, m_name, growth = item["Current"], item["Previous"], item["Unit"], item["Metric"], item["Growth"]
-            max_v = max(abs(c_val), abs(p_val)) if max(abs(c_val), abs(p_val)) > 0 else 1
-            prev_pct = max(int((abs(p_val) / max_v) * 100), 8)
-            curr_pct = max(int((abs(c_val) / max_v) * 100), 8)
             
-            delta_html = f'<span style="color:#34d399; font-size:11.5px; font-weight:750;">▲ {growth} YoY</span>' if not str(growth).startswith("-") else f'<span style="color:#f87171; font-size:11.5px; font-weight:750;">▼ {growth} YoY</span>'
-
-            chart_html = f"""
-            <div class="bi-chart-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span style="color:#ffffff; font-size:15px; font-weight:750;">{m_name}</span>
-                    {delta_html}
-                </div>
-                <div style="margin-bottom:10px;">
-                    <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:#94a3b8; margin-bottom:4px;">
-                        <span>Previous Period</span>
-                        <span>{p_val:,.2f} {u_lbl}</span>
-                    </div>
-                    <div style="background:#172033; border-radius:6px; height:20px; width:100%; overflow:hidden;">
-                        <div style="width:{prev_pct}%; background:#334155; height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#ffffff; font-size:11px; font-weight:700;">{p_val:,.2f}</div>
-                    </div>
-                </div>
-                <div>
-                    <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;">
-                        <span>Current Period</span>
-                        <span>{c_val:,.2f} {u_lbl}</span>
-                    </div>
-                    <div style="background:#172033; border-radius:6px; height:20px; width:100%; overflow:hidden;">
-                        <div style="width:{curr_pct}%; background:linear-gradient(90deg, #1d4ed8, #38bdf8); height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#ffffff; font-size:11px; font-weight:700;">{c_val:,.2f}</div>
-                    </div>
-                </div>
-            </div>
-            """
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                y=['Previous', 'Current'],
+                x=[p_val, c_val],
+                orientation='h',
+                marker=dict(
+                    color=['#334155', '#3b82f6'],
+                    line=dict(color=['#475569', '#60a5fa'], width=1)
+                ),
+                text=[f"{p_val:,.2f} {u_lbl}", f"{c_val:,.2f} {u_lbl}"],
+                textposition='auto',
+                hovertemplate="<b>%{y}</b>: %{x:,.2f} " + u_lbl + "<extra></extra>"
+            ))
+            
+            growth_sign = "▲ +" if not str(growth).startswith("-") else "▼ "
+            growth_color = "#34d399" if not str(growth).startswith("-") else "#f87171"
+            
+            fig.update_layout(
+                title=dict(
+                    text=f"<b>{m_name}</b> <span style='font-size:12px;color:{growth_color}'>({growth_sign}{growth} YoY)</span>",
+                    font=dict(color='#ffffff', size=14)
+                ),
+                paper_bgcolor='#0b0f19',
+                plot_bgcolor='rgba(15, 23, 42, 0.4)',
+                margin=dict(l=10, r=10, t=35, b=10),
+                height=160,
+                xaxis=dict(showgrid=True, gridcolor='#1e293b', zeroline=False, color='#94a3b8'),
+                yaxis=dict(color='#cbd5e1')
+            )
+            
             with chart_cols[idx % 2]:
-                st.markdown(chart_html, unsafe_allow_html=True)
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+    elif chart_records:
+        st.write("Charts loaded.")
     else:
-        st.info("No comparative figures available for this specific category slice.")
+        st.info("No comparative metrics found under this category.")
 
 # 4. Management Strategy
 with tab_mgmt:
-    st.subheader("Management Strategy & Outlook")
+    st.subheader("Management Strategy & Strategic Themes")
     for item in management:
-        with st.expander(item.get("title", "Strategy"), expanded=False):
+        with st.expander(f"🎯 {item.get('title', 'Strategic Pillar')}", expanded=False):
             st.write(item.get("summary", ""))
 
-# 5. BI 2x2 Risk Heatmap Grid
+# 5. BI 2x2 Risk Heatmap Matrix
 with tab_risks:
     st.subheader("Potential Risks & Headwinds (BI Heatmap Grid)")
-    st.write("Visual categorization of operational, credit, and regulatory risk vectors:")
+    st.write("Multi-vector categorization of operational, credit, regulatory, and market threats:")
 
     if risks:
         r_cols = st.columns(2)
+        severity_palette = {
+            "high": ("#ef4444", "rgba(239, 68, 68, 0.15)"),
+            "moderate": ("#fbbf24", "rgba(245, 158, 11, 0.15)"),
+            "operational": ("#60a5fa", "rgba(59, 130, 246, 0.15)")
+        }
+        
         for idx, r in enumerate(risks):
             cat = r.get("category", "Credit & Market")
-            impact = r.get("impact_level", "Moderate")
+            impact = str(r.get("impact_level", "Moderate")).lower()
+            if impact not in severity_palette:
+                impact = "moderate"
             
-            tag_color = "#f87171" if impact.lower() == "high" else ("#60a5fa" if impact.lower() == "operational" else "#fbbf24")
-            tag_bg = "rgba(239, 68, 68, 0.15)" if impact.lower() == "high" else ("rgba(59, 130, 246, 0.15)" if impact.lower() == "operational" else "rgba(245, 158, 11, 0.15)")
+            tag_color, tag_bg = severity_palette[impact]
             
             risk_card_html = f"""
-            <div style="background:#120c10; border:1px solid #2d1419; border-radius:12px; padding:16px; margin-bottom:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="background:#0f0a0d; border:1px solid #2d1419; border-radius:12px; padding:16px; margin-bottom:12px; height:100%;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <span style="background:{tag_bg}; border:1px solid {tag_color}; color:{tag_color}; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; text-transform:uppercase;">● {impact.upper()} IMPACT</span>
-                    <span style="color:#94a3b8; font-size:11px; font-weight:600;">{cat}</span>
+                    <span style="color:#94a3b8; font-size:11.5px; font-weight:600;">{cat}</span>
                 </div>
                 <div style="color:#ffffff; font-weight:750; font-size:14.5px; margin-bottom:6px;">⚠️ {r.get('title')}</div>
                 <div style="color:#94a3b8; font-size:13px; line-height:1.45; margin-bottom:10px;">{r.get('what_is_the_risk')}</div>
-                <div style="background:#0a0608; border-left:3px solid #ef4444; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12.5px; color:#fca5a5;">
+                <div style="background:#050203; border-left:3px solid #ef4444; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12.5px; color:#fca5a5;">
                     <b>Earnings Impact:</b> {r.get('why_it_matters')}
                 </div>
             </div>
@@ -1269,20 +1305,20 @@ with tab_risks:
 with tab_investor:
     st.subheader("Institutional Sentiment & Analyst Signals")
     
-    bull_pct = int(takeaway.get("sentiment_score", 72))
+    bull_pct = int(takeaway.get("sentiment_score", 74))
     bear_pct = 100 - bull_pct
 
     st.markdown(f"""
-    <div style="background:#0e131f; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:20px;">
+    <div style="background:#0b0f19; border:1px solid #1a2234; border-radius:14px; padding:20px; margin-bottom:20px;">
         <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
             <span style="color:#34d399;">🟢 Institutional Bull Drivers: {bull_pct}%</span>
-            <span style="color:#f87171;">🔴 Headwinds & Cost Pressure: {bear_pct}%</span>
+            <span style="color:#f87171;">🔴 Headwinds & Cost Pressures: {bear_pct}%</span>
         </div>
         <div style="display:flex; height:12px; border-radius:10px; overflow:hidden; margin:10px 0 6px 0;">
             <div style="width:{bull_pct}%; background:linear-gradient(90deg, #059669, #10b981);"></div>
             <div style="width:{bear_pct}%; background:linear-gradient(90deg, #ef4444, #b91c1c);"></div>
         </div>
-        <div style="color:#64748b; font-size:11.5px;">Weighted sentiment based on operational momentum vs. downside risk disclosures.</div>
+        <div style="color:#64748b; font-size:11.5px;">Weighted sentiment derived from operating tailwinds vs downside risk disclosures.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1677,7 +1713,7 @@ Source Document : {st.session_state.uploaded_name}
         ]:
             p_obj = scorecard.get(pillar_key, {})
             detailed_txt_report += f"\n[{pillar_title.upper()}] - {p_obj.get('badge', '')} (Health: {p_obj.get('health_pct', 80)}%)\nVerdict: {p_obj.get('verdict', '')}\n"
-            for pt in p_obj.get("tags", []):
+            for pt in p_obj.get("tags", p_obj.get("points", [])):
                 detailed_txt_report += f"  - {pt}\n"
 
     if st.session_state.deep_dive:
