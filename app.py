@@ -50,7 +50,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# INSTITUTIONAL LIQUID GLASS FINTECH COCKPIT THEME & CSS
+# INSTITUTIONAL LIQUID GLASS FINTECH THEME & CSS
 # ============================================================
 
 st.markdown("""
@@ -459,10 +459,9 @@ client = create_client(API_KEY)
 ACTIVE_MODELS = [
     "gemini-2.5-flash",
     "gemini-2.0-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.5-flash-lite",
-    "gemini-3.1-pro-preview"
+    "gemini-1.5-flash",
+    "gemini-2.5-pro",
+    "gemini-1.5-pro"
 ]
 
 def generate_with_fallback(contents, json_mode=False, use_search=False):
@@ -476,17 +475,18 @@ def generate_with_fallback(contents, json_mode=False, use_search=False):
         for attempt in range(2):
             try:
                 tools_list = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
-                if json_mode:
+                
+                # When search tool is enabled, response_mime_type cannot be application/json
+                if json_mode and not use_search:
                     config = types.GenerateContentConfig(
                         response_mime_type="application/json",
                         temperature=0.1,
-                        max_output_tokens=4096,
-                        tools=tools_list
+                        max_output_tokens=8192
                     )
                 else:
                     config = types.GenerateContentConfig(
                         temperature=0.2,
-                        max_output_tokens=2048,
+                        max_output_tokens=8192,
                         tools=tools_list
                     )
 
@@ -517,24 +517,35 @@ def generate_with_fallback(contents, json_mode=False, use_search=False):
 def clean_json_response(text):
     if not text:
         return {}
-    text = text.strip()
-    text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
-    text = re.sub(r"\s*```$", "", text)
-    text = text.strip()
+    raw = text.strip()
+    raw = re.sub(r"^```(?:json)?\s*", "", raw, flags=re.IGNORECASE)
+    raw = re.sub(r"\s*```$", "", raw)
+    raw = raw.strip()
 
     try:
-        return json.loads(text)
+        return json.loads(raw)
     except Exception:
         pass
 
-    start = text.find("{")
-    end = text.rfind("}")
+    # Extract outermost JSON boundaries
+    start = raw.find("{")
+    end = raw.rfind("}")
     if start != -1 and end != -1 and end > start:
-        candidate = text[start:end + 1]
+        candidate = raw[start:end + 1]
         try:
             return json.loads(candidate)
         except Exception:
             pass
+
+    # Resilient repair for truncated JSON outputs
+    if start != -1:
+        truncated = raw[start:]
+        # Attempt closing quotes, brackets, and braces
+        for suffix in ['"}', '"}]}', '"]}', ']}', '}']:
+            try:
+                return json.loads(truncated + suffix)
+            except Exception:
+                continue
 
     return {}
 
@@ -601,8 +612,7 @@ def upload_pdf_to_gemini(uploaded_file):
             temp_file.write(uploaded_file.getbuffer())
             temp_path = temp_file.name
 
-        # Direct, reliable upload to Gemini
-        gemini_file = client.files.upload(file=temp_path)
+        gemini_file = client.files.upload(file=temp_path, mime_type="application/pdf")
         return gemini_file
     finally:
         if temp_path:
@@ -802,7 +812,8 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
 """
             response = generate_with_fallback(
                 contents=[analysis_prompt, gemini_file],
-                json_mode=True
+                json_mode=True,
+                use_search=False
             )
             data = clean_json_response(response.text)
             elapsed_time = round(time.time() - start_time, 1)
@@ -816,7 +827,7 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
                 st.success(f"Institutional analysis completed successfully in {elapsed_time}s!")
                 st.rerun()
             else:
-                st.error("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
+                st.error("The document could not be completely parsed. Please re-upload or try again.")
         except Exception as e:
             loader_container.empty()
             st.error(f"Processing error: {e}")
@@ -1223,24 +1234,24 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
             
             web_forecast_prompt = (
                 "You are an expert institutional equity research analyst. "
-                "Analyze the company '" + c_name + "' (Ticker: " + c_ticker + ") using both the uploaded PDF report and live web search data regarding its past multi-year financial history, market trends, sector tailwinds, and compounding outlook. "
+                "Analyze the company '" + str(c_name) + "' (Ticker: " + str(c_ticker) + ") using both the uploaded PDF report and live web search data regarding its past multi-year financial history, market trends, sector tailwinds, and compounding outlook. "
                 "Provide a detailed, natural-language predictive projection breakdown strictly matching this JSON structure: "
-                "{"
-                "  \"cagr_value\": \"+16.4% p.a.\","
-                "  \"margin_outlook\": \"Expanding (+120 bps)\","
-                "  \"risk_scenario\": \"Base Case (Conservative)\","
-                "  \"rationale_points\": ["
-                "    \"Detailed bullet point 1 explaining core long-term growth drivers backed by historical internet trend tracing.\","
-                "    \"Detailed bullet point 2 explaining operational efficiency and cost optimization leverage.\","
-                "    \"Detailed bullet point 3 explaining future enterprise risks, compounding potential, and solvency outlook over 3-5 years.\""
-                "  ]"
+                "{\n"
+                "  \"cagr_value\": \"+16.4% p.a.\",\n"
+                "  \"margin_outlook\": \"Expanding (+120 bps)\",\n"
+                "  \"risk_scenario\": \"Base Case (Conservative)\",\n"
+                "  \"rationale_points\": [\n"
+                "    \"Detailed bullet point 1 explaining core long-term growth drivers backed by historical internet trend tracing.\",\n"
+                "    \"Detailed bullet point 2 explaining operational efficiency and cost optimization leverage.\",\n"
+                "    \"Detailed bullet point 3 explaining future enterprise risks, compounding potential, and solvency outlook over 3-5 years.\"\n"
+                "  ]\n"
                 "}"
             )
             try:
-                res_f = generate_with_fallback(contents=[web_forecast_prompt, st.session_state.gemini_file], json_mode=True, use_search=True)
+                res_f = generate_with_fallback(contents=[web_forecast_prompt, st.session_state.gemini_file], json_mode=False, use_search=True)
                 f_parsed = clean_json_response(res_f.text)
                 if not f_parsed or "rationale_points" not in f_parsed:
-                    raise Exception("Invalid format")
+                    raise Exception("Invalid structure")
                 st.session_state.forecast_data = f_parsed
                 st.session_state.forecast_company = c_name
             except Exception:
@@ -1457,14 +1468,18 @@ elif investor_mcq == "Yes, I hold shares in this company":
             cmp_display = f"₹{live_price:,.2f}"
 
             analysis_req_prompt = (
-                "You are an expert institutional equity research mentor analyzing an investor's equity position in " + c_name + ". "
-                "Deliver a structured valuation synthesis. "
-                "INVESTMENT PARAMETERS: "
-                "- Capital Invested: ₹" + str(total_invested_input) + " "
-                "- Purchase Price Basis: ₹" + str(avg_price_input) + " "
-                "- Current Market Price: " + cmp_display + " "
-                "STRUCTURE YOUR JSON OUTPUT STRICTLY: "
-                "{\"profit_or_loss_summary\": \"Detailed breakdown.\", \"price_safety_points\": [{\"title\": \"Title\", \"explanation\": \"Exp\"}], \"long_term_outlook_5_to_8_years\": [{\"title\": \"Title\", \"explanation\": \"Exp\"}]}"
+                "You are an expert institutional equity research mentor analyzing an investor's equity position in " + str(c_name) + ".\n"
+                "Deliver a structured valuation synthesis.\n"
+                "INVESTMENT PARAMETERS:\n"
+                "- Capital Invested: ₹" + str(total_invested_input) + "\n"
+                "- Purchase Price Basis: ₹" + str(avg_price_input) + "\n"
+                "- Current Market Price: " + str(cmp_display) + "\n\n"
+                "STRUCTURE YOUR JSON OUTPUT STRICTLY:\n"
+                "{\n"
+                "  \"profit_or_loss_summary\": \"Detailed breakdown of position performance.\",\n"
+                "  \"price_safety_points\": [{\"title\": \"Pillar Title\", \"explanation\": \"Detailed explanation\"}],\n"
+                "  \"long_term_outlook_5_to_8_years\": [{\"title\": \"Driver Title\", \"explanation\": \"Detailed explanation\"}]\n"
+                "}"
             )
             try:
                 pos_res = generate_with_fallback(contents=[analysis_req_prompt, st.session_state.gemini_file], json_mode=True)
