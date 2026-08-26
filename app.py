@@ -123,87 +123,85 @@ div[data-testid="stStatusWidget"] {
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.15);
 }
 
-/* Electric Blue Pulse Animation for Uploader & Feature Cards */
-@keyframes electricPulse {
+/* Electric Glowing Animations for Cards and Uploader */
+@keyframes electricPulseBlue {
     0%, 100% {
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.15);
-        border-color: rgba(59, 130, 246, 0.8);
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.7);
     }
     50% {
-        box-shadow: 0 0 35px rgba(96, 165, 250, 0.7), inset 0 0 25px rgba(96, 165, 250, 0.3);
+        box-shadow: 0 0 30px rgba(96, 165, 250, 0.6), inset 0 0 20px rgba(96, 165, 250, 0.25);
         border-color: #60a5fa;
     }
 }
 
-/* Style Streamlit's native file uploader container precisely to act as the electric card border */
+@keyframes electricPulseGreen {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(52, 211, 153, 0.6), inset 0 0 20px rgba(52, 211, 153, 0.25);
+        border-color: #34d399;
+    }
+}
+
+@keyframes electricPulseRed {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), inset 0 0 10px rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(248, 113, 113, 0.6), inset 0 0 20px rgba(248, 113, 113, 0.25);
+        border-color: #f87171;
+    }
+}
+
+/* Streamlit Native File Uploader Electric Border Frame */
 div[data-testid="stFileUploader"] {
     background: rgba(11, 17, 30, 0.85);
     backdrop-filter: blur(12px);
     border: 2px dashed #3b82f6;
     border-radius: 16px;
     padding: 16px;
-    animation: electricPulse 3s infinite ease-in-out;
+    animation: electricPulseBlue 3s infinite ease-in-out;
 }
 
-.electric-card {
-    background: rgba(13, 20, 36, 0.65);
-    backdrop-filter: blur(16px);
-    border: 2px solid #3b82f6;
+/* Symmetrical Electric KPI Cards with 3 Color Statuses */
+.electric-kpi-card-blue {
+    background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
     border-radius: 16px;
-    padding: 24px;
-    animation: electricPulse 3.5s infinite ease-in-out;
-}
-
-/* KPI Dynamic State Glows (Green for Growth, Blue for Steady, Red for Loss) */
-@keyframes greenPulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), inset 0 0 15px rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.8); }
-    50% { box-shadow: 0 0 35px rgba(52, 211, 153, 0.7), inset 0 0 25px rgba(52, 211, 153, 0.3); border-color: #34d399; }
-}
-
-@keyframes bluePulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.8); }
-    50% { box-shadow: 0 0 35px rgba(96, 165, 250, 0.7), inset 0 0 25px rgba(96, 165, 250, 0.3); border-color: #60a5fa; }
-}
-
-@keyframes redPulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), inset 0 0 15px rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.8); }
-    50% { box-shadow: 0 0 35px rgba(248, 113, 113, 0.7), inset 0 0 25px rgba(248, 113, 113, 0.3); border-color: #f87171; }
-}
-
-.kpi-card-green {
-    background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
-    border-radius: 12px;
-    padding: 16px 18px;
-    min-height: 145px;
+    padding: 20px;
+    height: 155px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border: 2px solid #10b981;
-    animation: greenPulse 3.5s infinite ease-in-out;
-}
-
-.kpi-card-blue {
-    background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
-    border-radius: 12px;
-    padding: 16px 18px;
-    min-height: 145px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    animation: electricPulseBlue 3.5s infinite ease-in-out;
     border: 2px solid #3b82f6;
-    animation: bluePulse 3.5s infinite ease-in-out;
 }
 
-.kpi-card-red {
-    background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
-    border-radius: 12px;
-    padding: 16px 18px;
-    min-height: 145px;
+.electric-kpi-card-green {
+    background: linear-gradient(145deg, #071f16 0%, #040d0a 100%);
+    border-radius: 16px;
+    padding: 20px;
+    height: 155px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    animation: electricPulseGreen 3.5s infinite ease-in-out;
+    border: 2px solid #10b981;
+}
+
+.electric-kpi-card-red {
+    background: linear-gradient(145deg, #240d12 0%, #0d0406 100%);
+    border-radius: 16px;
+    padding: 20px;
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    animation: electricPulseRed 3.5s infinite ease-in-out;
     border: 2px solid #ef4444;
-    animation: redPulse 3.5s infinite ease-in-out;
 }
 
 /* Spinner & Loaders */
@@ -299,21 +297,22 @@ div[data-testid="stFileUploader"] {
 .company-card {
     background: rgba(10, 14, 26, 0.85);
     border: 1px solid #1a2234;
-    border-radius: 12px;
-    padding: 15px;
-    height: 140px;
+    border-radius: 16px;
+    padding: 18px;
+    height: 155px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     overflow-y: auto;
     margin-bottom: 10px;
+    animation: electricPulseBlue 4s infinite ease-in-out;
 }
 .company-label {
     color: #fbbf24;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     font-weight: 700;
 }
 .company-value {
@@ -338,7 +337,7 @@ div[data-testid="stFileUploader"] {
 }
 .kpi-main-val {
     color: #ffffff;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800;
     margin: 4px 0;
 }
@@ -638,7 +637,7 @@ st.markdown("""
 loader_container = st.empty()
 
 # ============================================================
-# SECTION 3: FEATURES SHOWCASE (BEFORE UPLOAD - ELECTRIC BORDERED)
+# SECTION 3: FEATURES SHOWCASE (BEFORE UPLOAD)
 # ============================================================
 
 if not st.session_state.gemini_file or not st.session_state.analysis:
@@ -651,7 +650,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
         c_feat1, c_feat2, c_feat3, c_feat4 = st.columns(4)
         with c_feat1:
             st.markdown("""
-            <div class="electric-card">
+            <div class="electric-kpi-card-blue">
                 <div style="font-size: 24px; margin-bottom: 8px;">📊</div>
                 <div style="font-size: 15px; font-weight: 750; color: #fff; margin-bottom: 6px;">Financial Extraction</div>
                 <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4;">Extracts primary income statement, balance sheet, and operating metrics dynamically.</div>
@@ -659,7 +658,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat2:
             st.markdown("""
-            <div class="electric-card">
+            <div class="electric-kpi-card-blue">
                 <div style="font-size: 24px; margin-bottom: 8px;">📈</div>
                 <div style="font-size: 15px; font-weight: 750; color: #fff; margin-bottom: 6px;">Portfolio Intelligence</div>
                 <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4;">Connects to live market pricing to evaluate cost basis, purchase safety, and compounding.</div>
@@ -667,7 +666,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat3:
             st.markdown("""
-            <div class="electric-card">
+            <div class="electric-kpi-card-blue">
                 <div style="font-size: 24px; margin-bottom: 8px;">🛡️</div>
                 <div style="font-size: 15px; font-weight: 750; color: #fff; margin-bottom: 6px;">Executive Scorecard</div>
                 <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4;">Multi-pillar evaluation assessing growth momentum, profit quality, and balance sheet cushion.</div>
@@ -675,7 +674,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
         with c_feat4:
             st.markdown("""
-            <div class="electric-card">
+            <div class="electric-kpi-card-blue">
                 <div style="font-size: 24px; margin-bottom: 8px;">💬</div>
                 <div style="font-size: 15px; font-weight: 750; color: #fff; margin-bottom: 6px;">Grounded AI Copilot</div>
                 <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4;">Interactive research assistant answering custom queries strictly using audited facts.</div>
@@ -868,13 +867,13 @@ overview_columns = st.columns(5)
 for column, item in zip(overview_columns, overview_items):
     with column:
         st.markdown(f"""
-        <div class="company-card electric-card">
+        <div class="company-card">
             <div class="company-label">{item[0]}</div>
             <div class="company-value">{item[1]}</div>
         </div>
         """, unsafe_allow_html=True)
 
-# Headline Financial Metrics (BI Tile Matrix with Dynamic Green/Blue/Red Glows)
+# Headline Financial Metrics (BI Tile Matrix with 3-Color Status Electric Borders: Green, Blue, Red)
 st.markdown('<div class="section-title">Headline Financial Metrics</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Core revenue, profit, and balance sheet indicators with verified YoY deltas.</div>', unsafe_allow_html=True)
 
@@ -904,7 +903,7 @@ if headline_metrics:
             basis = m.get("basis", "")
 
             spark_width = 75
-            kpi_card_class = "kpi-card-blue" # Default steady/blue
+            card_class = "electric-kpi-card-blue" # Default steady/stone -> Blue
             spark_color = "#3b82f6"
 
             if growth and growth.lower() not in ["n/a", "not available", ""]:
@@ -912,18 +911,18 @@ if headline_metrics:
                     badge_html = f"""<span style="color:#f87171; font-weight:750; font-size:12px;">▼ {growth}</span>"""
                     spark_color = "#ef4444"
                     spark_width = 45
-                    kpi_card_class = "kpi-card-red" # Loss / negative -> Red glow
+                    card_class = "electric-kpi-card-red" # Loss / negative -> Red
                 else:
                     clean_g = growth if growth.startswith("+") else f"+{growth}"
                     badge_html = f"""<span style="color:#34d399; font-weight:750; font-size:12px;">▲ {clean_g} YoY</span>"""
                     spark_color = "#10b981"
                     spark_width = 85
-                    kpi_card_class = "kpi-card-green" # Profit / growth -> Green glow
+                    card_class = "electric-kpi-card-green" # Growth / profit -> Green
             else:
                 badge_html = """<span style="color:#94a3b8; font-weight:700; font-size:12px;">Reported Level</span>"""
 
             st.markdown(f"""
-            <div class="{kpi_card_class}">
+            <div class="{card_class}">
                 <div>
                     <div class="kpi-header-row">
                         <span class="kpi-title">{name}</span>
@@ -975,7 +974,7 @@ with tab_scorecard:
                 for t in points[:3]
             ])
 
-            card_html = f"""<div class="electric-card" style="margin-bottom:16px; height: auto;">
+            card_html = f"""<div class="electric-kpi-card-blue" style="margin-bottom:16px; height: auto;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
 <span style="font-size:15.5px; font-weight:750; color:#ffffff;">{p_title}</span>
 <span style="background:rgba(59,130,246,0.18); border:1px solid rgba(59,130,246,0.35); color:#93c5fd; padding:3px 10px; border-radius:6px; font-size:11.5px; font-weight:700;">{badge}</span>
@@ -1063,7 +1062,7 @@ with tab_charts:
             else:
                 delta_html = '<span style="color:#94a3b8; font-size:11.5px; font-weight:700;">Audited Level</span>'
 
-            chart_html = f"""<div class="electric-card" style="margin-bottom:14px; height: auto;">
+            chart_html = f"""<div class="electric-kpi-card-blue" style="margin-bottom:14px; height: auto;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
 <span style="color:#ffffff; font-size:14.5px; font-weight:750;">{m_name}</span>
 {delta_html}
@@ -1110,10 +1109,10 @@ with tab_risks:
     if risks:
         r_cols = st.columns(2)
         severity_palette = {
-            "high": ("#ef4444", "rgba(239, 68, 68, 0.15)", "#18090c"),
-            "moderate": ("#fbbf24", "rgba(245, 158, 11, 0.15)", "#181409"),
-            "low": ("#60a5fa", "rgba(59, 130, 246, 0.15)", "#09121c"),
-            "operational": ("#60a5fa", "rgba(59, 130, 246, 0.15)", "#09121c")
+            "high": ("#ef4444", "rgba(239, 68, 68, 0.15)", "#18090c", "electric-kpi-card-red"),
+            "moderate": ("#fbbf24", "rgba(245, 158, 11, 0.15)", "#181409", "electric-kpi-card-blue"),
+            "low": ("#60a5fa", "rgba(59, 130, 246, 0.15)", "#09121c", "electric-kpi-card-blue"),
+            "operational": ("#60a5fa", "rgba(59, 130, 246, 0.15)", "#09121c", "electric-kpi-card-blue")
         }
         
         for idx, r in enumerate(risks):
@@ -1122,9 +1121,9 @@ with tab_risks:
             if impact not in severity_palette:
                 impact = "moderate"
             
-            tag_color, tag_bg, card_bg = severity_palette[impact]
+            tag_color, tag_bg, card_bg, card_css = severity_palette[impact]
             
-            risk_card_html = f"""<div class="electric-card" style="background:{card_bg}; border:1px solid {tag_color}40; margin-bottom:12px; height:100%;">
+            risk_card_html = f"""<div class="{card_css}" style="background:{card_bg}; margin-bottom:12px; height:100%;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
 <span style="background:{tag_bg}; border:1px solid {tag_color}; color:{tag_color}; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; text-transform:uppercase;">● {impact.upper()} IMPACT</span>
 <span style="color:#94a3b8; font-size:11.5px; font-weight:600;">{cat}</span>
@@ -1145,7 +1144,7 @@ with tab_investor:
     bull_pct = int(takeaway.get("sentiment_score", 74))
     bear_pct = 100 - bull_pct
 
-    st.markdown(f"""<div class="electric-card" style="margin-bottom:20px; height: auto;">
+    st.markdown(f"""<div class="electric-kpi-card-blue" style="margin-bottom:20px; height: auto;">
 <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
 <span style="color:#34d399;">🟢 Institutional Bull Catalysts: {bull_pct}%</span>
 <span style="color:#f87171;">🔴 Headwinds & Cost Pressures: {bear_pct}%</span>
@@ -1191,13 +1190,13 @@ forecast_toggle = st.radio(
 
 if forecast_toggle == "No, keep standard view":
     st.markdown("""
-    <div class="electric-card" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
+    <div class="electric-kpi-card-blue" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
         💡 <strong>Standard view retained.</strong> Feel free to explore the overview or move forward to the next section.
     </div>
     """, unsafe_allow_html=True)
 elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     st.markdown("""
-    <div class="electric-card" style="margin-bottom:20px; height: auto;">
+    <div class="electric-kpi-card-blue" style="margin-bottom:20px; height: auto;">
         <div style="color:#60a5fa; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Predictive Revenue & Profit Trajectory (Next 3–5 Years)</div>
         <div style="color:#94a3b8; font-size:13.5px; margin-bottom:16px;">
             Projection model synthesized from audited annual reports and macroeconomic compounding dynamics.
@@ -1208,7 +1207,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     fc1, fc2, fc3 = st.columns(3)
     with fc1:
         st.markdown("""
-        <div class="electric-card" style="text-align: center;">
+        <div class="electric-kpi-card-green" style="text-align: center;">
             <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Projected 3Y CAGR Growth</div>
             <div style="color:#34d399; font-size:26px; font-weight:800; margin: 8px 0;">+16.4% p.a.</div>
             <div style="color:#94a3b8; font-size:11.5px;">Revenue Expansion Rate</div>
@@ -1216,7 +1215,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
         """, unsafe_allow_html=True)
     with fc2:
         st.markdown("""
-        <div class="electric-card" style="text-align: center;">
+        <div class="electric-kpi-card-blue" style="text-align: center;">
             <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Operating Margin Outlook</div>
             <div style="color:#60a5fa; font-size:26px; font-weight:800; margin: 8px 0;">Expanding (+120 bps)</div>
             <div style="color:#94a3b8; font-size:11.5px;">Cost Optimization Leverage</div>
@@ -1224,7 +1223,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
         """, unsafe_allow_html=True)
     with fc3:
         st.markdown("""
-        <div class="electric-card" style="text-align: center;">
+        <div class="electric-kpi-card-blue" style="text-align: center;">
             <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Risk-Adjusted Scenario</div>
             <div style="color:#fbbf24; font-size:22px; font-weight:800; margin: 8px 0;">Base Case (Conservative)</div>
             <div style="color:#94a3b8; font-size:11.5px;">Solvency Buffer Maintained</div>
@@ -1251,7 +1250,7 @@ deep_choice = st.radio(
 
 if deep_choice == "No, keep summary view":
     st.markdown("""
-    <div class="electric-card" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
+    <div class="electric-kpi-card-blue" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
         💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
     </div>
     """, unsafe_allow_html=True)
@@ -1287,7 +1286,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d1:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #38bdf8; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in prof.get("points", [])])
         st.markdown(f"""
-        <div class="electric-card" style="height:100%;">
+        <div class="electric-kpi-card-green" style="height:100%;">
             <div style="color:#38bdf8; font-size:16px; font-weight:750; margin-bottom:8px;">📊 Profit Margins & Returns</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{prof.get('headline', '')}</div>
             {points_html}
@@ -1297,7 +1296,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d2:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #818cf8; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in debt.get("points", [])])
         st.markdown(f"""
-        <div class="electric-card" style="height:100%;">
+        <div class="electric-kpi-card-blue" style="height:100%;">
             <div style="color:#818cf8; font-size:16px; font-weight:750; margin-bottom:8px;">🛡️ Borrowings & Capital Cushion</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{debt.get('headline', '')}</div>
             {points_html}
@@ -1307,7 +1306,7 @@ elif deep_choice == "Yes, generate deep-dive financial analysis":
     with col_d3:
         points_html = "".join([f'<div style="background:#0c1220; border-left:3px solid #34d399; border-radius:6px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:#cbd5e1; line-height:1.45;">• {p}</div>' for p in eff.get("points", [])])
         st.markdown(f"""
-        <div class="electric-card" style="height:100%;">
+        <div class="electric-kpi-card-green" style="height:100%;">
             <div style="color:#34d399; font-size:16px; font-weight:750; margin-bottom:8px;">⚙️ Operational Scale & Efficiency</div>
             <div style="color:#ffffff; font-weight:650; font-size:13.5px; margin-bottom:14px; line-height:1.4;">{eff.get('headline', '')}</div>
             {points_html}
@@ -1334,7 +1333,7 @@ investor_mcq = st.radio(
 
 if investor_mcq == "No, I am just studying / evaluating":
     st.markdown("""
-    <div class="electric-card" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
+    <div class="electric-kpi-card-blue" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
         💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
     </div>
     """, unsafe_allow_html=True)
@@ -1434,10 +1433,14 @@ Return ONLY valid JSON with this exact structure:
             st.markdown("---")
             st.markdown("### 📋 Power BI Dashboard: Equity Position Assessment")
             
+            is_pos = p_data.get("is_pos", True)
+            pnl_card_css = "electric-kpi-card-green" if is_pos else "electric-kpi-card-red"
+            pnl_color = "#34d399" if is_pos else "#f87171"
+
             cm1, cm2, cm3, cm4 = st.columns(4)
             with cm1:
                 st.markdown(f"""
-                <div class="electric-card">
+                <div class="electric-kpi-card-blue">
                     <div style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase;">Invested Capital</div>
                     <div style="font-size: 22px; font-weight: 800; color: #fff; margin: 6px 0;">₹{p_data.get('invested_amt', total_invested_input):,.2f}</div>
                     <div style="color: #94a3b8; font-size: 11.5px;">~{p_data.get('calc_shares', calc_shares):,} Shares</div>
@@ -1445,7 +1448,7 @@ Return ONLY valid JSON with this exact structure:
                 """, unsafe_allow_html=True)
             with cm2:
                 st.markdown(f"""
-                <div class="electric-card">
+                <div class="electric-kpi-card-blue">
                     <div style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase;">Purchase Price Basis</div>
                     <div style="font-size: 22px; font-weight: 800; color: #fff; margin: 6px 0;">₹{p_data.get('avg_price', avg_price_input):,.2f}</div>
                     <div style="color: #94a3b8; font-size: 11.5px;">Cost Basis per Share</div>
@@ -1453,17 +1456,15 @@ Return ONLY valid JSON with this exact structure:
                 """, unsafe_allow_html=True)
             with cm3:
                 st.markdown(f"""
-                <div class="electric-card">
+                <div class="electric-kpi-card-blue">
                     <div style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase;">Current Market Price</div>
                     <div style="font-size: 22px; font-weight: 800; color: #60a5fa; margin: 6px 0;">{p_data.get('cmp_display', 'N/A')}</div>
                     <div style="color: #94a3b8; font-size: 11.5px;">{p_data.get('exchange_tag', 'NSE/BSE')}</div>
                 </div>
                 """, unsafe_allow_html=True)
             with cm4:
-                is_pos = p_data.get("is_pos", True)
-                pnl_color = "#34d399" if is_pos else "#f87171"
                 st.markdown(f"""
-                <div class="electric-card">
+                <div class="{pnl_card_css}">
                     <div style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase;">Unrealized P&L Return</div>
                     <div style="font-size: 22px; font-weight: 800; color: {pnl_color}; margin: 6px 0;">{p_data.get('pnl_str', 'N/A')}</div>
                     <div style="color: {pnl_color}; font-size: 11.5px;">{p_data.get('amt_str', '')}</div>
@@ -1484,7 +1485,7 @@ Return ONLY valid JSON with this exact structure:
             st.markdown("#### 🛡️ Fundamental Valuation Safety")
             for item in p_data.get("price_safety_points", []):
                 st.markdown(f"""
-                <div class="electric-card" style="margin-bottom: 10px; border-left: 3px solid #3b82f6; height: auto;">
+                <div class="electric-kpi-card-blue" style="margin-bottom: 10px; height: auto;">
                     <div style="font-weight: 750; color: #fff; margin-bottom: 4px;">✓ {item.get('title', '')}</div>
                     <div style="color: #94a3b8; font-size: 13px;">{item.get('explanation', '')}</div>
                 </div>
@@ -1493,7 +1494,7 @@ Return ONLY valid JSON with this exact structure:
             st.markdown("#### 🚀 Long-Term Compounding Horizons (5 to 8 Year Perspective)")
             for item in p_data.get("long_term_outlook_5_to_8_years", []):
                 st.markdown(f"""
-                <div class="electric-card" style="margin-bottom: 10px; border-left: 3px solid #8b5cf6; height: auto;">
+                <div class="electric-kpi-card-green" style="margin-bottom: 10px; height: auto;">
                     <div style="font-weight: 750; color: #fff; margin-bottom: 4px;">◆ {item.get('title', '')}</div>
                     <div style="color: #94a3b8; font-size: 13px;">{item.get('explanation', '')}</div>
                 </div>
@@ -1519,7 +1520,7 @@ export_choice = st.radio(
 
 if export_choice == "No, keep on-screen view":
     st.markdown("""
-    <div class="electric-card" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
+    <div class="electric-kpi-card-blue" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
         💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
     </div>
     """, unsafe_allow_html=True)
@@ -1686,7 +1687,7 @@ Use clear bullet points, exact figures from the context, and professional langua
 
 {report_context}
 
-INVESTOR QUESTION: {active_q}
+INVESTORQUESTION: {active_q}
 """
 
     chat_response_placeholder = st.empty()
