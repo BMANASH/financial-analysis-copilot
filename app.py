@@ -601,21 +601,8 @@ def upload_pdf_to_gemini(uploaded_file):
             temp_file.write(uploaded_file.getbuffer())
             temp_path = temp_file.name
 
+        # Direct, reliable upload to Gemini
         gemini_file = client.files.upload(file=temp_path)
-
-        for _ in range(90):
-            try:
-                gemini_file = client.files.get(name=gemini_file.name)
-                state = getattr(gemini_file, "state", None)
-                state_name = getattr(state, "name", str(state))
-                if state_name == "ACTIVE":
-                    return gemini_file
-                elif state_name == "FAILED":
-                    raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
-            except Exception:
-                pass
-            time.sleep(2)
-
         return gemini_file
     finally:
         if temp_path:
