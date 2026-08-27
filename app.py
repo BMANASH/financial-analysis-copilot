@@ -444,16 +444,11 @@ div[data-testid="stFileUploader"] {
 }
 
 /* =======================================================
-   CLEAN BORDERED SEGMENTED PILL NAVBAR (RADIO REPLACEMENT)
+   MODERN BORDERED SEGMENTED PILL NAVBAR (RADIO REPLACEMENT)
    ======================================================= */
 div[data-testid="stRadio"] {
-    margin-top: 10px !important;
+    margin-top: 15px !important;
     margin-bottom: 25px !important;
-}
-
-/* Hide Streamlit radio labels/titles completely (Removes "Financial Dashboards" & "Select Category Slicer:") */
-div[data-testid="stRadio"] > label {
-    display: none !important;
 }
 
 /* Main outer container bar with modern glass border */
@@ -470,7 +465,7 @@ div[data-testid="stRadio"] > div[role="radiogroup"] {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Individual option pills with clean borders */
+/* Individual option pills with clean borders between them */
 div[data-testid="stRadio"] label {
     background: transparent !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -482,10 +477,13 @@ div[data-testid="stRadio"] label {
     align-items: center !important;
 }
 
-/* COMPLETELY HIDE the radio bullet point / circle icon and icon container */
+/* COMPLETELY HIDE the radio bullet point / circle icon and check indicators */
 div[data-testid="stRadio"] input[type="radio"],
 div[data-testid="stRadio"] label > div:first-child {
     display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* Hover effect for unselected pills */
@@ -929,18 +927,18 @@ if uploaded_file:
 
             analysis_prompt = """
 You are an expert institutional equity research analyst. Automatically detect the type of corporate report uploaded (e.g., Bank/NBFC, Technology, Manufacturing, FMCG, Energy, etc.).
-Dynamically extract metrics and structure your response strictly in valid JSON matching this schema:
+Dynamically extract comprehensive metrics and structure your response strictly in valid JSON matching this schema with high depth and detailed descriptions:
 {
   "company_overview": {
     "company_name": "Full company name",
     "stock_ticker": "Ticker symbol if available",
     "industry": "Detected industry sector",
-    "business_type": "2 sentences describing core operations and revenue model",
+    "business_type": "Comprehensive description describing core operations, product verticals, and revenue model",
     "reporting_period": "Reporting fiscal year",
     "report_type": "Annual Report or Financial Filing"
   },
   "terms_cheat_sheet": [
-    { "term": "Term name", "meaning": "1 sentence explanation" }
+    { "term": "Term name", "meaning": "Detailed sentence explanation" }
   ],
   "key_metrics": [
     {
@@ -950,7 +948,7 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
       "yoy_growth": "YoY growth percentage",
       "unit": "₹ Crore / % / USD",
       "basis": "Consolidated / Standalone",
-      "what_it_means": "1 sentence explanation"
+      "what_it_means": "Thorough operational and financial significance explanation"
     }
   ],
   "investor_scorecard": {
@@ -1140,7 +1138,7 @@ if headline_metrics:
             </div>
             """, unsafe_allow_html=True)
 
-# Consolidated Financial Dashboards Suite (Modern Bordered Radio-Pill Navigation)
+# Consolidated Financial Dashboards Suite (Modern Bordered Radio-Pill Navigation without duplicate headers/bullets)
 st.markdown('<div class="section-title" style="margin-top: 30px;">Financial Dashboards</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Interactive analytical tabs structured with financial dashboard aesthetics:</div>', unsafe_allow_html=True)
 
@@ -1987,7 +1985,7 @@ with chip_cols[0]:
 with chip_cols[1]:
     if st.button("🚀 Core Business Growth Drivers", key="c2"): suggested_q = "What are the company's major operational growth drivers and revenue scaling avenues?"
 with chip_cols[2]:
-    if st.button("💰 Debt Solvency & Liquidity", key="c3"): suggested_q = "How is the company's balance sheet positioned in terms of debt leverage, liquidity reserves, and solvency?"
+    if st.button("💰 Debt Solvency & Liquidity", key="c3"): suggested_q> "How is the company's balance sheet positioned in terms of debt leverage, liquidity reserves, and solvency?"
 with chip_cols[3]:
     if st.button("⚠️ Material Operational Risks", key="c4"): suggested_q = "What are the primary operational, credit, regulatory, and market risks outlined in the report?"
 
