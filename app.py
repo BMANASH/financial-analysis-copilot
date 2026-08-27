@@ -458,7 +458,8 @@ defaults = {
     "chat_history": [],
     "processing_seconds": 0.0,
     "file_size_mb": 0.0,
-    "forecast_data": None
+    "forecast_data": None,
+    "forecast_company": None # Added to permanently lock Section A state
 }
 
 for key, value in defaults.items():
@@ -1280,7 +1281,7 @@ if forecast_toggle == "No, keep standard view":
 elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     
     # Dynamically generate or fetch web-backed forecasting insights if not already in session state
-    if st.session_state.forecast_data is None or st.session_state.get("forecast_company") != company.get("company_name"):
+    if not st.session_state.get("forecast_loaded") or st.session_state.get("forecast_company") != company.get("company_name"):
         with st.spinner("🌍 Tracing live internet market trends, past financial history, and predictive compounding models via Gemini Search..."):
             c_name = company.get("company_name", "the company")
             c_ticker = company.get("stock_ticker", "")
@@ -1307,6 +1308,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
                     raise Exception("Invalid structure")
                 st.session_state.forecast_data = f_parsed
                 st.session_state.forecast_company = c_name
+                st.session_state.forecast_loaded = True
             except Exception:
                 st.session_state.forecast_data = {
                     "cagr_value": "+16.4% p.a.",
@@ -1318,6 +1320,8 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
                         "Robust capital buffers and zero long-term debt in core operating units secure financial stability across economic cycles."
                     ]
                 }
+                st.session_state.forecast_company = c_name
+                st.session_state.forecast_loaded = True
 
     f_res = st.session_state.forecast_data
 
@@ -1531,8 +1535,8 @@ elif investor_mcq == "Yes, I hold shares in this company":
                 "STRUCTURE YOUR JSON OUTPUT STRICTLY:\n"
                 "{\n"
                 "  \"profit_or_loss_summary\": \"Detailed breakdown of position performance.\",\n"
-                "  \"price_safety_points\": [{\"title\": \"Pillar Title\", \"explanation\": \"Detailed explanation\"}],\n"
-                "  \"long_term_outlook_5_to_8_years\": [{\"title\": \"Driver Title\", \"explanation\": \"Detailed explanation\"}]\n"
+                "  \"investor_checkpoints\": [{\"title\": \"Checkpoint Title\", \"explanation\": \"What the investor must closely look into regarding fundamentals and risks.\"}],\n"
+                "  \"future_aspect\": [{\"title\": \"Future Aspect Title\", \"explanation\": \"The future aspect and compounding potential over the next 5 to 8 years.\"}]\n"
                 "}"
             )
             try:
@@ -1609,8 +1613,8 @@ elif investor_mcq == "Yes, I hold shares in this company":
             </div>
             """, unsafe_allow_html=True)
 
-            st.markdown("#### 🛡️ Fundamental Valuation Safety")
-            for item in p_data.get("price_safety_points", []):
+            st.markdown("#### 🔍 What You Must Look Into (Investor Checkpoints)")
+            for item in p_data.get("investor_checkpoints", p_data.get("price_safety_points", [])):
                 st.markdown(f"""
                 <div class="electric-kpi-card-blue" style="margin-bottom: 10px; height: auto;">
                     <div style="font-weight: 750; color: #fff; margin-bottom: 4px;">✓ {item.get('title', '')}</div>
@@ -1618,8 +1622,8 @@ elif investor_mcq == "Yes, I hold shares in this company":
                 </div>
                 """, unsafe_allow_html=True)
 
-            st.markdown("#### 🚀 Long-Term Compounding Horizons (5 to 8 Year Perspective)")
-            for item in p_data.get("long_term_outlook_5_to_8_years", []):
+            st.markdown("#### 🚀 Future Aspect & Long-Term Compounding (5-8 Years)")
+            for item in p_data.get("future_aspect", p_data.get("long_term_outlook_5_to_8_years", [])):
                 st.markdown(f"""
                 <div class="electric-kpi-card-green" style="margin-bottom: 10px; height: auto;">
                     <div style="font-weight: 750; color: #fff; margin-bottom: 4px;">◆ {item.get('title', '')}</div>
