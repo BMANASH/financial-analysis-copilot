@@ -459,7 +459,7 @@ defaults = {
     "processing_seconds": 0.0,
     "file_size_mb": 0.0,
     "forecast_data": None,
-    "forecast_company": None # Added to permanently lock Section A state
+    "forecast_company": None
 }
 
 for key, value in defaults.items():
@@ -1280,7 +1280,6 @@ if forecast_toggle == "No, keep standard view":
     """, unsafe_allow_html=True)
 elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     
-    # Dynamically generate or fetch web-backed forecasting insights if not already in session state
     if not st.session_state.get("forecast_loaded") or st.session_state.get("forecast_company") != company.get("company_name"):
         with st.spinner("🌍 Tracing live internet market trends, past financial history, and predictive compounding models via Gemini Search..."):
             c_name = company.get("company_name", "the company")
@@ -1707,7 +1706,8 @@ elif export_choice == "Yes, generate institutional research export suite":
                 df_risks = pd.DataFrame(risks_data)
                 df_risks.to_excel(writer, sheet_name="Risk Matrix", index=False)
 
-                excel_bytes = excel_buffer.getvalue()
+            # Extract value OUTSIDE the 'with' block so openpyxl safely closes and finalizes the file
+            excel_bytes = excel_buffer.getvalue()
         except Exception:
             excel_bytes = b""
     else:
