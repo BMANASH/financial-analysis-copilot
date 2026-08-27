@@ -444,89 +444,69 @@ div[data-testid="stFileUploader"] {
 }
 
 /* =======================================================
-   MODERN SEPARATED GLASS PILL NAVBAR FOR TABS
+   MODERN SEGMENTED BORDERED PILL NAVBAR (RADIO REPLACEMENT)
    ======================================================= */
-div[data-testid="stTabs"] {
+div[data-testid="stRadio"] {
     margin-top: 15px !important;
     margin-bottom: 25px !important;
 }
 
-/* 1. Main outer dark glass container */
-div[data-testid="stTabs"] > div > div[role="tablist"] {
+/* Main outer container bar with modern rounded border */
+div[data-testid="stRadio"] > div[role="radiogroup"] {
     background: rgba(10, 14, 26, 0.9) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
     border: 1px solid rgba(59, 130, 246, 0.35) !important;
-    border-radius: 18px !important;
-    padding: 6px !important;
+    border-radius: 16px !important;
+    padding: 8px !important;
     gap: 6px !important;
     display: flex !important;
     flex-wrap: wrap !important;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* 2. Completely eliminate Streamlit's default red accent line and borders */
-div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
-div[data-testid="stTabs"] [data-baseweb="tab-border"] {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0px !important;
+/* Individual options styled as distinct bordered pill cards */
+div[data-testid="stRadio"] label {
     background: transparent !important;
-}
-
-/* 3. Individual tab item structured as a distinct selectable button with vertical dividers */
-div[data-testid="stTabs"] button[role="tab"] {
-    background: transparent !important;
-    border-radius: 12px !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.1) !important; /* Modern vertical divider */
-    border-top: none !important;
-    border-left: none !important;
-    border-bottom: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
     padding: 10px 18px !important;
-    min-height: 40px !important;
-    transition: all 0.25s ease-in-out !important;
     margin: 0 !important;
+    transition: all 0.25s ease-in-out !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
-/* Remove border from the last tab item */
-div[data-testid="stTabs"] button[role="tab"]:last-child {
-    border-right: none !important;
+/* Hide default radio circle input */
+div[data-testid="stRadio"] input[type="radio"] {
+    display: none !important;
 }
 
-/* 4. Unselected tab text styling */
-div[data-testid="stTabs"] button[role="tab"][aria-selected="false"] p,
-div[data-testid="stTabs"] button[role="tab"][aria-selected="false"] span {
+/* Hover effect for unselected pills */
+div[data-testid="stRadio"] label:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Active / Selected Pill Styling with Glass Rectangle Glow */
+div[data-testid="stRadio"] label:has(input[type="radio"]:checked),
+div[data-testid="stRadio"] input[type="radio"]:checked + div {
+    background: rgba(59, 130, 246, 0.25) !important;
+    border: 1px solid rgba(59, 130, 246, 0.8) !important;
+    box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35) !important;
+}
+
+/* Unselected label text color */
+div[data-testid="stRadio"] label span {
     color: #94a3b8 !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
-    margin: 0 !important;
 }
 
-/* 5. Hover state for unselected tabs */
-div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-}
-div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover p,
-div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover span {
-    color: #ffffff !important;
-}
-
-/* 6. Active Tab: Modern Floating Glass Pill Selection */
-div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    background: rgba(59, 130, 246, 0.25) !important;
-    border: 1px solid rgba(59, 130, 246, 0.6) !important;
-    border-radius: 12px !important;
-    box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35) !important;
-    border-right: none !important;
-}
-
-/* 7. Active Tab Typography (Pure bright blue/white, killing red) */
-div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] p,
-div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] span {
+/* Active label text color */
+div[data-testid="stRadio"] label:has(input[type="radio"]:checked) span {
     color: #60a5fa !important;
     font-weight: 750 !important;
-    font-size: 13.5px !important;
-    margin: 0 !important;
 }
 
 </style>
@@ -1155,16 +1135,27 @@ if headline_metrics:
             </div>
             """, unsafe_allow_html=True)
 
-# Consolidated Financial Dashboards Suite (6 Interactive Tabs)
+# Consolidated Financial Dashboards Suite (Modern Bordered Radio-Pill Navigation)
 st.markdown('<div class="section-title" style="margin-top: 30px;">Financial Dashboards</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Interactive analytical tabs structured with financial dashboard aesthetics:</div>', unsafe_allow_html=True)
 
-tab_scorecard, tab_metrics, tab_charts, tab_mgmt, tab_risks, tab_investor = st.tabs([
-    "⭐ Strategic Scorecard", "Financial Statement Table", "📊 Growth & Performance", "Management Outlook", "Risk Heatmap Matrix", "Analyst Signals & Takeaways"
-])
+selected_dashboard_tab = st.radio(
+    "Financial Dashboards",
+    options=[
+        "⭐ Strategic Scorecard", 
+        "Financial Statement Table", 
+        "📊 Growth & Performance", 
+        "Management Outlook", 
+        "Risk Heatmap Matrix", 
+        "Analyst Signals & Takeaways"
+    ],
+    horizontal=True,
+    label_visibility="collapsed",
+    key="financial_dashboards_radio"
+)
 
 # Tab 1: Strategic Scorecard
-with tab_scorecard:
+if selected_dashboard_tab == "⭐ Strategic Scorecard":
     st.subheader("Executive Strategic Diagnostic Scorecard")
     st.write("Structured 4-pillar evaluation matrix assessing corporate performance, capital resilience, and execution velocity:")
 
@@ -1209,7 +1200,7 @@ with tab_scorecard:
                 st.markdown(card_html, unsafe_allow_html=True)
 
 # Tab 2: Financial Statement Table
-with tab_metrics:
+elif selected_dashboard_tab == "Financial Statement Table":
     st.subheader("Audited Financial & Operating Statement Table")
     if metrics:
         col_search, col_filter = st.columns([2, 1])
@@ -1237,7 +1228,7 @@ with tab_metrics:
             st.dataframe(filtered_rows, use_container_width=True, hide_index=True, height=400)
 
 # Tab 3: Growth & Performance
-with tab_charts:
+elif selected_dashboard_tab == "📊 Growth & Performance":
     st.subheader("Visual Growth & Comparative Performance")
     st.write("Visual financial comparisons across key operating parameters with analytical context:")
 
@@ -1310,14 +1301,14 @@ with tab_charts:
         st.info("No comparative figures available for this specific category slice.")
 
 # Tab 4: Management Outlook
-with tab_mgmt:
+elif selected_dashboard_tab == "Management Outlook":
     st.subheader("Management Strategy & Future Execution Roadmaps")
     for item in management:
         with st.expander(f"🎯 {item.get('title', 'Strategic Pillar')}", expanded=False):
             st.write(item.get("summary", ""))
 
 # Tab 5: Risk Heatmap Matrix
-with tab_risks:
+elif selected_dashboard_tab == "Risk Heatmap Matrix":
     st.subheader("Potential Risks & Headwinds (Risk Heatmap Matrix)")
     st.write("Visual categorization of operational, credit, regulatory, and market threats:")
 
@@ -1353,7 +1344,7 @@ with tab_risks:
                 st.markdown(risk_card_html, unsafe_allow_html=True)
 
 # Tab 6: Analyst Signals & Takeaways
-with tab_investor:
+elif selected_dashboard_tab == "Analyst Signals & Takeaways":
     st.subheader("Institutional Sentiment & Analyst Signals")
     
     bull_pct = int(takeaway.get("sentiment_score", 74))
