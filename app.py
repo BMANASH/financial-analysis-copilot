@@ -442,6 +442,75 @@ div[data-testid="stFileUploader"] {
     text-align: center;
     padding-top: 25px;
 }
+
+/* =========================================
+   MODERN NAVBAR CSS FOR STREAMLIT TABS
+   ========================================= */
+div[data-testid="stTabs"] {
+    margin-top: 10px;
+}
+
+/* Pill Container */
+div[data-testid="stTabs"] > div[role="tablist"] {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 60px !important;
+    padding: 8px 12px !important;
+    backdrop-filter: blur(15px) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3) !important;
+    display: flex !important;
+    gap: 8px !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: none !important;
+}
+
+/* Individual Tab Items */
+div[data-testid="stTabs"] button[role="tab"] {
+    border-radius: 60px !important;
+    color: #94a3b8 !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    background-color: transparent !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+    flex: 1 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 45px !important;
+    padding: 0 15px !important;
+}
+
+/* Hover State */
+div[data-testid="stTabs"] button[role="tab"]:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Active Glowing State */
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+    background: linear-gradient(90deg, #06b6d4, #3b82f6) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4) !important;
+    border: none !important;
+}
+
+/* Override text margin inside tabs */
+div[data-testid="stTabs"] button[role="tab"] div[data-testid="stMarkdownContainer"] p {
+    margin: 0 !important;
+    font-weight: 700 !important;
+}
+
+/* Hide Default Streamlit Underlines & Lines */
+div[data-baseweb="tab-highlight"],
+div[data-baseweb="tab-border"],
+div[data-testid="stTabs"] button[role="tab"]::after,
+div[data-testid="stTabs"] button[role="tab"]::before {
+    display: none !important;
+    background: transparent !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
