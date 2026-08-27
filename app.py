@@ -476,7 +476,7 @@ div[data-testid="stTabs"] [data-baseweb="tab-border"] {
 div[data-testid="stTabs"] button[role="tab"] {
     background: transparent !important;
     border-radius: 10px !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.08) !important; /* Modern vertical divider */
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important; /* Modern vertical divider */
     border-top: none !important;
     border-left: none !important;
     border-bottom: none !important;
@@ -1342,7 +1342,7 @@ with tab_risks:
 <span style="color:#94a3b8; font-size:11.5px; font-weight:600;">{cat}</span>
 </div>
 <div style="color:#ffffff; font-weight:750; font-size:14px; margin-bottom:6px;">⚠️ {r.get('title')}</div>
-<div style="color:#94a3b8; font-size:12.5px; line-height:1.45; margin-bottom:10px;">{r.get('what_is_the_risk', '')}</div>
+<div style="color:#94a3b8; font-size:12.5px; line-height:1.45; margin-bottom:10px;">{r.get('what_it_might_matter', r.get('what_is_the_risk', ''))}</div>
 <div style="background:#06080e; border-left:3px solid {tag_color}; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12px; color:#f1f5f9;">
 <b>Impact on Financials:</b> {r.get('why_it_matters')}
 </div>
