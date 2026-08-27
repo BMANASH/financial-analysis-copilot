@@ -255,7 +255,7 @@ div[data-testid="stFileUploader"] {
     padding: 36px 32px !important;
     margin: 25px auto !important;
     text-align: center;
-    max-width: 620px;
+    max-width: 650px;
 }
 .fintech-spinner {
     width: 50px;
@@ -706,7 +706,7 @@ st.markdown("""
         ⏱️ <span>Document Size & Processing Advisory</span>
     </div>
     <div style="color: #94a3b8; font-size: 12.5px; line-height: 1.5;">
-        Multi-hundred page corporate filings (100–350+ pages) undergo complete table parsing, balance sheet reconciliation, and metric auditing. Processing time scales with document complexity (typically 1 to 2 minutes).
+        Standard multi-hundred page corporate filings typically take 1 to 3 minutes to parse and reconcile. <b>Disclaimer:</b> Massive files (500+ pages or >5MB) take approximately more than 5 minutes to load, synthesize, and give the output in a precise, correct, and error-free manner.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -816,7 +816,7 @@ if uploaded_file:
                 <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Running Deep Financial Analysis...</div>
                 <div class="pulse-text" style="font-size: 13px; color: #94a3b8; line-height: 1.5;">
                     Structuring health indicators, risk matrices, and dashboards.<br>
-                    <span style="color: #fbbf24; font-weight: 600;">(This involves scanning hundreds of pages and may take 2 to 4 minutes for large 8MB+ files. Please do not refresh.)</span>
+                    <span style="color: #fbbf24; font-weight: 600;">(Disclaimer: Massive files like 500+ pages or >5MB take approximately 5+ minutes to synthesize for precise, correct, and error-free output. Please do not refresh.)</span>
                 </div>
                 <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
             </div>
