@@ -452,28 +452,26 @@ div[data-testid="stTabs"] {
 }
 
 /* 1. The main floating pill container */
-div[data-testid="stTabs"] div[role="tablist"] {
+div[data-testid="stTabs"] > div > div[role="tablist"] {
     background: rgba(15, 23, 42, 0.8) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 60px !important;
-    padding: 8px 12px !important;
-    gap: 10px !important;
-    display: flex !important;
-    align-items: center !important;
+    padding: 6px !important;
+    gap: 4px !important;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
-    border-bottom: none !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
 }
 
-/* 2. Kill the default red line, gray border, and animations */
-div[data-testid="stTabs"] div[role="tablist"] ~ div {
+/* 2. Kill the default red line and gray border */
+div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
+div[data-testid="stTabs"] [data-baseweb="tab-border"] {
     display: none !important;
-    visibility: hidden !important;
-}
-
-div[data-testid="stTabs"] hr {
-    display: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* 3. Base style for all unselected tabs */
@@ -481,37 +479,25 @@ div[data-testid="stTabs"] button[role="tab"] {
     background: transparent !important;
     border-radius: 60px !important;
     border: none !important;
-    border-bottom: none !important;
-    padding: 10px 24px !important;
-    min-height: 42px !important;
+    padding: 8px 20px !important;
+    min-height: 38px !important;
     transition: all 0.3s ease !important;
     box-shadow: none !important;
     margin: 0 !important;
 }
 
-/* Kill focus outlines */
-div[data-testid="stTabs"] button[role="tab"]:focus {
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-}
-
-/* 4. Fix typography for all unselected tabs */
-div[data-testid="stTabs"] button[role="tab"] p, 
-div[data-testid="stTabs"] button[role="tab"] span {
+/* 4. Fix typography for all unselected tabs (Force gray) */
+div[data-testid="stTabs"] button[role="tab"][aria-selected="false"] * {
     color: #94a3b8 !important;
     font-weight: 600 !important;
     font-size: 14.5px !important;
-    margin: 0 !important;
-    padding: 0 !important;
 }
 
 /* 5. Hover state for unselected tabs */
-div[data-testid="stTabs"] button[role="tab"]:hover {
+div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover {
     background: rgba(255, 255, 255, 0.08) !important;
 }
-div[data-testid="stTabs"] button[role="tab"]:hover p,
-div[data-testid="stTabs"] button[role="tab"]:hover span {
+div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover * {
     color: #ffffff !important;
 }
 
@@ -522,11 +508,11 @@ div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
     border: none !important;
 }
 
-/* 7. Active Tab Typography */
-div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] p,
-div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] span {
+/* 7. Active Tab Typography (Force text to pure white) */
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] * {
     color: #ffffff !important;
     font-weight: 750 !important;
+    font-size: 14.5px !important;
 }
 
 </style>
