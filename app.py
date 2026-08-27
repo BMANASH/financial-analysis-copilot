@@ -227,10 +227,20 @@ div[data-testid="stFileUploader"] {
     border: 2px solid #ef4444;
 }
 
-/* Spinner & Loaders */
+/* Spinner & Dynamic Loaders */
 @keyframes spinGlow {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@keyframes shimmerBar {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
+
+@keyframes pulseText {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
 }
 
 .center-loader-box {
@@ -256,6 +266,28 @@ div[data-testid="stFileUploader"] {
     border-radius: 50%;
     animation: spinGlow 0.85s linear infinite;
     margin-bottom: 16px;
+}
+
+.loader-progress-track {
+    background: #151d2f;
+    border-radius: 4px;
+    height: 6px;
+    width: 80%;
+    margin: 20px auto 0 auto;
+    overflow: hidden;
+    position: relative;
+}
+
+.loader-progress-fill {
+    background: linear-gradient(90deg, transparent, #3b82f6, #60a5fa, transparent);
+    height: 100%;
+    width: 50%;
+    position: absolute;
+    animation: shimmerBar 1.5s infinite linear;
+}
+
+.pulse-text {
+    animation: pulseText 2s infinite ease-in-out;
 }
 
 /* Telemetry & Badges */
@@ -453,10 +485,12 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# ACTIVE GEMINI 3-SERIES PRODUCTION MODELS
+# ACTIVE GEMINI PRODUCTION MODELS
 # ============================================================
 
 ACTIVE_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
     "gemini-3.7-flash",
     "gemini-3.6-flash",
     "gemini-3.5-flash-lite",
@@ -475,6 +509,7 @@ def generate_with_fallback(contents, json_mode=False, use_search=False):
             try:
                 tools_list = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
                 
+                # When search tool is enabled, response_mime_type cannot be application/json
                 if json_mode and not use_search:
                     config = types.GenerateContentConfig(
                         response_mime_type="application/json",
@@ -609,8 +644,10 @@ def upload_pdf_to_gemini(uploaded_file):
             temp_file.write(uploaded_file.getbuffer())
             temp_path = temp_file.name
 
+        # Direct, reliable upload to Gemini without invalid arguments
         gemini_file = client.files.upload(file=temp_path)
         
+        # Robust polling loop to verify the file is ready
         for _ in range(90):
             try:
                 gemini_file = client.files.get(name=gemini_file.name)
@@ -722,7 +759,7 @@ if not st.session_state.gemini_file or not st.session_state.analysis:
             """, unsafe_allow_html=True)
 
 # ============================================================
-# AUTOMATIC GENERATION ON UPLOAD WITH STEP-BY-STEP LOADER
+# AUTOMATIC GENERATION ON UPLOAD WITH DYNAMIC LOADER
 # ============================================================
 
 if uploaded_file:
@@ -733,13 +770,14 @@ if uploaded_file:
         file_mb = round(len(uploaded_file.getvalue()) / (1024 * 1024), 2)
         st.session_state.file_size_mb = file_mb
 
-        # Step 1
+        # Step 1: Ingestion
         loader_container.markdown("""
         <div class="center-loader-box">
             <div class="telemetry-pill" style="margin-bottom: 12px;">Step 1 of 3 • Document Ingestion</div>
             <div class="fintech-spinner"></div>
             <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Uploading & Verifying Document...</div>
-            <div style="font-size: 13px; color: #94a3b8;">Transferring PDF securely to Gemini analytical cluster.</div>
+            <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">Transferring PDF securely to Gemini analytical cluster.</div>
+            <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -748,24 +786,29 @@ if uploaded_file:
             st.session_state.gemini_file = gemini_file
             st.session_state.uploaded_name = uploaded_file.name
 
-            # Step 2
+            # Step 2: Parsing
             loader_container.markdown("""
             <div class="center-loader-box">
                 <div class="telemetry-pill" style="margin-bottom: 12px;">Step 2 of 3 • Parsing Statements</div>
                 <div class="fintech-spinner"></div>
-                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Parsing Audited Financial Statements...</div>
-                <div style="font-size: 13px; color: #94a3b8;">Extracting balance sheets, income statements, and dynamic natural-language metrics.</div>
+                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Indexing Financial Data...</div>
+                <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">Extracting balance sheets, income statements, and natural-language text.</div>
+                <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
             </div>
             """, unsafe_allow_html=True)
             time.sleep(1.0)
 
-            # Step 3
+            # Step 3: Synthesis & AI Processing (Includes Shimmer Bar & Pulse Text warning for large files)
             loader_container.markdown("""
             <div class="center-loader-box">
-                <div class="telemetry-pill" style="margin-bottom: 12px;">Step 3 of 3 • Synthesizing Scorecard</div>
+                <div class="telemetry-pill" style="margin-bottom: 12px;">Step 3 of 3 • AI Synthesis & Analysis</div>
                 <div class="fintech-spinner"></div>
-                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Synthesizing Executive Scorecard...</div>
-                <div style="font-size: 13px; color: #94a3b8;">Structuring financial health indicators, risk matrices, and dashboards.</div>
+                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Running Deep Financial Analysis...</div>
+                <div class="pulse-text" style="font-size: 13px; color: #94a3b8; line-height: 1.5;">
+                    Structuring health indicators, risk matrices, and dashboards.<br>
+                    <span style="color: #fbbf24; font-weight: 600;">(This involves scanning hundreds of pages and may take 2 to 4 minutes for large 8MB+ files. Please do not refresh.)</span>
+                </div>
+                <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1461,7 +1504,8 @@ elif investor_mcq == "Yes, I hold shares in this company":
                 <div class="telemetry-pill" style="margin-bottom: 12px;">Valuation Engine Active</div>
                 <div class="fintech-spinner"></div>
                 <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Executing Investment Valuation...</div>
-                <div style="font-size: 13px; color: #94a3b8;">Cross-referencing entry price against net worth backing and compounding models.</div>
+                <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">Cross-referencing entry price against net worth backing and compounding models.</div>
+                <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1752,7 +1796,10 @@ INVESTOR QUESTION: {active_q}
     chat_response_placeholder.markdown("""
     <div class="chat-box-card" style="border-left: 3.5px solid #34d399; background: #071318;">
         <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
-        <div class="chat-text" style="color: #94a3b8;"><em>Analyzing report disclosures and structuring insights...</em></div>
+        <div class="chat-text" style="color: #94a3b8;">
+            <div class="pulse-text"><em>Analyzing report disclosures and structuring insights...</em></div>
+            <div class="loader-progress-track" style="margin-top: 8px;"><div class="loader-progress-fill"></div></div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
