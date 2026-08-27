@@ -1677,10 +1677,10 @@ elif export_choice == "Yes, generate institutional research export suite":
                 ws_summary.sheet_view.showGridLines = False # Dashboard Look
                 
                 # Header Title Styling
-                ws_summary.merge_cells('B2:I3')
+                ws_summary.merge_cells('B2:H3')
                 title_cell = ws_summary['B2']
                 title_cell.value = f"INSTITUTIONAL FINANCIAL RESEARCH: {str(comp_name).upper()}"
-                title_cell.font = Font(size=20, bold=True, color="FFFFFF")
+                title_cell.font = Font(size=22, bold=True, color="FFFFFF")
                 title_cell.fill = PatternFill(fill_type="solid", start_color="0B101C")
                 title_cell.alignment = Alignment(horizontal="center", vertical="center")
                 
@@ -1692,23 +1692,28 @@ elif export_choice == "Yes, generate institutional research export suite":
                     bottom=Side(style='thin', color="3B82F6")
                 )
 
+                # Spacer Columns (Columns C, E, G)
+                ws_summary.column_dimensions['C'].width = 3
+                ws_summary.column_dimensions['E'].width = 3
+                ws_summary.column_dimensions['G'].width = 3
+
                 # Render KPI Cards in Excel (Spaced out over columns B, D, F, H)
                 for i, m in enumerate(headline_metrics[:4]):
                     col_idx = 2 + (i * 2) 
                     col_letter = get_column_letter(col_idx)
                     
-                    ws_summary.column_dimensions[col_letter].width = 30
+                    ws_summary.column_dimensions[col_letter].width = 32
                     
-                    ws_summary.row_dimensions[5].height = 25
-                    ws_summary.row_dimensions[6].height = 45
-                    ws_summary.row_dimensions[7].height = 25
+                    ws_summary.row_dimensions[5].height = 30
+                    ws_summary.row_dimensions[6].height = 50
+                    ws_summary.row_dimensions[7].height = 30
                     
                     # Title Card Part
                     c_title = ws_summary[f'{col_letter}5']
                     c_title.value = str(m.get("metric", "KPI")).upper()
-                    c_title.font = Font(size=12, bold=True, color="94A3B8")
+                    c_title.font = Font(size=11, bold=True, color="94A3B8")
                     c_title.fill = PatternFill(fill_type="solid", start_color="1E293B")
-                    c_title.alignment = Alignment(horizontal="center", vertical="center")
+                    c_title.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
                     c_title.border = thin_border
                     
                     # Value Card Part
@@ -1764,19 +1769,49 @@ elif export_choice == "Yes, generate institutional research export suite":
                 df_risks = pd.DataFrame(risks_data)
                 df_risks.to_excel(writer, sheet_name="Risk Matrix", index=False)
 
-                # Style Tables (Headers and Auto-width/wrap)
-                for sheet_name in ["Financial Metrics", "Risk Matrix"]:
-                    ws = writer.sheets[sheet_name]
-                    for cell in ws[1]:
-                        cell.font = Font(bold=True, color="FFFFFF")
-                        cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
-                        cell.alignment = Alignment(horizontal="center", vertical="center")
-                    
-                    for col in ws.columns:
-                        col_letter = col[0].column_letter
-                        ws.column_dimensions[col_letter].width = 35
-                        for cell in col:
+                # ==========================
+                # Style Tables (Headers, Widths, Grid Borders, and Freeze Panes)
+                # ==========================
+                thin_grid = Border(
+                    left=Side(style='thin', color="DDDDDD"),
+                    right=Side(style='thin', color="DDDDDD"),
+                    top=Side(style='thin', color="DDDDDD"),
+                    bottom=Side(style='thin', color="DDDDDD")
+                )
+
+                # Style Financial Metrics
+                ws_metrics = writer.sheets["Financial Metrics"]
+                ws_metrics.freeze_panes = 'A2'
+                col_widths_fm = [35, 15, 15, 12, 10, 15, 20, 50]
+                for i, w in enumerate(col_widths_fm, 1):
+                    ws_metrics.column_dimensions[get_column_letter(i)].width = w
+
+                for row in ws_metrics.iter_rows(min_row=1, max_row=ws_metrics.max_row, min_col=1, max_col=8):
+                    for cell in row:
+                        if cell.row == 1:
+                            cell.font = Font(bold=True, color="FFFFFF")
+                            cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
+                            cell.alignment = Alignment(horizontal="center", vertical="center")
+                        else:
                             cell.alignment = Alignment(wrap_text=True, vertical="top")
+                            cell.border = thin_grid
+
+                # Style Risk Matrix
+                ws_risks = writer.sheets["Risk Matrix"]
+                ws_risks.freeze_panes = 'A2'
+                col_widths_rm = [30, 20, 15, 40, 45]
+                for i, w in enumerate(col_widths_rm, 1):
+                    ws_risks.column_dimensions[get_column_letter(i)].width = w
+
+                for row in ws_risks.iter_rows(min_row=1, max_row=ws_risks.max_row, min_col=1, max_col=5):
+                    for cell in row:
+                        if cell.row == 1:
+                            cell.font = Font(bold=True, color="FFFFFF")
+                            cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
+                            cell.alignment = Alignment(horizontal="center", vertical="center")
+                        else:
+                            cell.alignment = Alignment(wrap_text=True, vertical="top")
+                            cell.border = thin_grid
 
                 # Remove default sheet
                 if "Sheet" in wb.sheetnames:
