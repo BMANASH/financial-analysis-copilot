@@ -444,45 +444,54 @@ div[data-testid="stFileUploader"] {
 }
 
 /* =======================================================
-   MODERN GLASS RECTANGLE NAVBAR FOR TABS
+   MODERN SEPARATED BORDERED NAVBAR FOR TABS
    ======================================================= */
 div[data-testid="stTabs"] {
     margin-top: 15px !important;
     margin-bottom: 25px !important;
 }
 
-/* 1. The main outer navbar container */
+/* 1. Main outer container with modern rounded border */
 div[data-testid="stTabs"] > div > div[role="tablist"] {
-    background: rgba(10, 14, 26, 0.75) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 12px !important;
-    padding: 6px !important;
-    gap: 6px !important;
+    background: rgba(10, 14, 26, 0.85) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+    border-radius: 16px !important;
+    padding: 8px !important;
+    gap: 4px !important;
     display: flex !important;
     flex-wrap: wrap !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* 2. Kill the default red line, gray border, and vertical dividers */
+/* 2. Eradicate Streamlit default red accent line and borders */
 div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
 div[data-testid="stTabs"] [data-baseweb="tab-border"] {
     display: none !important;
     visibility: hidden !important;
 }
 
-/* 3. Base style for all unselected tabs */
+/* 3. Individual tab item with clean vertical divider borders between them */
 div[data-testid="stTabs"] button[role="tab"] {
     background: transparent !important;
-    border-radius: 8px !important;
-    border: none !important; /* Removes Streamlit vertical separators */
-    padding: 8px 18px !important;
-    min-height: 38px !important;
-    transition: all 0.2s ease-in-out !important;
+    border-radius: 10px !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important; /* Modern vertical divider */
+    border-top: none !important;
+    border-left: none !important;
+    border-bottom: none !important;
+    padding: 10px 20px !important;
+    min-height: 42px !important;
+    transition: all 0.25s ease !important;
     margin: 0 !important;
 }
 
-/* 4. Fix typography for all unselected tabs (Force gray) */
+/* Remove border from the very last tab so it looks balanced */
+div[data-testid="stTabs"] button[role="tab"]:last-child {
+    border-right: none !important;
+}
+
+/* 4. Unselected tab text styling */
 div[data-testid="stTabs"] button[role="tab"][aria-selected="false"] p,
 div[data-testid="stTabs"] button[role="tab"][aria-selected="false"] span {
     color: #94a3b8 !important;
@@ -491,23 +500,25 @@ div[data-testid="stTabs"] button[role="tab"][aria-selected="false"] span {
     margin: 0 !important;
 }
 
-/* 5. Hover state for unselected tabs */
+/* 5. Hover state */
 div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover {
-    background: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
 }
 div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover p,
 div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover span {
-    color: #f1f5f9 !important;
+    color: #ffffff !important;
 }
 
-/* 6. Active Tab: Glass Rectangle Effect */
+/* 6. Active Tab: Modern Glass Box Selection */
 div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    background: rgba(59, 130, 246, 0.15) !important;
-    border: 1px solid rgba(59, 130, 246, 0.35) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    background: rgba(59, 130, 246, 0.2) !important;
+    border: 1px solid rgba(59, 130, 246, 0.5) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25) !important;
+    border-right: none !important; /* Prevents divider overlap on active state */
 }
 
-/* 7. Active Tab Typography (Force text to light blue, kill the red) */
+/* 7. Active Tab Typography (Pure white & bright blue, killing any red) */
 div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] p,
 div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] span {
     color: #60a5fa !important;
