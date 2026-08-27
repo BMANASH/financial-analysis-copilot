@@ -444,14 +444,14 @@ div[data-testid="stFileUploader"] {
 }
 
 /* =======================================================
-   MODERN SEGMENTED BORDERED PILL NAVBAR (RADIO REPLACEMENT)
+   MODERN BORDERED SEGMENTED PILL NAVBAR (RADIO REPLACEMENT)
    ======================================================= */
 div[data-testid="stRadio"] {
     margin-top: 15px !important;
     margin-bottom: 25px !important;
 }
 
-/* Main outer container bar with modern rounded border */
+/* Main outer container bar with modern glass border */
 div[data-testid="stRadio"] > div[role="radiogroup"] {
     background: rgba(10, 14, 26, 0.9) !important;
     backdrop-filter: blur(16px) !important;
@@ -465,7 +465,7 @@ div[data-testid="stRadio"] > div[role="radiogroup"] {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Individual options styled as distinct bordered pill cards */
+/* Individual option pills with clean borders between them */
 div[data-testid="stRadio"] label {
     background: transparent !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -477,8 +477,9 @@ div[data-testid="stRadio"] label {
     align-items: center !important;
 }
 
-/* Hide default radio circle input */
-div[data-testid="stRadio"] input[type="radio"] {
+/* COMPLETELY HIDE the radio bullet point / circle icon */
+div[data-testid="stRadio"] input[type="radio"],
+div[data-testid="stRadio"] label > div:first-child {
     display: none !important;
 }
 
@@ -488,9 +489,8 @@ div[data-testid="stRadio"] label:hover {
     border-color: rgba(59, 130, 246, 0.5) !important;
 }
 
-/* Active / Selected Pill Styling with Glass Rectangle Glow */
-div[data-testid="stRadio"] label:has(input[type="radio"]:checked),
-div[data-testid="stRadio"] input[type="radio"]:checked + div {
+/* Active / Selected Pill Styling */
+div[data-testid="stRadio"] label:has(input[type="radio"]:checked) {
     background: rgba(59, 130, 246, 0.25) !important;
     border: 1px solid rgba(59, 130, 246, 0.8) !important;
     box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35) !important;
@@ -949,27 +949,27 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
     }
   ],
   "investor_scorecard": {
-    "growth_momentum": { "badge": "Robust", "verdict": "Summary sentence", "health_pct": 85, "points": ["Point 1", "Point 2", "Point 3"] },
-    "profitability_quality": { "badge": "Solid", "verdict": "Summary sentence", "health_pct": 80, "points": ["Point 1", "Point 2", "Point 3"] },
-    "balance_sheet_safety": { "badge": "Secure", "verdict": "Summary sentence", "health_pct": 92, "points": ["Point 1", "Point 2", "Point 3"] },
-    "strategic_execution": { "badge": "Active", "verdict": "Summary sentence", "health_pct": 88, "points": ["Point 1", "Point 2", "Point 3"] }
+    "growth_momentum": { "badge": "Robust", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 85, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
+    "profitability_quality": { "badge": "Solid", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 80, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
+    "balance_sheet_safety": { "badge": "Secure", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 92, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
+    "strategic_execution": { "badge": "Active", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 88, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] }
   },
   "in_depth_investigation": {
-    "profitability_and_margins": { "headline": "Verdict sentence", "points": ["Point 1", "Point 2", "Point 3"] },
-    "borrowings_and_capital_cushion": { "headline": "Verdict sentence", "points": ["Point 1", "Point 2", "Point 3"] },
-    "operating_efficiency_and_scale": { "headline": "Verdict sentence", "points": ["Point 1", "Point 2", "Point 3"] }
+    "profitability_and_margins": { "headline": "Thorough verdict sentence with comprehensive depth", "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
+    "borrowings_and_capital_cushion": { "headline": "Thorough verdict sentence with comprehensive depth", "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
+    "operating_efficiency_and_scale": { "headline": "Thorough verdict sentence with comprehensive depth", "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] }
   },
   "management_commentary": [
-    { "title": "Theme title", "summary": "Summary explanation" }
+    { "title": "Theme title", "summary": "Comprehensive in-depth explanation covering strategic objectives and financial execution." }
   ],
   "risks": [
-    { "title": "Risk title", "category": "Market & Economy", "impact_level": "High", "what_is_the_risk": "Explanation", "why_it_matters": "Financial impact" }
+    { "title": "Risk title", "category": "Market & Economy", "impact_level": "High", "what_is_the_risk": "Detailed explanation of the underlying threat", "why_it_matters": "Comprehensive financial impact analysis" }
   ],
   "analyst_takeaway": {
-    "improving": ["Tailwind 1", "Tailwind 2", "Tailwind 3"],
-    "weakening": ["Headwind 1", "Headwind 2", "Headwind 3"],
-    "growth_drivers": ["Driver 1", "Driver 2"],
-    "investor_watch": ["Checkpoint 1", "Checkpoint 2"],
+    "improving": ["Detailed tailwind 1", "Detailed tailwind 2", "Detailed tailwind 3"],
+    "weakening": ["Detailed headwind 1", "Detailed headwind 2", "Detailed headwind 3"],
+    "growth_drivers": ["Detailed driver 1", "Detailed driver 2"],
+    "investor_watch": ["Detailed checkpoint 1", "Detailed checkpoint 2"],
     "sentiment_score": 75
   }
 }
@@ -1140,7 +1140,7 @@ st.markdown('<div class="section-title" style="margin-top: 30px;">Financial Dash
 st.markdown('<div class="section-description">Interactive analytical tabs structured with financial dashboard aesthetics:</div>', unsafe_allow_html=True)
 
 selected_dashboard_tab = st.radio(
-    "Financial Dashboards",
+    "",
     options=[
         "⭐ Strategic Scorecard", 
         "Financial Statement Table", 
@@ -1233,7 +1233,13 @@ elif selected_dashboard_tab == "📊 Growth & Performance":
     st.write("Visual financial comparisons across key operating parameters with analytical context:")
 
     categories = ["All Metrics", "Revenue & Profit", "Balance Sheet & Assets", "Financial Health Ratios"]
-    selected_cat = st.radio("Select Category Slicer:", options=categories, horizontal=True, key="bi_chart_slicer")
+    selected_cat = st.radio(
+        "", 
+        options=categories, 
+        horizontal=True, 
+        label_visibility="collapsed",
+        key="bi_chart_slicer"
+    )
 
     chart_records = []
     for m in metrics:
@@ -1523,7 +1529,7 @@ deep_choice = st.radio(
 if deep_choice == "No, keep summary view":
     st.markdown("""
     <div class="electric-kpi-card-blue" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
-        💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
+        💡 <strong>Standard view retained.</strong> Feel free to explore the overview or move forward to the next section.
     </div>
     """, unsafe_allow_html=True)
 
@@ -1606,7 +1612,7 @@ investor_mcq = st.radio(
 if investor_mcq == "No, I am just studying / evaluating":
     st.markdown("""
     <div class="electric-kpi-card-blue" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
-        💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
+        💡 <strong>Standard view retained.</strong> Feel free to explore the overview or move forward to the next section.
     </div>
     """, unsafe_allow_html=True)
 
@@ -1776,7 +1782,7 @@ export_choice = st.radio(
 if export_choice == "No, keep on-screen view":
     st.markdown("""
     <div class="electric-kpi-card-blue" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
-        💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
+        💡 <strong>Standard view retained.</strong> Feel free to explore the overview or move forward to the next section.
     </div>
     """, unsafe_allow_html=True)
 
