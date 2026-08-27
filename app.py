@@ -459,7 +459,8 @@ defaults = {
     "processing_seconds": 0.0,
     "file_size_mb": 0.0,
     "forecast_data": None,
-    "forecast_company": None
+    "forecast_company": None,
+    "page_count": 0
 }
 
 for key, value in defaults.items():
@@ -769,6 +770,16 @@ if uploaded_file:
         file_mb = round(len(uploaded_file.getvalue()) / (1024 * 1024), 2)
         st.session_state.file_size_mb = file_mb
 
+        if pypdf is not None:
+            try:
+                pdf_reader = pypdf.PdfReader(uploaded_file)
+                st.session_state.page_count = len(pdf_reader.pages)
+                uploaded_file.seek(0)
+            except Exception:
+                st.session_state.page_count = "Unknown"
+        else:
+            st.session_state.page_count = "N/A"
+
         # Step 1: Ingestion
         loader_container.markdown("""
         <div class="center-loader-box">
@@ -907,6 +918,7 @@ takeaway = data.get("analyst_takeaway", {})
 proc_time = st.session_state.get("processing_seconds", 0.0)
 f_size = st.session_state.get("file_size_mb", 0.0)
 model_name = st.session_state.get("selected_model", "Gemini Engine")
+p_count = st.session_state.get("page_count", "Unknown")
 
 # Header & Telemetry Bar
 st.markdown(f"""
@@ -914,6 +926,7 @@ st.markdown(f"""
     <span class="telemetry-pill">⏱️ Processing Latency: <b>{proc_time}s</b></span>
     <span class="telemetry-pill">🧠 Model Engine: <b>{model_name}</b></span>
     <span class="telemetry-pill">📄 Filing Size: <b>{f_size} MB</b></span>
+    <span class="telemetry-pill">📑 Pages Analyzed: <b>{p_count}</b></span>
     <span class="telemetry-pill" style="border-color: #059669; color: #34d399;">🟢 Verification: <b>Audited & Reconciled</b></span>
 </div>
 """, unsafe_allow_html=True)
