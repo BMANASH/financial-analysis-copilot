@@ -443,71 +443,97 @@ div[data-testid="stFileUploader"] {
     padding-top: 25px;
 }
 
-/* =========================================
-   MODERN NAVBAR CSS FOR STREAMLIT TABS
-   ========================================= */
-.stTabs {
-    margin-top: 10px;
+/* =======================================================
+   MODERN GLASSMORPHISM FLOATING PILL NAVBAR FOR TABS
+   ======================================================= */
+div[data-testid="stTabs"] {
+    margin-top: 15px !important;
+    margin-bottom: 25px !important;
 }
 
-/* The floating pill container */
-.stTabs [data-baseweb="tab-list"] {
+/* The floating pill container bar */
+div[data-testid="stTabs"] [data-baseweb="tab-list"],
+div[data-testid="stTabs"] div[role="tablist"] {
     background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 60px !important;
-    padding: 8px 12px !important;
-    backdrop-filter: blur(15px) !important;
-    -webkit-backdrop-filter: blur(15px) !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3) !important;
+    padding: 6px 10px !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+    display: flex !important;
     gap: 6px !important;
+    border-bottom: none !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
 }
 
-/* Hide the bottom border of the tab list */
-.stTabs [data-baseweb="tab-border"] {
+/* Hide default red lines, borders, and BaseWeb highlights */
+div[data-testid="stTabs"] [data-baseweb="tab-border"],
+div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
+div[data-testid="stTabs"] hr,
+div[data-baseweb="tab-highlight"],
+div[data-baseweb="tab-border"] {
     display: none !important;
-    background-color: transparent !important;
+    visibility: hidden !important;
+    height: 0px !important;
+    background: transparent !important;
+    border: none !important;
 }
 
-/* Hide the red active highlight line */
-.stTabs [data-baseweb="tab-highlight"] {
-    display: none !important;
-    background-color: transparent !important;
-}
-
-/* Individual Tab Items */
-.stTabs button[role="tab"] {
+/* Individual Tab Item Buttons */
+div[data-testid="stTabs"] button[role="tab"],
+div[data-testid="stTabs"] button[data-baseweb="tab"],
+button[data-baseweb="tab"] {
     border-radius: 60px !important;
     color: #94a3b8 !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
+    background: transparent !important;
     background-color: transparent !important;
     border: none !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: all 0.25s ease !important;
+    display: inline-flex !important;
     justify-content: center !important;
     align-items: center !important;
-    min-height: 40px !important;
+    height: 42px !important;
+    min-height: 42px !important;
     padding: 0 20px !important;
     margin: 0 !important;
+    white-space: nowrap !important;
+    border-bottom: none !important;
 }
 
 /* Hover State */
-.stTabs button[role="tab"]:hover {
+div[data-testid="stTabs"] button[role="tab"]:hover,
+button[data-baseweb="tab"]:hover {
     color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-radius: 60px !important;
 }
 
-/* Active Glowing State */
-.stTabs button[role="tab"][aria-selected="true"] {
+/* Active Glowing Cyan/Blue State */
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"],
+div[data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"],
+button[data-baseweb="tab"][aria-selected="true"] {
     background: linear-gradient(90deg, #06b6d4, #3b82f6) !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4) !important;
+    font-weight: 750 !important;
+    border-radius: 60px !important;
+    box-shadow: 0 4px 18px rgba(6, 182, 212, 0.45) !important;
+    border: none !important;
 }
 
-/* Force correct margins on text inside tabs */
-.stTabs button[role="tab"] p {
+/* Force correct margins on typography inside tab buttons */
+div[data-testid="stTabs"] button[role="tab"] p,
+div[data-testid="stTabs"] button[role="tab"] div {
     margin: 0 !important;
-    font-weight: 700 !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font-weight: inherit !important;
+    font-size: inherit !important;
 }
 
 </style>
