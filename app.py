@@ -444,75 +444,76 @@ div[data-testid="stFileUploader"] {
 }
 
 /* =======================================================
-   MODERN GLASSMORPHISM FLOATING PILL NAVBAR FOR TABS
+   MODERN GLASS RECTANGLE NAVBAR FOR TABS
    ======================================================= */
 div[data-testid="stTabs"] {
     margin-top: 15px !important;
     margin-bottom: 25px !important;
 }
 
-/* 1. The main floating pill container */
+/* 1. The main outer navbar container */
 div[data-testid="stTabs"] > div > div[role="tablist"] {
-    background: rgba(15, 23, 42, 0.8) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    border-radius: 60px !important;
+    background: rgba(10, 14, 26, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
     padding: 6px !important;
-    gap: 4px !important;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+    gap: 6px !important;
     display: flex !important;
     flex-wrap: wrap !important;
 }
 
-/* 2. Kill the default red line and gray border */
+/* 2. Kill the default red line, gray border, and vertical dividers */
 div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
 div[data-testid="stTabs"] [data-baseweb="tab-border"] {
     display: none !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
+    visibility: hidden !important;
 }
 
 /* 3. Base style for all unselected tabs */
 div[data-testid="stTabs"] button[role="tab"] {
     background: transparent !important;
-    border-radius: 60px !important;
-    border: none !important;
-    padding: 8px 20px !important;
+    border-radius: 8px !important;
+    border: none !important; /* Removes Streamlit vertical separators */
+    padding: 8px 18px !important;
     min-height: 38px !important;
-    transition: all 0.3s ease !important;
-    box-shadow: none !important;
+    transition: all 0.2s ease-in-out !important;
     margin: 0 !important;
 }
 
 /* 4. Fix typography for all unselected tabs (Force gray) */
-div[data-testid="stTabs"] button[role="tab"][aria-selected="false"] * {
+div[data-testid="stTabs"] button[role="tab"][aria-selected="false"] p,
+div[data-testid="stTabs"] button[role="tab"][aria-selected="false"] span {
     color: #94a3b8 !important;
     font-weight: 600 !important;
-    font-size: 14.5px !important;
+    font-size: 13.5px !important;
+    margin: 0 !important;
 }
 
 /* 5. Hover state for unselected tabs */
 div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
 }
-div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover * {
-    color: #ffffff !important;
+div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover p,
+div[data-testid="stTabs"] button[role="tab"][aria-selected="false"]:hover span {
+    color: #f1f5f9 !important;
 }
 
-/* 6. Active Tab Glowing Pill Background */
+/* 6. Active Tab: Glass Rectangle Effect */
 div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%) !important;
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5) !important;
-    border: none !important;
+    background: rgba(59, 130, 246, 0.15) !important;
+    border: 1px solid rgba(59, 130, 246, 0.35) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* 7. Active Tab Typography (Force text to pure white) */
-div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] * {
-    color: #ffffff !important;
+/* 7. Active Tab Typography (Force text to light blue, kill the red) */
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] p,
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] span {
+    color: #60a5fa !important;
     font-weight: 750 !important;
-    font-size: 14.5px !important;
+    font-size: 13.5px !important;
+    margin: 0 !important;
 }
 
 </style>
