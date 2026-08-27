@@ -451,89 +451,62 @@ div[data-testid="stTabs"] {
     margin-bottom: 25px !important;
 }
 
-/* The floating pill container bar */
-div[data-testid="stTabs"] [data-baseweb="tab-list"],
-div[data-testid="stTabs"] div[role="tablist"] {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    border-radius: 60px !important;
-    padding: 6px 10px !important;
+/* 1. The main floating pill container */
+div[data-testid="stTabs"] > div[role="tablist"] {
+    background: rgba(13, 20, 36, 0.6) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
-    display: flex !important;
-    gap: 6px !important;
-    border-bottom: none !important;
-    overflow-x: auto !important;
-    scrollbar-width: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 50px !important;
+    padding: 6px 12px !important;
+    gap: 8px !important;
 }
 
-/* Hide default red lines, borders, and BaseWeb highlights */
-div[data-testid="stTabs"] [data-baseweb="tab-border"],
+/* 2. Completely kill the default red line and borders */
 div[data-testid="stTabs"] [data-baseweb="tab-highlight"],
-div[data-testid="stTabs"] hr,
-div[data-baseweb="tab-highlight"],
-div[data-baseweb="tab-border"] {
+div[data-testid="stTabs"] [data-baseweb="tab-border"] {
     display: none !important;
-    visibility: hidden !important;
+    background-color: transparent !important;
     height: 0px !important;
-    background: transparent !important;
-    border: none !important;
+    width: 0px !important;
+    opacity: 0 !important;
 }
 
-/* Individual Tab Item Buttons */
-div[data-testid="stTabs"] button[role="tab"],
-div[data-testid="stTabs"] button[data-baseweb="tab"],
-button[data-baseweb="tab"] {
-    border-radius: 60px !important;
+/* 3. Base style for all unselected tabs */
+div[data-testid="stTabs"] button[role="tab"] {
+    background: transparent !important;
+    border-radius: 50px !important;
+    border: none !important;
+    padding: 10px 24px !important;
+    min-height: 40px !important;
+    transition: all 0.3s ease !important;
+}
+
+/* 4. Fix typography for all unselected tabs */
+div[data-testid="stTabs"] button[role="tab"] p {
     color: #94a3b8 !important;
     font-weight: 600 !important;
-    font-size: 13.5px !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    transition: all 0.25s ease !important;
-    display: inline-flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    height: 42px !important;
-    min-height: 42px !important;
-    padding: 0 20px !important;
-    margin: 0 !important;
-    white-space: nowrap !important;
-    border-bottom: none !important;
-}
-
-/* Hover State */
-div[data-testid="stTabs"] button[role="tab"]:hover,
-button[data-baseweb="tab"]:hover {
-    color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-radius: 60px !important;
-}
-
-/* Active Glowing Cyan/Blue State */
-div[data-testid="stTabs"] button[role="tab"][aria-selected="true"],
-div[data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"],
-button[data-baseweb="tab"][aria-selected="true"] {
-    background: linear-gradient(90deg, #06b6d4, #3b82f6) !important;
-    color: #ffffff !important;
-    font-weight: 750 !important;
-    border-radius: 60px !important;
-    box-shadow: 0 4px 18px rgba(6, 182, 212, 0.45) !important;
-    border: none !important;
-}
-
-/* Force correct margins on typography inside tab buttons */
-div[data-testid="stTabs"] button[role="tab"] p,
-div[data-testid="stTabs"] button[role="tab"] div {
+    font-size: 14px !important;
     margin: 0 !important;
     padding: 0 !important;
-    color: inherit !important;
-    font-weight: inherit !important;
-    font-size: inherit !important;
+}
+
+/* 5. Hover state for unselected tabs */
+div[data-testid="stTabs"] button[role="tab"]:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* 6. Active Tab Glowing Pill Background */
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+    background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%) !important;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* 7. Active Tab Typography (Force text to white, kill the red) */
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] p,
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] div {
+    color: #ffffff !important;
+    font-weight: 750 !important;
 }
 
 </style>
