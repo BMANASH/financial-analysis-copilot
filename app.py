@@ -444,11 +444,16 @@ div[data-testid="stFileUploader"] {
 }
 
 /* =======================================================
-   MODERN BORDERED SEGMENTED PILL NAVBAR (RADIO REPLACEMENT)
+   CLEAN BORDERED SEGMENTED PILL NAVBAR (RADIO REPLACEMENT)
    ======================================================= */
 div[data-testid="stRadio"] {
-    margin-top: 15px !important;
+    margin-top: 10px !important;
     margin-bottom: 25px !important;
+}
+
+/* Hide Streamlit radio labels/titles completely (Removes "Financial Dashboards" & "Select Category Slicer:") */
+div[data-testid="stRadio"] > label {
+    display: none !important;
 }
 
 /* Main outer container bar with modern glass border */
@@ -465,7 +470,7 @@ div[data-testid="stRadio"] > div[role="radiogroup"] {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Individual option pills with clean borders between them */
+/* Individual option pills with clean borders */
 div[data-testid="stRadio"] label {
     background: transparent !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -477,7 +482,7 @@ div[data-testid="stRadio"] label {
     align-items: center !important;
 }
 
-/* COMPLETELY HIDE the radio bullet point / circle icon */
+/* COMPLETELY HIDE the radio bullet point / circle icon and icon container */
 div[data-testid="stRadio"] input[type="radio"],
 div[data-testid="stRadio"] label > div:first-child {
     display: none !important;
