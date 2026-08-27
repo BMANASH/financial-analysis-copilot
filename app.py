@@ -255,7 +255,7 @@ div[data-testid="stFileUploader"] {
     padding: 36px 32px !important;
     margin: 25px auto !important;
     text-align: center;
-    max-width: 650px;
+    max-width: 620px;
 }
 .fintech-spinner {
     width: 50px;
@@ -544,6 +544,39 @@ def generate_with_fallback(contents, json_mode=False, use_search=False):
 
     error_text = "\n\n".join(errors)
     raise Exception(f"API Rate limit reached or server is currently overloaded. Please try again in a few minutes.\n\n{error_text}")
+
+def generate_chat_response(contents, use_search=False):
+    """Fast-track dedicated fallback specifically for the chat copilot to maximize speed."""
+    errors = []
+    # Prioritize flash-lite for maximum chat speed and token efficiency
+    chat_models = [
+        "gemini-3.5-flash-lite",
+        "gemini-3.6-flash",
+        "gemini-3.7-flash"
+    ]
+    for model in chat_models:
+        for attempt in range(4): 
+            try:
+                tools_list = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
+                config = types.GenerateContentConfig(
+                    temperature=0.2,
+                    max_output_tokens=4096,
+                    tools=tools_list
+                )
+                response = client.models.generate_content(
+                    model=model,
+                    contents=contents,
+                    config=config
+                )
+                return response
+            except Exception as error:
+                err_str = str(error)
+                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "503" in err_str or "UNAVAILABLE" in err_str:
+                    time.sleep(2.0 * (2 ** attempt))
+                    continue
+                errors.append(f"{model}: {err_str}")
+                break
+    raise Exception(f"Chat API is currently overloaded by Google's limits. Please try again in a few moments.\n\n{errors}")
 
 # ============================================================
 # SAFE PARSERS & UNIVERSAL STOCK LOOKUP
@@ -1855,6 +1888,9 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown("<br>", unsafe_allow_html=True)
+use_web_search_chat = st.toggle("🌐 Enable Live Web Search (Combines PDF with live market news - Takes ~10-15s)", value=False)
+
 chip_cols = st.columns(4)
 suggested_q = None
 with chip_cols[0]:
@@ -1896,28 +1932,17 @@ if active_q:
     </div>
     """, unsafe_allow_html=True)
 
-    report_context = f"""
-AUDITED COMPANY DATA:
-- Entity: {company.get('company_name', 'Company')} ({company.get('stock_ticker', '')})
-- Industry: {company.get('industry', 'N/A')}
-- Business Profile: {company.get('business_type', 'N/A')}
-- Extracted Metrics: {json.dumps(metrics)}
-- Executive Scorecard: {json.dumps(scorecard)}
-- Key Risks: {json.dumps(risks)}
-- Management Themes: {json.dumps(management)}
-- Analyst Takeaways: {json.dumps(takeaway)}
-"""
+    c_name = company.get('company_name', 'the company')
 
     chat_prompt = f"""
-You are an expert financial analyst. Answer the user's question accurately using both the audited disclosures below and live web search data for current market scenarios and recent news.
+You are an expert financial analyst. Answer the user's question accurately using the uploaded audited financial report.
 CRITICAL INSTRUCTIONS:
 - Explain your answer in SIMPLE TERMS.
 - Avoid heavy technical jargon. If you must use a financial term, briefly explain it simply.
-- Use clear bullet points and exact figures from the context.
-- Synthesize the document data with live internet context dynamically.
+- Use clear bullet points and exact figures from the uploaded document.
+- {'Synthesize the document data with live internet context dynamically to address current trends/news.' if use_web_search_chat else 'Rely ONLY on the provided document. Do not hallucinate outside information.'}
 
-{report_context}
-
+COMPANY: {c_name}
 INVESTOR QUESTION: {active_q}
 """
 
@@ -1933,7 +1958,7 @@ INVESTOR QUESTION: {active_q}
     """, unsafe_allow_html=True)
 
     try:
-        res = generate_with_fallback(contents=[chat_prompt], json_mode=False, use_search=True)
+        res = generate_chat_response(contents=[chat_prompt, st.session_state.gemini_file], use_search=use_web_search_chat)
         ans = res.text.strip() if res.text else "No relevant disclosure found."
         
         st.session_state.chat_history.append({"role": "assistant", "content": ans})
