@@ -1663,53 +1663,73 @@ elif export_choice == "Yes, generate institutional research export suite":
 
     excel_buffer = io.BytesIO()
     if pd is not None and openpyxl is not None:
-        from openpyxl.styles import PatternFill, Font, Alignment
+        from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+        from openpyxl.utils import get_column_letter
         
         try:
             with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+                wb = writer.book
+                
                 # ==========================
                 # SHEET 1: Executive Summary 
                 # ==========================
-                wb = writer.book
                 ws_summary = wb.create_sheet("Executive Summary", 0)
+                ws_summary.sheet_view.showGridLines = False # Dashboard Look
                 
-                # Header Styling
-                ws_summary.merge_cells('B2:E3')
-                header_cell = ws_summary['B2']
-                header_cell.value = f"INSTITUTIONAL FINANCIAL RESEARCH: {comp_name.upper()}"
-                header_cell.font = Font(size=18, bold=True, color="FFFFFF")
-                header_cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
-                header_cell.alignment = Alignment(horizontal="center", vertical="center")
+                # Header Title Styling
+                ws_summary.merge_cells('B2:I3')
+                title_cell = ws_summary['B2']
+                title_cell.value = f"INSTITUTIONAL FINANCIAL RESEARCH: {str(comp_name).upper()}"
+                title_cell.font = Font(size=20, bold=True, color="FFFFFF")
+                title_cell.fill = PatternFill(fill_type="solid", start_color="0B101C")
+                title_cell.alignment = Alignment(horizontal="center", vertical="center")
                 
-                # Render KPI Cards in Excel
+                # Border Styles for Cards
+                thin_border = Border(
+                    left=Side(style='thin', color="3B82F6"), 
+                    right=Side(style='thin', color="3B82F6"), 
+                    top=Side(style='thin', color="3B82F6"), 
+                    bottom=Side(style='thin', color="3B82F6")
+                )
+
+                # Render KPI Cards in Excel (Spaced out over columns B, D, F, H)
                 for i, m in enumerate(headline_metrics[:4]):
-                    col_idx = 2 + i # Columns B, C, D, E
-                    col_letter = chr(64 + col_idx) 
-                    ws_summary.column_dimensions[col_letter].width = 28
+                    col_idx = 2 + (i * 2) 
+                    col_letter = get_column_letter(col_idx)
                     
-                    # Title Card
+                    ws_summary.column_dimensions[col_letter].width = 30
+                    
+                    ws_summary.row_dimensions[5].height = 25
+                    ws_summary.row_dimensions[6].height = 45
+                    ws_summary.row_dimensions[7].height = 25
+                    
+                    # Title Card Part
                     c_title = ws_summary[f'{col_letter}5']
                     c_title.value = str(m.get("metric", "KPI")).upper()
-                    c_title.font = Font(size=11, bold=True, color="94A3B8")
+                    c_title.font = Font(size=12, bold=True, color="94A3B8")
                     c_title.fill = PatternFill(fill_type="solid", start_color="1E293B")
                     c_title.alignment = Alignment(horizontal="center", vertical="center")
+                    c_title.border = thin_border
                     
-                    # Value Card
+                    # Value Card Part
                     c_val = ws_summary[f'{col_letter}6']
                     c_val.value = f"{m.get('current_period', 'N/A')} {m.get('unit', '')}"
-                    c_val.font = Font(size=16, bold=True, color="38BDF8")
+                    c_val.font = Font(size=18, bold=True, color="38BDF8")
                     c_val.fill = PatternFill(fill_type="solid", start_color="0B101C")
                     c_val.alignment = Alignment(horizontal="center", vertical="center")
+                    c_val.border = thin_border
                     
-                    # Growth Status Card
+                    # Growth Status Card Part
                     c_yoy = ws_summary[f'{col_letter}7']
                     yoy_val = str(m.get('yoy_growth', 'N/A'))
                     c_yoy.value = f"YoY Delta: {yoy_val}"
-                    color_yoy = "10B981" if ("+" in yoy_val or not "-" in yoy_val) else "EF4444"
+                    color_yoy = "10B981" if ("+" in yoy_val or "-" not in yoy_val) else "EF4444"
                     if yoy_val in ["N/A", "", "None"]: color_yoy = "94A3B8"
-                    c_yoy.font = Font(size=11, bold=True, color=color_yoy)
+                    
+                    c_yoy.font = Font(size=12, bold=True, color=color_yoy)
                     c_yoy.fill = PatternFill(fill_type="solid", start_color="0B101C")
                     c_yoy.alignment = Alignment(horizontal="center", vertical="center")
+                    c_yoy.border = thin_border
 
                 # ==========================
                 # SHEET 2: Financial Metrics
@@ -1726,14 +1746,9 @@ elif export_choice == "Yes, generate institutional research export suite":
                         "Category": auto_classify_metric(m.get("metric", "")),
                         "Analytical Context": m.get("what_it_means", "")
                     })
-                pd.DataFrame(metrics_data).to_excel(writer, sheet_name="Financial Metrics", index=False)
+                df_metrics = pd.DataFrame(metrics_data)
+                df_metrics.to_excel(writer, sheet_name="Financial Metrics", index=False)
                 
-                # Style Tab 2 Headers
-                ws_metrics = writer.sheets["Financial Metrics"]
-                for cell in ws_metrics[1]:
-                    cell.font = Font(bold=True, color="FFFFFF")
-                    cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
-
                 # ==========================
                 # SHEET 3: Risk Matrix
                 # ==========================
@@ -1746,19 +1761,27 @@ elif export_choice == "Yes, generate institutional research export suite":
                         "Hazard Description": r.get("what_is_the_risk", ""),
                         "Financial Implication": r.get("why_it_matters", "")
                     })
-                pd.DataFrame(risks_data).to_excel(writer, sheet_name="Risk Matrix", index=False)
-                
-                # Style Tab 3 Headers
-                ws_risks = writer.sheets["Risk Matrix"]
-                for cell in ws_risks[1]:
-                    cell.font = Font(bold=True, color="FFFFFF")
-                    cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
+                df_risks = pd.DataFrame(risks_data)
+                df_risks.to_excel(writer, sheet_name="Risk Matrix", index=False)
 
-                # Remove default sheet if present
+                # Style Tables (Headers and Auto-width/wrap)
+                for sheet_name in ["Financial Metrics", "Risk Matrix"]:
+                    ws = writer.sheets[sheet_name]
+                    for cell in ws[1]:
+                        cell.font = Font(bold=True, color="FFFFFF")
+                        cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
+                        cell.alignment = Alignment(horizontal="center", vertical="center")
+                    
+                    for col in ws.columns:
+                        col_letter = col[0].column_letter
+                        ws.column_dimensions[col_letter].width = 35
+                        for cell in col:
+                            cell.alignment = Alignment(wrap_text=True, vertical="top")
+
+                # Remove default sheet
                 if "Sheet" in wb.sheetnames:
                     del wb["Sheet"]
 
-            # Excel file is successfully closed and built here.
             excel_bytes = excel_buffer.getvalue()
         except Exception:
             excel_bytes = b""
@@ -1767,6 +1790,7 @@ elif export_choice == "Yes, generate institutional research export suite":
 
     clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', comp_name)
     
+    # XLSX Download Button only as requested
     st.download_button(
         label="📊 Download Professional Excel Model Workbook (.xlsx)",
         data=excel_bytes,
