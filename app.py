@@ -1934,15 +1934,30 @@ if active_q:
 
     c_name = company.get('company_name', 'the company')
 
+    report_context = f"""
+AUDITED COMPANY DATA:
+- Entity: {c_name} ({company.get('stock_ticker', '')})
+- Industry: {company.get('industry', 'N/A')}
+- Business Profile: {company.get('business_type', 'N/A')}
+- Extracted Metrics: {json.dumps(metrics)}
+- Executive Scorecard: {json.dumps(scorecard)}
+- Key Risks: {json.dumps(risks)}
+- Management Themes: {json.dumps(management)}
+- Analyst Takeaways: {json.dumps(takeaway)}
+"""
+
+    search_instruction = "Synthesize the provided data with live internet context dynamically to address current trends, market data, and recent news." if use_web_search_chat else "Rely ONLY on the provided financial summary data below. Do not use outside information or hallucinate."
+
     chat_prompt = f"""
-You are an expert financial analyst. Answer the user's question accurately using the uploaded audited financial report.
+You are an expert financial analyst. Answer the user's question accurately using the comprehensive financial summary extracted from the company's audited report.
 CRITICAL INSTRUCTIONS:
 - Explain your answer in SIMPLE TERMS.
 - Avoid heavy technical jargon. If you must use a financial term, briefly explain it simply.
-- Use clear bullet points and exact figures from the uploaded document.
-- {'Synthesize the document data with live internet context dynamically to address current trends/news.' if use_web_search_chat else 'Rely ONLY on the provided document. Do not hallucinate outside information.'}
+- Use clear bullet points and exact figures from the provided summary.
+- {search_instruction}
 
-COMPANY: {c_name}
+{report_context}
+
 INVESTOR QUESTION: {active_q}
 """
 
@@ -1958,7 +1973,9 @@ INVESTOR QUESTION: {active_q}
     """, unsafe_allow_html=True)
 
     try:
-        res = generate_chat_response(contents=[chat_prompt, st.session_state.gemini_file], use_search=use_web_search_chat)
+        # Crucial fix: Send only the chat_prompt (which includes the lightweight JSON summary) 
+        # and DO NOT attach st.session_state.gemini_file (the massive PDF) to prevent rate limit crashes.
+        res = generate_chat_response(contents=[chat_prompt], use_search=use_web_search_chat)
         ans = res.text.strip() if res.text else "No relevant disclosure found."
         
         st.session_state.chat_history.append({"role": "assistant", "content": ans})
