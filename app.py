@@ -1898,8 +1898,12 @@ AUDITED COMPANY DATA:
 """
 
     chat_prompt = f"""
-You are an institutional financial analyst. Answer the user's question accurately using the audited disclosures below.
-Use clear bullet points, exact figures from the context, and professional language.
+You are an expert financial analyst. Answer the user's question accurately using both the audited disclosures below and live web search data for current market scenarios and recent news.
+CRITICAL INSTRUCTIONS:
+- Explain your answer in SIMPLE TERMS.
+- Avoid heavy technical jargon. If you must use a financial term, briefly explain it simply.
+- Use clear bullet points and exact figures from the context.
+- Synthesize the document data with live internet context dynamically.
 
 {report_context}
 
@@ -1918,7 +1922,7 @@ INVESTOR QUESTION: {active_q}
     """, unsafe_allow_html=True)
 
     try:
-        res = generate_with_fallback(contents=[chat_prompt], json_mode=False)
+        res = generate_with_fallback(contents=[chat_prompt], json_mode=False, use_search=True)
         ans = res.text.strip() if res.text else "No relevant disclosure found."
         
         st.session_state.chat_history.append({"role": "assistant", "content": ans})
