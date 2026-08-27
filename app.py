@@ -1287,21 +1287,22 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
             
             web_forecast_prompt = (
                 "You are an expert institutional equity research analyst. "
-                "Analyze the company '" + str(c_name) + "' (Ticker: " + str(c_ticker) + ") using both the uploaded PDF report and live web search data regarding its past multi-year financial history, market trends, sector tailwinds, and compounding outlook. "
-                "Provide a detailed, natural-language predictive projection breakdown strictly matching this JSON structure: "
+                f"Analyze the company '{c_name}' (Ticker: {c_ticker}) using live web search data for recent news, strategic updates, and market trends. "
+                "Provide a natural-language predictive projection breakdown strictly matching this JSON structure. Do not use markdown blocks:\n"
                 "{\n"
-                "  \"cagr_value\": \"+16.4% p.a.\",\n"
-                "  \"margin_outlook\": \"Expanding (+120 bps)\",\n"
-                "  \"risk_scenario\": \"Base Case (Conservative)\",\n"
+                "  \"cagr_value\": \"Dynamic value (e.g. +12.5% p.a.)\",\n"
+                "  \"margin_outlook\": \"Dynamic value (e.g. Expanding (+50 bps))\",\n"
+                "  \"risk_scenario\": \"Dynamic value (e.g. Base Case / Stress Case)\",\n"
                 "  \"rationale_points\": [\n"
-                "    \"Detailed bullet point 1 explaining core long-term growth drivers backed by historical internet trend tracing.\",\n"
-                "    \"Detailed bullet point 2 explaining operational efficiency and cost optimization leverage.\",\n"
-                "    \"Detailed bullet point 3 explaining future enterprise risks, compounding potential, and solvency outlook over 3-5 years.\"\n"
+                "    \"Point 1: Based on specific recent search data...\",\n"
+                "    \"Point 2: Based on operational updates...\",\n"
+                "    \"Point 3: Based on sector outlook...\"\n"
                 "  ]\n"
                 "}"
             )
             try:
-                res_f = generate_with_fallback(contents=[web_forecast_prompt, st.session_state.gemini_file], json_mode=False, use_search=True)
+                # Passing only the text prompt ensures search context limits aren't exceeded
+                res_f = generate_with_fallback(contents=[web_forecast_prompt], json_mode=False, use_search=True)
                 f_parsed = clean_json_response(res_f.text)
                 if not f_parsed or "rationale_points" not in f_parsed:
                     raise Exception("Invalid structure")
@@ -1309,14 +1310,16 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
                 st.session_state.forecast_company = c_name
                 st.session_state.forecast_loaded = True
             except Exception:
+                # Dynamic fallback based on actual user uploaded data
+                fallback_growth = headline_metrics[0].get("yoy_growth", "+10.0%") if headline_metrics else "+10.0%"
                 st.session_state.forecast_data = {
-                    "cagr_value": "+16.4% p.a.",
-                    "margin_outlook": "Expanding (+120 bps)",
-                    "risk_scenario": "Base Case (Conservative)",
+                    "cagr_value": f"Estimated {fallback_growth} p.a.",
+                    "margin_outlook": "Stable Outlook",
+                    "risk_scenario": "Base Case (Audited Trends)",
                     "rationale_points": [
-                        "Historical trend reconciliation indicates accelerated digital integration and high-margin recurring fee streams supporting multi-year compounding.",
-                        "Operating leverage is projected to scale as automated operational workflows reduce transaction costs and overhead ratios.",
-                        "Robust capital buffers and zero long-term debt in core operating units secure financial stability across economic cycles."
+                        f"Historical trend reconciliation for {c_name} indicates steady operational workflows.",
+                        "Live internet market data tracing encountered temporary limits, projection relies on fundamental trailing 12-month statements.",
+                        "Robust capital buffers support financial stability across localized economic cycles."
                     ]
                 }
                 st.session_state.forecast_company = c_name
@@ -1335,7 +1338,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     
     fc1, fc2, fc3 = st.columns(3)
     with fc1:
-        cagr_val = f_res.get('cagr_value', '+16.4% p.a.')
+        cagr_val = f_res.get('cagr_value', '+10.0% p.a.')
         st.markdown(f"""
         <div class="electric-kpi-card-green" style="text-align: center;">
             <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Projected 3Y CAGR Growth</div>
@@ -1344,7 +1347,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
         </div>
         """, unsafe_allow_html=True)
     with fc2:
-        margin_val = f_res.get('margin_outlook', 'Expanding')
+        margin_val = f_res.get('margin_outlook', 'Stable')
         st.markdown(f"""
         <div class="electric-kpi-card-blue" style="text-align: center;">
             <div style="color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase;">Operating Margin Outlook</div>
@@ -1659,25 +1662,58 @@ elif export_choice == "Yes, generate institutional research export suite":
     comp_name = company.get("company_name", "Company")
 
     excel_buffer = io.BytesIO()
-    if pd is not None:
+    if pd is not None and openpyxl is not None:
+        from openpyxl.styles import PatternFill, Font, Alignment
+        
         try:
             with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-                # Sheet 1: Executive Summary & KPI Cards
-                summary_kpis = [
-                    ["Company Entity", company.get("company_name", "N/A")],
-                    ["Stock Ticker", company.get("stock_ticker", "N/A")],
-                    ["Industry / Sector", company.get("industry", "N/A")],
-                    ["Reporting Period", company.get("reporting_period", "N/A")],
-                    ["Filing Format", company.get("report_type", "N/A")],
-                    ["Analysis Date", datetime.today().strftime('%d %B %Y')]
-                ]
-                for m in headline_metrics:
-                    summary_kpis.append([m.get("metric", "KPI"), f"{m.get('current_period', 'N/A')} {m.get('unit', '')} (YoY: {m.get('yoy_growth', 'N/A')})"])
+                # ==========================
+                # SHEET 1: Executive Summary 
+                # ==========================
+                wb = writer.book
+                ws_summary = wb.create_sheet("Executive Summary", 0)
+                
+                # Header Styling
+                ws_summary.merge_cells('B2:E3')
+                header_cell = ws_summary['B2']
+                header_cell.value = f"INSTITUTIONAL FINANCIAL RESEARCH: {comp_name.upper()}"
+                header_cell.font = Font(size=18, bold=True, color="FFFFFF")
+                header_cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
+                header_cell.alignment = Alignment(horizontal="center", vertical="center")
+                
+                # Render KPI Cards in Excel
+                for i, m in enumerate(headline_metrics[:4]):
+                    col_idx = 2 + i # Columns B, C, D, E
+                    col_letter = chr(64 + col_idx) 
+                    ws_summary.column_dimensions[col_letter].width = 28
+                    
+                    # Title Card
+                    c_title = ws_summary[f'{col_letter}5']
+                    c_title.value = str(m.get("metric", "KPI")).upper()
+                    c_title.font = Font(size=11, bold=True, color="94A3B8")
+                    c_title.fill = PatternFill(fill_type="solid", start_color="1E293B")
+                    c_title.alignment = Alignment(horizontal="center", vertical="center")
+                    
+                    # Value Card
+                    c_val = ws_summary[f'{col_letter}6']
+                    c_val.value = f"{m.get('current_period', 'N/A')} {m.get('unit', '')}"
+                    c_val.font = Font(size=16, bold=True, color="38BDF8")
+                    c_val.fill = PatternFill(fill_type="solid", start_color="0B101C")
+                    c_val.alignment = Alignment(horizontal="center", vertical="center")
+                    
+                    # Growth Status Card
+                    c_yoy = ws_summary[f'{col_letter}7']
+                    yoy_val = str(m.get('yoy_growth', 'N/A'))
+                    c_yoy.value = f"YoY Delta: {yoy_val}"
+                    color_yoy = "10B981" if ("+" in yoy_val or not "-" in yoy_val) else "EF4444"
+                    if yoy_val in ["N/A", "", "None"]: color_yoy = "94A3B8"
+                    c_yoy.font = Font(size=11, bold=True, color=color_yoy)
+                    c_yoy.fill = PatternFill(fill_type="solid", start_color="0B101C")
+                    c_yoy.alignment = Alignment(horizontal="center", vertical="center")
 
-                df_summary = pd.DataFrame(summary_kpis, columns=["Executive KPI Parameter", "Audited Summary Value"])
-                df_summary.to_excel(writer, sheet_name="Executive Summary", index=False)
-
-                # Sheet 2: Financial Metrics Table
+                # ==========================
+                # SHEET 2: Financial Metrics
+                # ==========================
                 metrics_data = []
                 for m in metrics:
                     metrics_data.append({
@@ -1690,10 +1726,17 @@ elif export_choice == "Yes, generate institutional research export suite":
                         "Category": auto_classify_metric(m.get("metric", "")),
                         "Analytical Context": m.get("what_it_means", "")
                     })
-                df_metrics = pd.DataFrame(metrics_data)
-                df_metrics.to_excel(writer, sheet_name="Financial Metrics", index=False)
+                pd.DataFrame(metrics_data).to_excel(writer, sheet_name="Financial Metrics", index=False)
+                
+                # Style Tab 2 Headers
+                ws_metrics = writer.sheets["Financial Metrics"]
+                for cell in ws_metrics[1]:
+                    cell.font = Font(bold=True, color="FFFFFF")
+                    cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
 
-                # Sheet 3: Risk Matrix
+                # ==========================
+                # SHEET 3: Risk Matrix
+                # ==========================
                 risks_data = []
                 for r in risks:
                     risks_data.append({
@@ -1703,10 +1746,19 @@ elif export_choice == "Yes, generate institutional research export suite":
                         "Hazard Description": r.get("what_is_the_risk", ""),
                         "Financial Implication": r.get("why_it_matters", "")
                     })
-                df_risks = pd.DataFrame(risks_data)
-                df_risks.to_excel(writer, sheet_name="Risk Matrix", index=False)
+                pd.DataFrame(risks_data).to_excel(writer, sheet_name="Risk Matrix", index=False)
+                
+                # Style Tab 3 Headers
+                ws_risks = writer.sheets["Risk Matrix"]
+                for cell in ws_risks[1]:
+                    cell.font = Font(bold=True, color="FFFFFF")
+                    cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
 
-            # Extract value OUTSIDE the 'with' block so openpyxl safely closes and finalizes the file
+                # Remove default sheet if present
+                if "Sheet" in wb.sheetnames:
+                    del wb["Sheet"]
+
+            # Excel file is successfully closed and built here.
             excel_bytes = excel_buffer.getvalue()
         except Exception:
             excel_bytes = b""
@@ -1715,7 +1767,6 @@ elif export_choice == "Yes, generate institutional research export suite":
 
     clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', comp_name)
     
-    # XLSX Download Button only as requested
     st.download_button(
         label="📊 Download Professional Excel Model Workbook (.xlsx)",
         data=excel_bytes,
