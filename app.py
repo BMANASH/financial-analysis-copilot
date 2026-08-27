@@ -471,7 +471,7 @@ def generate_with_fallback(contents, json_mode=False, use_search=False):
         ordered.insert(0, st.session_state.selected_model)
 
     for model in ordered:
-        for attempt in range(2):
+        for attempt in range(5):  # Exponential Backoff enabled: 5 Attempts max
             try:
                 tools_list = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
                 
@@ -499,14 +499,16 @@ def generate_with_fallback(contents, json_mode=False, use_search=False):
 
             except Exception as error:
                 err_str = str(error)
-                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                    time.sleep(2.0)
+                # Catch both Rate Limits (429) AND Overloaded Servers (503) seamlessly
+                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "503" in err_str or "UNAVAILABLE" in err_str:
+                    sleep_time = 2.0 * (2 ** attempt)  # 2s, 4s, 8s, 16s...
+                    time.sleep(sleep_time)
                     continue
                 errors.append(f"{model}: {err_str}")
                 break
 
     error_text = "\n\n".join(errors)
-    raise Exception(f"API Rate limit reached or model timeout. Please try again.\n\n{error_text}")
+    raise Exception(f"API Rate limit reached or server is currently overloaded. Please try again in a few minutes.\n\n{error_text}")
 
 # ============================================================
 # SAFE PARSERS & UNIVERSAL STOCK LOOKUP
@@ -607,10 +609,8 @@ def upload_pdf_to_gemini(uploaded_file):
             temp_file.write(uploaded_file.getbuffer())
             temp_path = temp_file.name
 
-        # Direct, reliable upload to Gemini without invalid arguments
         gemini_file = client.files.upload(file=temp_path)
         
-        # Robust polling loop to verify the file is ready
         for _ in range(90):
             try:
                 gemini_file = client.files.get(name=gemini_file.name)
@@ -823,8 +823,7 @@ Dynamically extract metrics and structure your response strictly in valid JSON m
 """
             response = generate_with_fallback(
                 contents=[analysis_prompt, gemini_file],
-                json_mode=True,
-                use_search=False
+                json_mode=True
             )
             data = clean_json_response(response.text)
             elapsed_time = round(time.time() - start_time, 1)
@@ -1237,6 +1236,7 @@ if forecast_toggle == "No, keep standard view":
     """, unsafe_allow_html=True)
 elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     
+    # Dynamically generate or fetch web-backed forecasting insights if not already in session state
     if st.session_state.forecast_data is None or st.session_state.get("forecast_company") != company.get("company_name"):
         with st.spinner("🌍 Tracing live internet market trends, past financial history, and predictive compounding models via Gemini Search..."):
             c_name = company.get("company_name", "the company")
