@@ -81,11 +81,24 @@ div[data-testid="stStatusWidget"] {
 
 /* Landing Page Downward Sliding Bouncy Animation */
 @keyframes landingBounce {
-    0% { opacity: 0; transform: translateY(-60px) scale(0.98); }
-    50% { opacity: 1; transform: translateY(12px) scale(1.01); }
-    75% { transform: translateY(-6px) scale(0.995); }
-    90% { transform: translateY(3px) scale(1.002); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% {
+        opacity: 0;
+        transform: translateY(-60px) scale(0.98);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(12px) scale(1.01);
+    }
+    75% {
+        transform: translateY(-6px) scale(0.995);
+    }
+    90% {
+        transform: translateY(3px) scale(1.002);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .landing-animate {
@@ -104,6 +117,7 @@ div[data-testid="stStatusWidget"] {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
+
 .liquid-glass-card:hover {
     border-color: rgba(59, 130, 246, 0.4);
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.15);
@@ -111,23 +125,50 @@ div[data-testid="stStatusWidget"] {
 
 /* Electric Glowing Animations for Cards and Uploader */
 @keyframes electricPulseBlue {
-    0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.7); }
-    50% { box-shadow: 0 0 30px rgba(96, 165, 250, 0.6), inset 0 0 20px rgba(96, 165, 250, 0.25); border-color: #60a5fa; }
-}
-@keyframes electricPulseGreen {
-    0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.7); }
-    50% { box-shadow: 0 0 30px rgba(52, 211, 153, 0.6), inset 0 0 20px rgba(52, 211, 153, 0.25); border-color: #34d399; }
-}
-@keyframes electricPulseYellow {
-    0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.3), inset 0 0 10px rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.7); }
-    50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.6), inset 0 0 20px rgba(251, 191, 36, 0.25); border-color: #fbbf24; }
-}
-@keyframes electricPulseRed {
-    0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), inset 0 0 10px rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.7); }
-    50% { box-shadow: 0 0 30px rgba(248, 113, 113, 0.6), inset 0 0 20px rgba(248, 113, 113, 0.25); border-color: #f87171; }
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(96, 165, 250, 0.6), inset 0 0 20px rgba(96, 165, 250, 0.25);
+        border-color: #60a5fa;
+    }
 }
 
-/* Streamlit Native File Uploader */
+@keyframes electricPulseGreen {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(52, 211, 153, 0.6), inset 0 0 20px rgba(52, 211, 153, 0.25);
+        border-color: #34d399;
+    }
+}
+
+@keyframes electricPulseYellow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.3), inset 0 0 10px rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(251, 191, 36, 0.6), inset 0 0 20px rgba(251, 191, 36, 0.25);
+        border-color: #fbbf24;
+    }
+}
+
+@keyframes electricPulseRed {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), inset 0 0 10px rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(248, 113, 113, 0.6), inset 0 0 20px rgba(248, 113, 113, 0.25);
+        border-color: #f87171;
+    }
+}
+
+/* Streamlit Native File Uploader Electric Border Frame */
 div[data-testid="stFileUploader"] {
     background: rgba(11, 17, 30, 0.85);
     backdrop-filter: blur(12px);
@@ -137,158 +178,333 @@ div[data-testid="stFileUploader"] {
     animation: electricPulseBlue 3s infinite ease-in-out;
 }
 
-/* Symmetrical Electric KPI Cards */
+/* Symmetrical Electric KPI Cards with 4 Performance Statuses */
 .electric-kpi-card-blue {
     background: linear-gradient(145deg, #0b101c 0%, #060911 100%);
-    border-radius: 16px; padding: 20px; height: 155px;
-    display: flex; flex-direction: column; justify-content: space-between;
-    animation: electricPulseBlue 3.5s infinite ease-in-out; border: 2px solid #3b82f6;
+    border-radius: 16px;
+    padding: 20px;
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    animation: electricPulseBlue 3.5s infinite ease-in-out;
+    border: 2px solid #3b82f6;
 }
+
 .electric-kpi-card-green {
     background: linear-gradient(145deg, #071f16 0%, #040d0a 100%);
-    border-radius: 16px; padding: 20px; height: 155px;
-    display: flex; flex-direction: column; justify-content: space-between;
-    animation: electricPulseGreen 3.5s infinite ease-in-out; border: 2px solid #10b981;
+    border-radius: 16px;
+    padding: 20px;
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    animation: electricPulseGreen 3.5s infinite ease-in-out;
+    border: 2px solid #10b981;
 }
+
 .electric-kpi-card-yellow {
     background: linear-gradient(145deg, #221808 0%, #0d0a04 100%);
-    border-radius: 16px; padding: 20px; height: 155px;
-    display: flex; flex-direction: column; justify-content: space-between;
-    animation: electricPulseYellow 3.5s infinite ease-in-out; border: 2px solid #fbbf24;
+    border-radius: 16px;
+    padding: 20px;
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    animation: electricPulseYellow 3.5s infinite ease-in-out;
+    border: 2px solid #fbbf24;
 }
+
 .electric-kpi-card-red {
     background: linear-gradient(145deg, #240d12 0%, #0d0406 100%);
-    border-radius: 16px; padding: 20px; height: 155px;
-    display: flex; flex-direction: column; justify-content: space-between;
-    animation: electricPulseRed 3.5s infinite ease-in-out; border: 2px solid #ef4444;
+    border-radius: 16px;
+    padding: 20px;
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    animation: electricPulseRed 3.5s infinite ease-in-out;
+    border: 2px solid #ef4444;
 }
 
 /* Spinner & Dynamic Loaders */
-@keyframes spinGlow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes shimmerBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
-@keyframes pulseText { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+@keyframes spinGlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes shimmerBar {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
+
+@keyframes pulseText {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
 
 .center-loader-box {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(13, 18, 30, 0.95) !important; backdrop-filter: blur(24px) !important;
-    border: 1px solid rgba(59, 130, 246, 0.45) !important; border-radius: 18px !important;
-    padding: 36px 32px !important; margin: 25px auto !important; text-align: center; max-width: 620px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 18, 30, 0.95) !important;
+    backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(59, 130, 246, 0.45) !important;
+    border-radius: 18px !important;
+    padding: 36px 32px !important;
+    margin: 25px auto !important;
+    text-align: center;
+    max-width: 620px;
 }
 .fintech-spinner {
-    width: 50px; height: 50px;
-    border: 3.5px solid rgba(59, 130, 246, 0.15); border-top: 3.5px solid #60a5fa; border-right: 3.5px solid #3b82f6;
-    border-radius: 50%; animation: spinGlow 0.85s linear infinite; margin-bottom: 16px;
+    width: 50px;
+    height: 50px;
+    border: 3.5px solid rgba(59, 130, 246, 0.15);
+    border-top: 3.5px solid #60a5fa;
+    border-right: 3.5px solid #3b82f6;
+    border-radius: 50%;
+    animation: spinGlow 0.85s linear infinite;
+    margin-bottom: 16px;
 }
+
 .loader-progress-track {
-    background: #151d2f; border-radius: 4px; height: 6px; width: 80%;
-    margin: 20px auto 0 auto; overflow: hidden; position: relative;
+    background: #151d2f;
+    border-radius: 4px;
+    height: 6px;
+    width: 80%;
+    margin: 20px auto 0 auto;
+    overflow: hidden;
+    position: relative;
 }
+
 .loader-progress-fill {
     background: linear-gradient(90deg, transparent, #3b82f6, #60a5fa, transparent);
-    height: 100%; width: 50%; position: absolute; animation: shimmerBar 1.5s infinite linear;
+    height: 100%;
+    width: 50%;
+    position: absolute;
+    animation: shimmerBar 1.5s infinite linear;
 }
-.pulse-text { animation: pulseText 2s infinite ease-in-out; }
+
+.pulse-text {
+    animation: pulseText 2s infinite ease-in-out;
+}
 
 /* Telemetry & Badges */
 .telemetry-bar {
-    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; margin-bottom: 20px;
-    padding: 10px 14px; background: rgba(13, 18, 30, 0.65);
-    border: 1px solid #1e293b; border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding: 10px 14px;
+    background: rgba(13, 18, 30, 0.65);
+    border: 1px solid #1e293b;
+    border-radius: 10px;
 }
 .telemetry-pill {
-    background: #0a0e1a; border: 1px solid #23334d; color: #93c5fd;
-    font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px;
-    display: inline-flex; align-items: center; gap: 6px;
+    background: #0a0e1a;
+    border: 1px solid #23334d;
+    color: #93c5fd;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 /* Typography & Banners */
-.section-title { font-size: 21px; font-weight: 750; color: #f8fafc; margin-top: 24px; margin-bottom: 4px; }
-.section-description { color: #94a3b8; font-size: 13.5px; margin-bottom: 16px; }
+.section-title {
+    font-size: 21px;
+    font-weight: 750;
+    color: #f8fafc;
+    margin-top: 24px;
+    margin-bottom: 4px;
+}
+.section-description {
+    color: #94a3b8;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+}
 .fintech-banner {
     background: linear-gradient(135deg, #0c1220 0%, #060913 100%);
-    border: 1px solid #1e293b; border-left: 4px solid #3b82f6; border-radius: 12px;
-    padding: 18px 22px; margin-top: 30px; margin-bottom: 16px;
+    border: 1px solid #1e293b;
+    border-left: 4px solid #3b82f6;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-top: 30px;
+    margin-bottom: 16px;
 }
-.fintech-banner-title { font-size: 18px; font-weight: 750; color: #ffffff; margin-bottom: 4px; }
-.fintech-banner-desc { font-size: 13px; color: #94a3b8; }
+.fintech-banner-title {
+    font-size: 18px;
+    font-weight: 750;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+.fintech-banner-desc {
+    font-size: 13px;
+    color: #94a3b8;
+}
 
 /* Symmetrical Overview Cards */
 .company-card {
-    background: rgba(10, 14, 26, 0.85); border: 1px solid #1a2234; border-radius: 16px;
-    padding: 18px; height: 155px; display: flex; flex-direction: column;
-    justify-content: flex-start; overflow-y: auto; margin-bottom: 10px;
+    background: rgba(10, 14, 26, 0.85);
+    border: 1px solid #1a2234;
+    border-radius: 16px;
+    padding: 18px;
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+    margin-bottom: 10px;
     animation: electricPulseBlue 4s infinite ease-in-out;
 }
 .company-label {
-    color: #fbbf24; font-size: 11px; text-transform: uppercase;
-    letter-spacing: 0.8px; margin-bottom: 6px; font-weight: 700;
+    color: #fbbf24;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+    font-weight: 700;
 }
-.company-value { color: #f8fafc; font-size: 13.5px; font-weight: 550; line-height: 1.4; }
+.company-value {
+    color: #f8fafc;
+    font-size: 13.5px;
+    font-weight: 550;
+    line-height: 1.4;
+}
+
+/* BI KPI Cards */
+.kpi-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.kpi-title {
+    color: #94a3b8;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.kpi-main-val {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 800;
+    margin: 4px 0;
+}
+.spark-track {
+    background: #151d2f;
+    border-radius: 4px;
+    height: 5px;
+    width: 100%;
+    margin-top: 8px;
+    overflow: hidden;
+}
 
 /* Chat Styling */
 .chat-box-card {
-    background: #0a0e1a; border: 1px solid #1a2234; border-radius: 12px;
-    padding: 16px 18px; margin-bottom: 14px;
+    background: #0a0e1a;
+    border: 1px solid #1a2234;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
 }
 .chat-user-badge {
-    color: #60a5fa; font-weight: 750; font-size: 13px; margin-bottom: 6px;
-    display: flex; align-items: center; gap: 6px;
+    color: #60a5fa;
+    font-weight: 750;
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 .chat-bot-badge {
-    color: #34d399; font-weight: 750; font-size: 13px; margin-bottom: 8px;
-    display: flex; align-items: center; gap: 6px;
+    color: #34d399;
+    font-weight: 750;
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
-.chat-text { color: #e2e8f0; font-size: 13.5px; line-height: 1.6; }
+.chat-text {
+    color: #e2e8f0;
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+.footer {
+    color: #64748b;
+    font-size: 12px;
+    text-align: center;
+    padding-top: 25px;
+}
 
 /* =======================================================
-   MODERN SEPARATED GLASS PILL NAVBAR FOR MENUS
+   MODERN BORDERED SEGMENTED PILL NAVBAR (RADIO REPLACEMENT)
    ======================================================= */
 div[data-testid="stRadio"] {
-    margin-top: 10px !important;
+    margin-top: 5px !important;
     margin-bottom: 25px !important;
 }
 
-/* 1. Main outer dark glass container */
+/* Main outer container bar with modern glass border */
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    background: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important;
-    padding: 4px !important;
-    display: inline-flex !important;
-    flex-direction: row !important;
-    gap: 0 !important; /* Zero gap merges the internal borders correctly */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+    background: rgba(10, 14, 26, 0.9) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(59, 130, 246, 0.35) !important;
+    border-radius: 16px !important;
+    padding: 8px !important;
+    gap: 6px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* 2. Individual label wrappers with vertical dividers */
+/* Individual option pills with clean borders between them */
 div[data-testid="stRadio"] label {
-    padding: 8px 16px !important;
-    margin: 0 !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important; /* Each pill is rounded inside */
     background: transparent !important;
-    cursor: pointer !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
+    padding: 10px 18px !important;
+    margin: 0 !important;
     transition: all 0.25s ease-in-out !important;
+    display: flex !important;
+    align-items: center !important;
+    cursor: pointer !important;
 }
 
-/* Remove border from the last tab item to prevent messy edges */
-div[data-testid="stRadio"] label:last-child {
-    border-right: none !important;
-}
-
-/* 3. COMPLETELY OBLITERATE the radio circle icon and red Streamlit highlights */
-div[data-testid="stRadio"] input[type="radio"],
-div[data-testid="stRadio"] div[role="radio"],
-div[data-testid="stRadio"] label > div:first-child {
+/* COMPLETELY HIDE the radio bullet point / circle icon and check indicators */
+div[data-testid="stRadio"] label > div:first-child,
+div[data-testid="stRadio"] input[type="radio"] {
     display: none !important;
     visibility: hidden !important;
     width: 0 !important;
     height: 0 !important;
     opacity: 0 !important;
-    position: absolute !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* 4. Unselected tab text styling */
+/* Hover effect for unselected pills */
+div[data-testid="stRadio"] label:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Active / Selected Pill Styling */
+div[data-testid="stRadio"] label:has(input[type="radio"]:checked) {
+    background: rgba(59, 130, 246, 0.25) !important;
+    border: 1px solid rgba(59, 130, 246, 0.8) !important;
+    box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35) !important;
+}
+
+/* Unselected label text color */
+div[data-testid="stRadio"] label p,
 div[data-testid="stRadio"] label span {
     color: #94a3b8 !important;
     font-weight: 600 !important;
@@ -296,27 +512,11 @@ div[data-testid="stRadio"] label span {
     margin: 0 !important;
 }
 
-/* 5. Hover state for unselected tabs */
-div[data-testid="stRadio"] label:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-}
-div[data-testid="stRadio"] label:hover span {
-    color: #ffffff !important;
-}
-
-/* 6. Active Tab: Modern Floating Glass Pill Selection (Overrides right border for clean look) */
-div[data-testid="stRadio"] label:has(input:checked) {
-    background: rgba(59, 130, 246, 0.15) !important;
-    border: 1px solid rgba(59, 130, 246, 0.5) !important;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
-    border-right: none !important;
-}
-
-/* 7. Active Tab Typography (Pure bright blue/white, absolutely NO red) */
-div[data-testid="stRadio"] label:has(input:checked) span {
+/* Active label text color (Pure White/Blue to override Streamlit Red) */
+div[data-testid="stRadio"] label:has(input[type="radio"]:checked) p,
+div[data-testid="stRadio"] label:has(input[type="radio"]:checked) span {
     color: #60a5fa !important;
     font-weight: 750 !important;
-    font-size: 13.5px !important;
 }
 
 </style>
@@ -364,37 +564,46 @@ def create_client(api_key):
 client = create_client(API_KEY)
 
 # ============================================================
-# MODEL EXECUTION & FALLBACK LOGIC
+# ACTIVE GEMINI 3-SERIES PRODUCTION MODELS
 # ============================================================
 
-def execute_gemini_call(contents, json_mode=False, use_search=False, system_instruction=None):
-    """Centralized fallback function enforcing speed, reliability, and modern 3.x guidelines."""
-    models = [
-        "gemini-3.5-flash-lite", 
-        "gemini-3.6-flash", 
-        "gemini-3.7-flash"
-    ]
-    
-    tools_list = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
-    
-    for model in models:
-        retries = 0
-        while retries < 2:  # Max 1 retry per model for temp errors
+# Define Fallback Tiers
+FAST_MODELS = [
+    "gemini-3.5-flash-lite",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash"
+]
+
+COMPLEX_MODELS = [
+    "gemini-3.6-flash",
+    "gemini-3.7-flash",
+    "gemini-3.5-flash-lite"
+]
+
+def generate_with_fallback(contents, json_mode=False, use_search=False, tier="fast"):
+    """
+    Centralized generation function with optimized model fallback architecture.
+    """
+    errors = []
+    ordered_models = COMPLEX_MODELS if tier == "complex" else FAST_MODELS
+
+    for model in ordered_models:
+        for attempt in range(2):  # Max 1 short retry for temporary limits
             try:
-                config_kwargs = {
-                    "temperature": 0.2,
-                    "max_output_tokens": 8192 if json_mode else 2048
-                }
+                tools_list = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
                 
-                # Search and JSON schema responses often conflict in current API; prioritize search if enabled.
                 if json_mode and not use_search:
-                    config_kwargs["response_mime_type"] = "application/json"
-                if tools_list:
-                    config_kwargs["tools"] = tools_list
-                if system_instruction:
-                    config_kwargs["system_instruction"] = system_instruction
-                    
-                config = types.GenerateContentConfig(**config_kwargs)
+                    config = types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        temperature=0.1,
+                        max_output_tokens=8192
+                    )
+                else:
+                    config = types.GenerateContentConfig(
+                        temperature=0.2,
+                        max_output_tokens=8192,
+                        tools=tools_list
+                    )
 
                 response = client.models.generate_content(
                     model=model,
@@ -405,17 +614,17 @@ def execute_gemini_call(contents, json_mode=False, use_search=False, system_inst
                 st.session_state.selected_model = model
                 return response
 
-            except Exception as e:
-                err_str = str(e).lower()
-                # If rate limited or unavailable, perform one quick retry
-                if any(x in err_str for x in ["429", "503", "unavailable", "resource_exhausted"]) and retries == 0:
-                    time.sleep(2)
-                    retries += 1
-                    continue
-                # For structural errors or second failures, instantly break to next model
-                break
-                
-    raise Exception("API completely overloaded or failed across all supported fallback models. Please try again.")
+            except Exception as error:
+                err_str = str(error)
+                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "503" in err_str or "UNAVAILABLE" in err_str:
+                    if attempt == 0:
+                        time.sleep(2.0)
+                        continue
+                errors.append(f"{model}: {err_str}")
+                break # Move to the next compatible model
+
+    error_text = "\n\n".join(errors)
+    raise Exception(f"API Rate limit reached or server is currently overloaded. Please try again in a few minutes.\n\n{error_text}")
 
 # ============================================================
 # SAFE PARSERS & UNIVERSAL STOCK LOOKUP
@@ -510,20 +719,17 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
     return None
 
 def upload_pdf_to_gemini(uploaded_file):
-    # Skip re-upload if file is actively stored to save API bandwidth
-    if st.session_state.gemini_file and st.session_state.uploaded_name == uploaded_file.name:
-        return st.session_state.gemini_file
-        
     temp_path = None
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
             temp_file.write(uploaded_file.getbuffer())
             temp_path = temp_file.name
 
+        # Direct, reliable upload to Gemini
         gemini_file = client.files.upload(file=temp_path)
         
-        # Efficient Polling Loop
-        for _ in range(45):
+        # Robust polling loop
+        for _ in range(90):
             try:
                 gemini_file = client.files.get(name=gemini_file.name)
                 state = getattr(gemini_file, "state", None)
@@ -655,9 +861,10 @@ if uploaded_file:
         else:
             st.session_state.page_count = "N/A"
 
+        # Step 1: Ingestion
         loader_container.markdown("""
         <div class="center-loader-box">
-            <div class="telemetry-pill" style="margin-bottom: 12px;">Step 1 of 2 • Secure Indexing</div>
+            <div class="telemetry-pill" style="margin-bottom: 12px;">Step 1 of 3 • Document Ingestion</div>
             <div class="fintech-spinner"></div>
             <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Uploading & Verifying Document...</div>
             <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">Transferring PDF securely to Gemini analytical cluster.</div>
@@ -670,22 +877,34 @@ if uploaded_file:
             st.session_state.gemini_file = gemini_file
             st.session_state.uploaded_name = uploaded_file.name
 
+            # Step 2: Parsing
             loader_container.markdown("""
             <div class="center-loader-box">
-                <div class="telemetry-pill" style="margin-bottom: 12px;">Step 2 of 2 • Deep Synthesis</div>
+                <div class="telemetry-pill" style="margin-bottom: 12px;">Step 2 of 3 • Parsing Statements</div>
                 <div class="fintech-spinner"></div>
-                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Running In-Depth Financial Analysis...</div>
+                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Indexing Financial Data...</div>
+                <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">Extracting balance sheets, income statements, and natural-language text.</div>
+                <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Step 3: Synthesis & AI Processing (Includes Shimmer Bar & Pulse Text warning for large files)
+            loader_container.markdown("""
+            <div class="center-loader-box">
+                <div class="telemetry-pill" style="margin-bottom: 12px;">Step 3 of 3 • AI Synthesis & Analysis</div>
+                <div class="fintech-spinner"></div>
+                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Running Deep Financial Analysis...</div>
                 <div class="pulse-text" style="font-size: 13px; color: #94a3b8; line-height: 1.5;">
-                    Structuring health indicators, forensic risk matrices, and rich dashboard narratives.<br>
-                    <span style="color: #fbbf24; font-weight: 600;">(Disclaimer: Massive files may take slightly longer to synthesize for highly detailed output.)</span>
+                    Structuring health indicators, risk matrices, and dashboards.<br>
+                    <span style="color: #fbbf24; font-weight: 600;">(Disclaimer: Massive files like 500+ pages or >5MB take approximately 5+ minutes to synthesize for precise, correct, and error-free output. Please do not refresh.)</span>
                 </div>
                 <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
             </div>
             """, unsafe_allow_html=True)
 
             analysis_prompt = """
-You are an expert institutional equity research analyst. Automatically detect the type of corporate report uploaded.
-Dynamically extract comprehensive metrics and structure your response strictly in valid JSON matching this schema with HIGH DEPTH AND DETAILED multi-sentence explanations:
+You are an expert institutional equity research analyst. Automatically detect the type of corporate report uploaded (e.g., Bank/NBFC, Technology, Manufacturing, FMCG, Energy, etc.).
+Dynamically extract comprehensive metrics and structure your response strictly in valid JSON matching this schema with high depth and detailed descriptions:
 {
   "company_overview": {
     "company_name": "Full company name",
@@ -710,10 +929,10 @@ Dynamically extract comprehensive metrics and structure your response strictly i
     }
   ],
   "investor_scorecard": {
-    "growth_momentum": { "badge": "Robust", "verdict": "Detailed multi-sentence summary explanation with comprehensive institutional depth", "health_pct": 85, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
-    "profitability_quality": { "badge": "Solid", "verdict": "Detailed multi-sentence summary explanation with comprehensive institutional depth", "health_pct": 80, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
-    "balance_sheet_safety": { "badge": "Secure", "verdict": "Detailed multi-sentence summary explanation with comprehensive institutional depth", "health_pct": 92, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
-    "strategic_execution": { "badge": "Active", "verdict": "Detailed multi-sentence summary explanation with comprehensive institutional depth", "health_pct": 88, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] }
+    "growth_momentum": { "badge": "Robust", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 85, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
+    "profitability_quality": { "badge": "Solid", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 80, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
+    "balance_sheet_safety": { "badge": "Secure", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 92, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
+    "strategic_execution": { "badge": "Active", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 88, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] }
   },
   "in_depth_investigation": {
     "profitability_and_margins": { "headline": "Thorough verdict sentence with comprehensive depth", "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
@@ -735,9 +954,10 @@ Dynamically extract comprehensive metrics and structure your response strictly i
   }
 }
 """
-            response = execute_gemini_call(
+            response = generate_with_fallback(
                 contents=[analysis_prompt, gemini_file],
-                json_mode=True
+                json_mode=True,
+                tier="fast"
             )
             data = clean_json_response(response.text)
             elapsed_time = round(time.time() - start_time, 1)
@@ -799,15 +1019,15 @@ with st.expander("📌 Financial Glossary & Core Reporting Nomenclature", expand
         term_map = {item.get("term", "").strip(): item.get("meaning", "").strip() for item in cheat_terms if item.get("term")}
         term_names = list(term_map.keys())
         if term_names:
-            selected_jargon = st.selectbox("Select reporting term:", options=term_names, index=0, key="glossary_slicer", label_visibility="collapsed")
+            selected_jargon = st.selectbox("Select reporting term:", options=term_names, index=0, key="glossary_slicer")
             st.markdown(f"""
             <div class="liquid-glass-card" style="padding: 14px 18px; margin-top: 8px;">
                 <div style="color: #60a5fa; font-weight: 700; font-size: 13px; margin-bottom: 4px;">💡 {selected_jargon}</div>
-                <div style="color: #cbd5e1; font-size: 13px; line-height: 1.5;">{term_map[selected_jargon]}</div>
+                <div style="color: #cbd5e1; font-size: 13px;">{term_map[selected_jargon]}</div>
             </div>
             """, unsafe_allow_html=True)
 
-# Corporate Profile & Overview
+# Corporate Profile & Overview (5 Symmetrical Cards wrapped in electric border)
 st.markdown('<div class="section-title">Corporate Profile & Overview</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Executive snapshot of the operating entity and its core revenue engine.</div>', unsafe_allow_html=True)
 
@@ -829,7 +1049,7 @@ for column, item in zip(overview_columns, overview_items):
         </div>
         """, unsafe_allow_html=True)
 
-# Headline Financial Metrics
+# Headline Financial Metrics (BI Tile Matrix with 3-Color Status Electric Borders: Green, Yellow, Red)
 st.markdown('<div class="section-title">Financial Metrics</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Core revenue, profit, and balance sheet indicators with verified YoY deltas.</div>', unsafe_allow_html=True)
 
@@ -896,7 +1116,7 @@ if headline_metrics:
             </div>
             """, unsafe_allow_html=True)
 
-# Consolidated Financial Dashboards Suite (Modern Segmented Menu)
+# Consolidated Financial Dashboards Suite (Modern Bordered Radio-Pill Navigation without duplicate headers/bullets)
 st.markdown('<div class="section-title" style="margin-top: 30px;">Financial Dashboards</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-description">Interactive analytical tabs structured with financial dashboard aesthetics:</div>', unsafe_allow_html=True)
 
@@ -995,7 +1215,7 @@ elif selected_dashboard_tab == "📊 Growth & Performance":
 
     categories = ["All Metrics", "Revenue & Profit", "Balance Sheet & Assets", "Financial Health Ratios"]
     selected_cat = st.radio(
-        "Select Category Slicer", 
+        "Category Slicer", 
         options=categories, 
         horizontal=True, 
         label_visibility="collapsed",
@@ -1154,7 +1374,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 forecast_toggle = st.radio(
-    "Forecast Selection",
+    "Forecast Menu Selection",
     options=["No, keep standard view", "Yes, generate 3-5 year trend & forecasting analysis"],
     index=0,
     horizontal=True,
@@ -1191,7 +1411,8 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
                 "}"
             )
             try:
-                res_f = execute_gemini_call(contents=[web_forecast_prompt], json_mode=False, use_search=True)
+                # Passing only the text prompt ensures search context limits aren't exceeded
+                res_f = generate_with_fallback(contents=[web_forecast_prompt], json_mode=False, use_search=True, tier="complex")
                 f_parsed = clean_json_response(res_f.text)
                 if not f_parsed or "rationale_points" not in f_parsed:
                     raise Exception("Invalid structure")
@@ -1199,6 +1420,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
                 st.session_state.forecast_company = c_name
                 st.session_state.forecast_loaded = True
             except Exception:
+                # Dynamic fallback based on actual user uploaded data
                 fallback_growth = headline_metrics[0].get("yoy_growth", "+10.0%") if headline_metrics else "+10.0%"
                 st.session_state.forecast_data = {
                     "cagr_value": f"Estimated {fallback_growth} p.a.",
@@ -1253,6 +1475,7 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
         </div>
         """, unsafe_allow_html=True)
 
+    # Detailed Bullet-Point Explanations with Electric Borderlines
     rationale_items = f_res.get("rationale_points", [])
     bullets_html = "".join([f'<li style="margin-bottom: 12px;"><strong>Market & Historical Trace Rationale:</strong> {pt}</li>' for pt in rationale_items])
 
@@ -1278,7 +1501,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 deep_choice = st.radio(
-    "Deep Dive Selection",
+    "Deep Dive Menu Selection",
     options=["No, keep summary view", "Yes, generate deep-dive financial analysis"],
     index=0,
     horizontal=True,
@@ -1362,7 +1585,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 investor_mcq = st.radio(
-    "Investor Status",
+    "Investment Position Radio",
     options=["Select an option...", "Yes, I hold shares in this company", "No, I am just studying / evaluating"],
     index=0,
     horizontal=True,
@@ -1373,7 +1596,7 @@ investor_mcq = st.radio(
 if investor_mcq == "No, I am just studying / evaluating":
     st.markdown("""
     <div class="electric-kpi-card-blue" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
-        💡 Thank you for your time. Feel free to look at the overview of the report and move forward to the next section.
+        💡 <strong>Standard view retained.</strong> Feel free to explore the overview of the report and move forward to the next section.
     </div>
     """, unsafe_allow_html=True)
 
@@ -1416,30 +1639,27 @@ elif investor_mcq == "Yes, I hold shares in this company":
             amt_str = f"{pnl_sign}₹{pnl_amt:,.2f}"
             cmp_display = f"₹{live_price:,.2f}"
 
-            compact_context = {
-                "company_overview": company,
-                "investor_scorecard": scorecard,
-                "risks": risks,
-                "analyst_takeaway": takeaway
-            }
-
+            # Only provide the compact JSON summary for analysis, NOT the full PDF
             analysis_req_prompt = (
-                f"You are an expert institutional equity research mentor analyzing an investor's position in {c_name}.\n"
-                f"Use this core knowledge strictly: {json.dumps(compact_context)}\n\n"
+                "You are an expert institutional equity research mentor analyzing an investor's equity position in " + str(c_name) + ".\n"
+                "Use the following analytical context extracted from their annual report: \n"
+                f"{json.dumps(scorecard)}\n{json.dumps(risks)}\n\n"
                 "Deliver a structured valuation synthesis.\n"
                 "INVESTMENT PARAMETERS:\n"
-                f"- Capital Invested: ₹{total_invested_input}\n"
-                f"- Purchase Price Basis: ₹{avg_price_input}\n"
-                f"- Current Market Price: {cmp_display}\n\n"
+                "- Capital Invested: ₹" + str(total_invested_input) + "\n"
+                "- Purchase Price Basis: ₹" + str(avg_price_input) + "\n"
+                "- Current Market Price: " + str(cmp_display) + "\n"
+                f"- Unrealized Return: {pnl_str} ({amt_str})\n\n"
                 "STRUCTURE YOUR JSON OUTPUT STRICTLY:\n"
                 "{\n"
-                "  \"profit_or_loss_summary\": \"Detailed breakdown of position performance based on the math provided.\",\n"
-                "  \"investor_checkpoints\": [{\"title\": \"Checkpoint Title\", \"explanation\": \"What the investor must closely look into regarding fundamentals and risks based on the attached report context.\"}],\n"
-                "  \"future_aspect\": [{\"title\": \"Future Aspect Title\", \"explanation\": \"The future aspect and compounding potential over the next 5 to 8 years derived from the attached context.\"}]\n"
+                "  \"profit_or_loss_summary\": \"Detailed breakdown of position performance.\",\n"
+                "  \"investor_checkpoints\": [{\"title\": \"Checkpoint Title\", \"explanation\": \"What the investor must closely look into regarding fundamentals and risks.\"}],\n"
+                "  \"future_aspect\": [{\"title\": \"Future Aspect Title\", \"explanation\": \"The future aspect and compounding potential over the next 5 to 8 years.\"}]\n"
                 "}"
             )
             try:
-                pos_res = execute_gemini_call(contents=[analysis_req_prompt], json_mode=True)
+                # Use complex tier for deep reasoning, no search needed, no heavy PDF attached
+                pos_res = generate_with_fallback(contents=[analysis_req_prompt], json_mode=True, tier="complex")
                 parsed_pos = clean_json_response(pos_res.text)
             except Exception:
                 parsed_pos = {}
@@ -1541,7 +1761,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 export_choice = st.radio(
-    "Export Selection",
+    "Export Option Slicer",
     options=["No, keep on-screen view", "Yes, generate institutional research export suite"],
     index=0,
     horizontal=True,
@@ -1552,7 +1772,7 @@ export_choice = st.radio(
 if export_choice == "No, keep on-screen view":
     st.markdown("""
     <div class="electric-kpi-card-blue" style="padding: 14px 18px; color: #94a3b8; font-size: 13px; height: auto;">
-        💡 <strong>Standard view retained.</strong> Feel free to explore the overview or move forward to the next section.
+        💡 <strong>Standard view retained.</strong> Feel free to explore the overview of the report and move forward to the next section.
     </div>
     """, unsafe_allow_html=True)
 
@@ -1723,6 +1943,7 @@ elif export_choice == "Yes, generate institutional research export suite":
 
     clean_file_name = re.sub(r'[^A-Za-z0-9_]', '_', comp_name)
     
+    # XLSX Download Button only as requested
     st.download_button(
         label="📊 Download Professional Excel Model Workbook (.xlsx)",
         data=excel_bytes,
@@ -1742,7 +1963,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
-allow_search = st.toggle("🌐 Allow Live Web Research (AI logically decides when needed)", value=False)
+use_web_search_chat = st.toggle("🌐 Allow Live Web Research (Copilot will decide if web data is needed)", value=False)
 
 chip_cols = st.columns(4)
 suggested_q = None
@@ -1755,8 +1976,8 @@ with chip_cols[2]:
 with chip_cols[3]:
     if st.button("⚠️ Material Operational Risks", key="c4"): suggested_q = "What are the primary operational, credit, regulatory, and market risks outlined in the report?"
 
-# Render conversational history (Keep limited to avoid massive token overhead)
-for chat in st.session_state.chat_history[-6:]:
+# Render conversational history
+for chat in st.session_state.chat_history:
     if chat["role"] == "user":
         st.markdown(f"""
         <div class="chat-box-card" style="border-left: 3.5px solid #3b82f6;">
@@ -1769,7 +1990,6 @@ for chat in st.session_state.chat_history[-6:]:
         <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
             <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
             <div class="chat-text">{chat["content"]}</div>
-            {"<div style='margin-top:10px; padding-top:10px; border-top:1px solid #1e293b; font-size:11px; color:#64748b;'>" + chat.get("sources", "") + "</div>" if chat.get("sources") else ""}
         </div>
         """, unsafe_allow_html=True)
 
@@ -1788,28 +2008,25 @@ if active_q:
 
     c_name = company.get('company_name', 'the company')
 
-    compact_context = {
-        "entity": c_name,
-        "ticker": company.get('stock_ticker', ''),
-        "industry": company.get('industry', ''),
-        "metrics": metrics,
-        "scorecard": scorecard,
-        "risks": risks,
-        "management": management,
-        "analyst_takeaways": takeaway
-    }
+    # Extremely compact token-efficient context instead of full PDF
+    report_context = f"""
+AUDITED DATA FOR {c_name}:
+- Metrics: {json.dumps(metrics)}
+- Scorecard: {json.dumps(scorecard)}
+- Risks: {json.dumps(risks)}
+- Management: {json.dumps(management)}
+- Takeaways: {json.dumps(takeaway)}
+"""
 
     chat_prompt = f"""
-AUDITED COMPANY DATA: {json.dumps(compact_context)}
+You are an expert financial analyst. Use the provided AUDITED DATA context below to answer.
+If the user's query requests current stock prices, market news, or recent events not in the context, you MAY use the Google Search tool to fetch real-time data.
+Explain clearly, use exact figures, and use bullet points where helpful. DO NOT invent fake data.
 
-USER QUESTION: {active_q}
+{report_context}
+
+INVESTOR QUESTION: {active_q}
 """
-    sys_instruction = (
-        "You are an expert institutional equity research copilot. "
-        "Answer the user's question accurately using ONLY the provided audited company data. "
-        "Explain in simple terms, avoiding heavy jargon, and use exact figures from the data. "
-        "IF AND ONLY IF the user asks for current market data, latest prices, or news not present in the historical context provided, use the Google Search tool to find it. Otherwise, rely strictly on the provided context."
-    )
 
     chat_response_placeholder = st.empty()
     chat_response_placeholder.markdown("""
@@ -1823,37 +2040,41 @@ USER QUESTION: {active_q}
     """, unsafe_allow_html=True)
 
     try:
-        res = execute_gemini_call(
-            contents=[chat_prompt], 
-            use_search=allow_search, 
-            system_instruction=sys_instruction
-        )
+        # Use primary fast model, lightweight context
+        res = generate_with_fallback(contents=[chat_prompt], use_search=use_web_search_chat, tier="fast")
+        
+        # Grounding transparency logic
+        search_used = False
+        citations = []
+        source_badge = "📄 Source: Uploaded Annual Report"
+
+        if hasattr(res, 'candidates') and res.candidates:
+            candidate = res.candidates[0]
+            if hasattr(candidate, 'grounding_metadata') and candidate.grounding_metadata:
+                meta = candidate.grounding_metadata
+                if hasattr(meta, 'web_search_queries') and meta.web_search_queries:
+                    search_used = True
+                    source_badge = "📄 + 🌐 Source: Annual Report + Live Web Research"
+                    if hasattr(meta, 'grounding_chunks'):
+                        for chunk in meta.grounding_chunks:
+                            if hasattr(chunk, 'web') and chunk.web and hasattr(chunk.web, 'uri'):
+                                citations.append(f"[{chunk.web.title}]({chunk.web.uri})")
+
         ans = res.text.strip() if res.text else "No relevant disclosure found."
         
-        # Extract Grounding Metadata for transparent citations
-        sources_html = ""
-        used_search = False
-        if res.candidates and res.candidates[0].grounding_metadata:
-            metadata = res.candidates[0].grounding_metadata
-            if getattr(metadata, "grounding_chunks", None):
-                used_search = True
-                links = []
-                for chunk in metadata.grounding_chunks:
-                    if getattr(chunk, "web", None):
-                        links.append(f"<a href='{chunk.web.uri}' target='_blank' style='color:#38bdf8; text-decoration:none;'>🔗 {chunk.web.title}</a>")
-                if links:
-                    sources_html = "<b>Live Search Sources:</b><br>" + "<br>".join(set(links))
+        # Append Citations if Web Search was used
+        if search_used and citations:
+            unique_citations = list(set(citations))
+            ans += "\n\n**Grounding Sources:**\n" + "\n".join([f"- {c}" for c in unique_citations])
         
-        badge_text = "📄 + 🌐 Source: Annual Report + Live Web Research" if used_search else "📄 Source: Uploaded Annual Report"
-        final_sources_html = f"<span style='color:#fbbf24; font-weight:700;'>{badge_text}</span><br><br>{sources_html}"
+        ans += f"\n\n*{source_badge}*"
         
-        st.session_state.chat_history.append({"role": "assistant", "content": ans, "sources": final_sources_html})
+        st.session_state.chat_history.append({"role": "assistant", "content": ans})
         
         chat_response_placeholder.markdown(f"""
         <div class="chat-box-card" style="border-left: 3.5px solid #10b981; background: #071318;">
             <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
             <div class="chat-text">{ans}</div>
-            <div style='margin-top:10px; padding-top:10px; border-top:1px solid #1e293b; font-size:11px; color:#64748b;'>{final_sources_html}</div>
         </div>
         """, unsafe_allow_html=True)
     except Exception as e:
