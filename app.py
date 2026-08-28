@@ -449,9 +449,20 @@ div[data-testid="stFileUploader"] {
 div[data-testid="stRadio"] {
     margin-top: 5px !important;
     margin-bottom: 25px !important;
+    border: none !important;
+    background: transparent !important;
 }
 
-/* Main outer container bar with modern glass border */
+/* 1. COMPLETELY HIDE ALL RADIO LABELS ("Financial Dashboards Selection", "Category Slicer", etc.) */
+div[data-testid="stRadio"] > label {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 2. Main outer container bar with modern glass border */
 div[data-testid="stRadio"] > div[role="radiogroup"] {
     background: rgba(10, 14, 26, 0.9) !important;
     backdrop-filter: blur(16px) !important;
@@ -459,27 +470,28 @@ div[data-testid="stRadio"] > div[role="radiogroup"] {
     border: 1px solid rgba(59, 130, 246, 0.35) !important;
     border-radius: 16px !important;
     padding: 8px !important;
-    gap: 6px !important;
+    gap: 8px !important;
     display: flex !important;
     flex-wrap: wrap !important;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Individual option pills with clean borders between them */
+/* 3. Individual option pills with clean borders between them */
 div[data-testid="stRadio"] label {
     background: transparent !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 10px !important;
-    padding: 10px 18px !important;
+    padding: 10px 20px !important;
     margin: 0 !important;
     transition: all 0.25s ease-in-out !important;
     display: flex !important;
     align-items: center !important;
+    justify-content: center !important;
     cursor: pointer !important;
 }
 
-/* COMPLETELY HIDE the radio bullet point / circle icon and check indicators */
-div[data-testid="stRadio"] label > div:first-child,
+/* 4. COMPLETELY HIDE the radio bullet point / circle icons everywhere */
+div[data-testid="stRadio"] label [data-baseweb="radio"],
 div[data-testid="stRadio"] input[type="radio"] {
     display: none !important;
     visibility: hidden !important;
@@ -490,32 +502,36 @@ div[data-testid="stRadio"] input[type="radio"] {
     padding: 0 !important;
 }
 
-/* Hover effect for unselected pills */
+/* 5. Hover effect for unselected pills */
 div[data-testid="stRadio"] label:hover {
-    background: rgba(255, 255, 255, 0.06) !important;
-    border-color: rgba(59, 130, 246, 0.5) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(59, 130, 246, 0.6) !important;
 }
 
-/* Active / Selected Pill Styling */
-div[data-testid="stRadio"] label:has(input[type="radio"]:checked) {
+/* 6. Active / Selected Pill Styling */
+div[data-testid="stRadio"] label:has(input[type="radio"]:checked),
+div[data-testid="stRadio"] label[data-checked="true"] {
     background: rgba(59, 130, 246, 0.25) !important;
-    border: 1px solid rgba(59, 130, 246, 0.8) !important;
+    border: 1px solid rgba(59, 130, 246, 0.9) !important;
     box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35) !important;
 }
 
-/* Unselected label text color */
+/* 7. Unselected label text color */
 div[data-testid="stRadio"] label p,
 div[data-testid="stRadio"] label span {
     color: #94a3b8 !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
     margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* Active label text color (Pure White/Blue to override Streamlit Red) */
+/* 8. Active label text color (Pure White/Blue to override Streamlit Red) */
 div[data-testid="stRadio"] label:has(input[type="radio"]:checked) p,
-div[data-testid="stRadio"] label:has(input[type="radio"]:checked) span {
-    color: #60a5fa !important;
+div[data-testid="stRadio"] label:has(input[type="radio"]:checked) span,
+div[data-testid="stRadio"] label[data-checked="true"] p,
+div[data-testid="stRadio"] label[data-checked="true"] span {
+    color: #ffffff !important;
     font-weight: 750 !important;
 }
 
