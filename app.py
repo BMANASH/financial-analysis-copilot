@@ -816,7 +816,7 @@ loader_container = st.empty()
 
 if not st.session_state.gemini_file or not st.session_state.analysis:
     if not uploaded_file:
-        st.info("👆 Upload an annual report PDF above to begin institutional financial analysis.")
+        st.info("👆 Upload an annual report PDF above to begin financial analysis.")
         st.markdown("---")
         st.markdown('<div class="section-title" style="margin-top:0;">Terminal Research Capabilities</div>', unsafe_allow_html=True)
         st.markdown('<div class="section-description">Automated modules generated upon document reconciliation:</div>', unsafe_allow_html=True)
@@ -1024,7 +1024,7 @@ st.markdown(f"""
     <span class="telemetry-pill">🧠 Model Engine: <b>{model_name}</b></span>
     <span class="telemetry-pill">📄 Filing Size: <b>{f_size} MB</b></span>
     <span class="telemetry-pill">📑 Pages Analyzed: <b>{p_count}</b></span>
-    <span class="telemetry-pill" style="border-color: #059669; color: #34d399;">🟢 Verification: <b>Audited & Reconciled</b></span>
+    <span class="telemetry-pill" style="border-color: #059669; color: #34d399;">🟢 Verification: <b>Analysis Completed</b></span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1139,7 +1139,7 @@ st.markdown('<div class="section-description">Interactive analytical tabs struct
 selected_dashboard_tab = st.radio(
     "Financial Dashboards Selection",
     options=[
-        "⭐ Strategic Scorecard", 
+        "Overview", 
         "Financial Statement Table", 
         "📊 Growth & Performance", 
         "Management Outlook", 
@@ -1152,7 +1152,7 @@ selected_dashboard_tab = st.radio(
 )
 
 # Tab 1: Strategic Scorecard
-if selected_dashboard_tab == "⭐ Strategic Scorecard":
+if selected_dashboard_tab == "Overview":
     st.subheader("Executive Strategic Diagnostic Scorecard")
     st.write("Structured 4-pillar evaluation matrix assessing corporate performance, capital resilience, and execution velocity:")
 
