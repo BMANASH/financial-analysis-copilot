@@ -814,6 +814,49 @@ def fetch_live_stock_price(company_name, ticker_hint=""):
         pass
     return None
 
+@st.cache_data(ttl=300, show_spinner=False)
+def fetch_ticker_snapshot():
+    """
+    Fetches a small snapshot of live market data for the decorative ticker
+    strip only. Fully isolated from the PDF analysis pipeline — if this
+    fails or is slow for any reason, it returns None and the ticker strip
+    simply falls back to static placeholder text. Cached for 5 minutes so
+    it does not re-fetch on every Streamlit rerun.
+    """
+    if not yf:
+        return None
+    symbols = [
+        ("📈 NIFTY 50", "^NSEI", ""),
+        ("📉 SENSEX", "^BSESN", ""),
+        ("💹 USD/INR", "INR=X", "₹"),
+        ("🥇 GOLD (USD/oz)", "GC=F", "$"),
+        ("🛢️ BRENT CRUDE", "BZ=F", "$"),
+    ]
+    results = []
+    try:
+        for label, sym, prefix in symbols:
+            try:
+                hist = yf.Ticker(sym).history(period="2d")
+                if hist is None or hist.empty:
+                    continue
+                last_price = float(hist["Close"].iloc[-1])
+                if len(hist) >= 2:
+                    prev_price = float(hist["Close"].iloc[-2])
+                    pct_change = ((last_price - prev_price) / prev_price) * 100 if prev_price else 0.0
+                else:
+                    pct_change = 0.0
+                results.append({
+                    "label": label,
+                    "price": last_price,
+                    "prefix": prefix,
+                    "pct": pct_change
+                })
+            except Exception:
+                continue
+    except Exception:
+        return None
+    return results if results else None
+
 def upload_pdf_to_gemini(uploaded_file):
     temp_path = None
     try:
@@ -871,25 +914,47 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("""
+live_ticker_data = None
+try:
+    live_ticker_data = fetch_ticker_snapshot()
+except Exception:
+    live_ticker_data = None
+
+if live_ticker_data:
+    tick_items_html = ""
+    for item in live_ticker_data:
+        arrow = "▲" if item["pct"] >= 0 else "▼"
+        color = "#34d399" if item["pct"] >= 0 else "#f87171"
+        price_str = f"{item['prefix']}{item['price']:,.2f}"
+        tick_items_html += f'<span class="tick-item">{item["label"]} {price_str} <span style="color:{color};">{arrow} {abs(item["pct"]):.2f}%</span></span>\n'
+    tick_items_html += '<span class="tick-item">🏦 REPO RATE 6.50%</span>\n<span class="tick-item">🧠 AI SYNTHESIS ENGINE • ONLINE</span>\n'
+    # Duplicate the sequence once for a seamless continuous scroll
+    tick_full_html = tick_items_html + tick_items_html
+else:
+    # Static fallback — used automatically if live data is unavailable or the fetch fails/times out
+    tick_full_html = """
+<span class="tick-item">📈 NIFTY 50 <span style="color:#34d399;">▲ 0.42%</span></span>
+<span class="tick-item">📉 SENSEX <span style="color:#f87171;">▼ 0.11%</span></span>
+<span class="tick-item">💹 USD/INR 83.21</span>
+<span class="tick-item">🏦 REPO RATE 6.50%</span>
+<span class="tick-item">📊 10Y G-SEC 7.02%</span>
+<span class="tick-item">🥇 GOLD ₹71,450/10g</span>
+<span class="tick-item">🛢️ BRENT CRUDE $82.40</span>
+<span class="tick-item">🧠 AI SYNTHESIS ENGINE • ONLINE</span>
+<span class="tick-item">📈 NIFTY 50 <span style="color:#34d399;">▲ 0.42%</span></span>
+<span class="tick-item">📉 SENSEX <span style="color:#f87171;">▼ 0.11%</span></span>
+<span class="tick-item">💹 USD/INR 83.21</span>
+<span class="tick-item">🏦 REPO RATE 6.50%</span>
+<span class="tick-item">📊 10Y G-SEC 7.02%</span>
+<span class="tick-item">🥇 GOLD ₹71,450/10g</span>
+<span class="tick-item">🛢️ BRENT CRUDE $82.40</span>
+<span class="tick-item">🧠 AI SYNTHESIS ENGINE • ONLINE</span>
+"""
+
+st.markdown(f"""
 <div class="ticker-tape landing-animate">
 <div class="ticker-tape-inner">
-<span class="tick-item">📈 NIFTY 50 <span style="color:#34d399;">▲ 0.42%</span></span>
-<span class="tick-item">📉 SENSEX <span style="color:#f87171;">▼ 0.11%</span></span>
-<span class="tick-item">💹 USD/INR 83.21</span>
-<span class="tick-item">🏦 REPO RATE 6.50%</span>
-<span class="tick-item">📊 10Y G-SEC 7.02%</span>
-<span class="tick-item">🥇 GOLD ₹71,450/10g</span>
-<span class="tick-item">🛢️ BRENT CRUDE $82.40</span>
-<span class="tick-item">🧠 AI SYNTHESIS ENGINE • ONLINE</span>
-<span class="tick-item">📈 NIFTY 50 <span style="color:#34d399;">▲ 0.42%</span></span>
-<span class="tick-item">📉 SENSEX <span style="color:#f87171;">▼ 0.11%</span></span>
-<span class="tick-item">💹 USD/INR 83.21</span>
-<span class="tick-item">🏦 REPO RATE 6.50%</span>
-<span class="tick-item">📊 10Y G-SEC 7.02%</span>
-<span class="tick-item">🥇 GOLD ₹71,450/10g</span>
-<span class="tick-item">🛢️ BRENT CRUDE $82.40</span>
-<span class="tick-item">🧠 AI SYNTHESIS ENGINE • ONLINE</span>
+{tick_full_html}
 </div>
 </div>
 """, unsafe_allow_html=True)
