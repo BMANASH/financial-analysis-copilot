@@ -65,8 +65,8 @@ st.markdown("""
         radial-gradient(circle at 15% 20%, rgba(30, 58, 138, 0.15) 0%, transparent 40%),
         radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
         linear-gradient(rgba(6, 8, 14, 0.94), rgba(6, 8, 14, 0.94)),
-        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 10h80v80H10z' fill='none'/%3E%3Cpath d='M20 70l20-30 20 15 25-35' stroke='rgba(59, 130, 246, 0.04)' stroke-width='2' fill='none'/%3E%3Ctext x='15' y='30' fill='rgba(255,255,255,0.02)' font-family='monospace' font-size='10'%3EBI-ANALYTICS%3C/text%3E%3C/svg%3E");
-    background-size: cover, cover, cover, 180px 180px;
+        url("data:image/svg+xml,%3Csvg width='280' height='280' viewBox='0 0 280 280' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='rgba(59,130,246,0.05)'%3E%3Cline x1='0' y1='70' x2='280' y2='70'/%3E%3Cline x1='0' y1='140' x2='280' y2='140'/%3E%3Cline x1='0' y1='210' x2='280' y2='210'/%3E%3C/g%3E%3Cpath d='M10 220 L50 180 L80 200 L120 120 L160 150 L200 80 L240 100 L270 40' stroke='rgba(16,185,129,0.08)' stroke-width='2' fill='none'/%3E%3Crect x='40' y='170' width='7' height='40' fill='rgba(16,185,129,0.07)'/%3E%3Crect x='90' y='130' width='7' height='70' fill='rgba(239,68,68,0.07)'/%3E%3Crect x='150' y='90' width='7' height='60' fill='rgba(16,185,129,0.07)'/%3E%3Crect x='210' y='60' width='7' height='50' fill='rgba(16,185,129,0.07)'/%3E%3Cg fill='rgba(96,165,250,0.11)'%3E%3Ccircle cx='30' cy='30' r='3'/%3E%3Ccircle cx='100' cy='55' r='3'/%3E%3Ccircle cx='170' cy='25' r='3'/%3E%3Ccircle cx='230' cy='60' r='3'/%3E%3Ccircle cx='60' cy='250' r='3'/%3E%3Ccircle cx='150' cy='260' r='3'/%3E%3Ccircle cx='240' cy='230' r='3'/%3E%3C/g%3E%3Cg stroke='rgba(96,165,250,0.08)' stroke-width='1'%3E%3Cline x1='30' y1='30' x2='100' y2='55'/%3E%3Cline x1='100' y1='55' x2='170' y2='25'/%3E%3Cline x1='170' y1='25' x2='230' y2='60'/%3E%3Cline x1='60' y1='250' x2='150' y2='260'/%3E%3Cline x1='150' y1='260' x2='240' y2='230'/%3E%3Cline x1='100' y1='55' x2='60' y2='250'/%3E%3C/g%3E%3Ctext x='14' y='155' fill='rgba(255,255,255,0.03)' font-family='monospace' font-size='12'%3ENIFTY%3C/text%3E%3Ctext x='185' y='198' fill='rgba(255,255,255,0.03)' font-family='monospace' font-size='12'%3E%E2%82%B9 $ %25%3C/text%3E%3C/svg%3E");
+    background-size: cover, cover, cover, 280px 280px;
     color: #f1f5f9;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -106,6 +106,52 @@ div[data-testid="stStatusWidget"] {
 
 .landing-animate {
     animation: landingBounce 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Glowing gradient hero title */
+@keyframes glowShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+.hero-glow-title {
+    background: linear-gradient(90deg, #f8fafc, #60a5fa, #34d399, #f8fafc);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: glowShift 6s ease infinite;
+    text-shadow: 0 0 50px rgba(59, 130, 246, 0.25);
+}
+
+/* Live-feeling scrolling ticker strip */
+.ticker-tape {
+    overflow: hidden;
+    white-space: nowrap;
+    border-top: 1px solid rgba(59, 130, 246, 0.25);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.25);
+    background: rgba(10, 14, 26, 0.6);
+    backdrop-filter: blur(6px);
+    padding: 9px 0;
+    margin: 4px 0 22px 0;
+    border-radius: 8px;
+}
+.ticker-tape-inner {
+    display: inline-block;
+    padding-left: 100%;
+    animation: tickerScroll 28s linear infinite;
+}
+.ticker-tape span.tick-item {
+    display: inline-block;
+    padding-right: 46px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #93c5fd;
+    font-family: 'Space Grotesk', sans-serif;
+}
+@keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
 }
 
 /* Liquid Glass Card Styling */
@@ -814,7 +860,7 @@ def upload_pdf_to_gemini(uploaded_file):
 
 st.markdown("""
 <div style="text-align: center; padding: 20px 0 10px 0;" class="landing-animate">
-    <div style="font-size: 38px; font-weight: 800; color: #f8fafc; letter-spacing: -0.5px; margin-bottom: 8px;">Financial Analyst AI</div>
+    <div class="hero-glow-title" style="font-size: 40px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px;">Financial Analyst AI</div>
     <div style="font-size: 15px; color: #94a3b8; max-width: 750px; margin: 0 auto 18px auto; line-height: 1.5;">Institutional Equity Research & Corporate Fundamental Intelligence Terminal</div>
     <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
         <span class="telemetry-pill">📈 Real-Time Equity Tracking</span>
@@ -822,6 +868,29 @@ st.markdown("""
         <span class="telemetry-pill">⚡ Multi-Pillar Diagnostic Engine</span>
         <span class="telemetry-pill">🛡️ Risk & Solvency Assessment</span>
     </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="ticker-tape landing-animate">
+<div class="ticker-tape-inner">
+<span class="tick-item">📈 NIFTY 50 <span style="color:#34d399;">▲ 0.42%</span></span>
+<span class="tick-item">📉 SENSEX <span style="color:#f87171;">▼ 0.11%</span></span>
+<span class="tick-item">💹 USD/INR 83.21</span>
+<span class="tick-item">🏦 REPO RATE 6.50%</span>
+<span class="tick-item">📊 10Y G-SEC 7.02%</span>
+<span class="tick-item">🥇 GOLD ₹71,450/10g</span>
+<span class="tick-item">🛢️ BRENT CRUDE $82.40</span>
+<span class="tick-item">🧠 AI SYNTHESIS ENGINE • ONLINE</span>
+<span class="tick-item">📈 NIFTY 50 <span style="color:#34d399;">▲ 0.42%</span></span>
+<span class="tick-item">📉 SENSEX <span style="color:#f87171;">▼ 0.11%</span></span>
+<span class="tick-item">💹 USD/INR 83.21</span>
+<span class="tick-item">🏦 REPO RATE 6.50%</span>
+<span class="tick-item">📊 10Y G-SEC 7.02%</span>
+<span class="tick-item">🥇 GOLD ₹71,450/10g</span>
+<span class="tick-item">🛢️ BRENT CRUDE $82.40</span>
+<span class="tick-item">🧠 AI SYNTHESIS ENGINE • ONLINE</span>
+</div>
 </div>
 """, unsafe_allow_html=True)
 
