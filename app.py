@@ -629,6 +629,11 @@ COMPLEX_MODELS = [
 def generate_with_fallback(contents, json_mode=False, use_search=False, tier="fast"):
     """
     Centralized generation function with optimized model fallback architecture.
+    Returns a tuple: (response, model_name_used).
+    NOTE: This function does NOT write to st.session_state itself, because it can
+    be called from background threads (see the parallel analysis calls below) and
+    Streamlit's session_state is only safely writable from the main script thread.
+    Callers should set st.session_state.selected_model themselves, from the main thread.
     """
     errors = []
     ordered_models = COMPLEX_MODELS if tier == "complex" else FAST_MODELS
@@ -657,8 +662,7 @@ def generate_with_fallback(contents, json_mode=False, use_search=False, tier="fa
                     config=config
                 )
 
-                st.session_state.selected_model = model
-                return response
+                return response, model
 
             except Exception as error:
                 err_str = str(error)
@@ -1037,18 +1041,21 @@ Structure your response strictly in valid JSON matching this schema (and nothing
 """
 
             def _run_part(prompt_text):
-                resp = generate_with_fallback(
+                resp, used_model = generate_with_fallback(
                     contents=[prompt_text, gemini_file],
                     json_mode=True,
                     tier="fast"
                 )
-                return clean_json_response(resp.text)
+                return clean_json_response(resp.text), used_model
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
                 future_a = executor.submit(_run_part, analysis_prompt_part_a)
                 future_b = executor.submit(_run_part, analysis_prompt_part_b)
-                data_part_a = future_a.result()
-                data_part_b = future_b.result()
+                data_part_a, model_used_a = future_a.result()
+                data_part_b, model_used_b = future_b.result()
+
+            # Record which model was used (safe here — we're back on the main thread now)
+            st.session_state.selected_model = model_used_b or model_used_a
 
             # Merge both halves back into a single data structure —
             # everything downstream (dashboards, tabs, Excel export)
@@ -1092,7 +1099,7 @@ takeaway = data.get("analyst_takeaway", {})
 
 proc_time = st.session_state.get("processing_seconds", 0.0)
 f_size = st.session_state.get("file_size_mb", 0.0)
-model_name = st.session_state.get("selected_model", "Gemini Engine")
+model_name = st.session_state.get("selected_model") or "Gemini Engine"
 p_count = st.session_state.get("page_count", "Unknown")
 
 # Header & Telemetry Bar
@@ -1506,7 +1513,8 @@ elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
             )
             try:
                 # Passing only the text prompt ensures search context limits aren't exceeded
-                res_f = generate_with_fallback(contents=[web_forecast_prompt], json_mode=False, use_search=True, tier="complex")
+                res_f, model_used_f = generate_with_fallback(contents=[web_forecast_prompt], json_mode=False, use_search=True, tier="complex")
+                st.session_state.selected_model = model_used_f
                 f_parsed = clean_json_response(res_f.text)
                 if not f_parsed or "rationale_points" not in f_parsed:
                     raise Exception("Invalid structure")
@@ -1753,7 +1761,8 @@ elif investor_mcq == "Yes, I hold shares in this company":
             )
             try:
                 # Use complex tier for deep reasoning, no search needed, no heavy PDF attached
-                pos_res = generate_with_fallback(contents=[analysis_req_prompt], json_mode=True, tier="complex")
+                pos_res, model_used_pos = generate_with_fallback(contents=[analysis_req_prompt], json_mode=True, tier="complex")
+                st.session_state.selected_model = model_used_pos
                 parsed_pos = clean_json_response(pos_res.text)
             except Exception:
                 parsed_pos = {}
@@ -2351,7 +2360,8 @@ INVESTOR QUESTION: {active_q}
 
     try:
         # Use primary fast model, lightweight context
-        res = generate_with_fallback(contents=[chat_prompt], use_search=use_web_search_chat, tier="fast")
+        res, model_used_chat = generate_with_fallback(contents=[chat_prompt], use_search=use_web_search_chat, tier="fast")
+        st.session_state.selected_model = model_used_chat
         
         # Grounding transparency logic
         search_used = False
