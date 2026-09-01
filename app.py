@@ -5,6 +5,7 @@ import tempfile
 import os
 import time
 import io
+import concurrent.futures
 from datetime import datetime
 
 # Safe imports for data handling & visual BI
@@ -55,6 +56,8 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 /* Base Theme with Financial Analytics Watermark Background */
 .stApp {
     background-color: #06080e;
@@ -243,19 +246,46 @@ div[data-testid="stFileUploader"] {
     50% { opacity: 1; }
 }
 
+@keyframes borderSweep {
+    0% { opacity: 0.25; }
+    50% { opacity: 1; }
+    100% { opacity: 0.25; }
+}
+
 .center-loader-box {
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(13, 18, 30, 0.95) !important;
-    backdrop-filter: blur(24px) !important;
-    border: 1px solid rgba(59, 130, 246, 0.45) !important;
-    border-radius: 18px !important;
-    padding: 36px 32px !important;
+    background: linear-gradient(145deg, rgba(20, 28, 48, 0.55), rgba(8, 11, 20, 0.8)) !important;
+    backdrop-filter: blur(28px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 22px !important;
+    padding: 40px 36px !important;
     margin: 25px auto !important;
     text-align: center;
     max-width: 620px;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(59, 130, 246, 0.08), 0 0 60px rgba(59, 130, 246, 0.12);
+}
+.center-loader-box::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 22px;
+    padding: 1px;
+    background: linear-gradient(120deg, transparent, rgba(96, 165, 250, 0.55), transparent);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: borderSweep 3s linear infinite;
+    pointer-events: none;
+}
+.center-loader-box .telemetry-pill {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: 0.3px;
 }
 .fintech-spinner {
     width: 50px;
@@ -744,8 +774,13 @@ def upload_pdf_to_gemini(uploaded_file):
         # Direct, reliable upload to Gemini
         gemini_file = client.files.upload(file=temp_path)
         
-        # Robust polling loop
-        for _ in range(90):
+        # Adaptive polling loop: check quickly at first (most files are ready fast),
+        # then back off to longer waits only if a large file is still processing.
+        poll_interval = 0.5
+        elapsed_polls = 0.0
+        max_wait_seconds = 240
+
+        while elapsed_polls < max_wait_seconds:
             try:
                 gemini_file = client.files.get(name=gemini_file.name)
                 state = getattr(gemini_file, "state", None)
@@ -756,7 +791,10 @@ def upload_pdf_to_gemini(uploaded_file):
                     raise Exception("The PDF file format is too complex or scanned images couldn't be read. Please try a text-searchable PDF.")
             except Exception:
                 pass
-            time.sleep(2)
+            time.sleep(poll_interval)
+            elapsed_polls += poll_interval
+            # Ramp the check interval up gradually: 0.5s -> 1s -> 2s -> 3s (capped)
+            poll_interval = min(poll_interval * 1.6, 3.0)
 
         return gemini_file
     finally:
@@ -880,10 +918,10 @@ if uploaded_file:
         # Step 1: Ingestion
         loader_container.markdown("""
         <div class="center-loader-box">
-            <div class="telemetry-pill" style="margin-bottom: 12px;">Step 1 of 3 • Document Ingestion</div>
+            <div class="telemetry-pill" style="margin-bottom: 12px;">⚡ Terminal Uplink 1/3 • Secure Ingestion</div>
             <div class="fintech-spinner"></div>
-            <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Uploading & Verifying Document...</div>
-            <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">Transferring PDF securely to Gemini analytical cluster.</div>
+            <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Routing Filing to the Gemini Analytical Cluster...</div>
+            <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">📡 Encrypting & streaming your PDF across the institutional data uplink.</div>
             <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
         </div>
         """, unsafe_allow_html=True)
@@ -896,10 +934,10 @@ if uploaded_file:
             # Step 2: Parsing
             loader_container.markdown("""
             <div class="center-loader-box">
-                <div class="telemetry-pill" style="margin-bottom: 12px;">Step 2 of 3 • Parsing Statements</div>
+                <div class="telemetry-pill" style="margin-bottom: 12px;">📊 Terminal Uplink 2/3 • Ticker-Level Parsing</div>
                 <div class="fintech-spinner"></div>
-                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Indexing Financial Data...</div>
-                <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">Extracting balance sheets, income statements, and natural-language text.</div>
+                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Indexing Balance Sheet & P&amp;L Line Items...</div>
+                <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">📉📈 Cross-referencing income statements, cash flows, and footnotes against the reporting schema.</div>
                 <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
             </div>
             """, unsafe_allow_html=True)
@@ -907,75 +945,115 @@ if uploaded_file:
             # Step 3: Synthesis & AI Processing (Includes Shimmer Bar & Pulse Text warning for large files)
             loader_container.markdown("""
             <div class="center-loader-box">
-                <div class="telemetry-pill" style="margin-bottom: 12px;">Step 3 of 3 • AI Synthesis & Analysis</div>
+                <div class="telemetry-pill" style="margin-bottom: 12px;">🧠 Terminal Uplink 3/3 • AI Synthesis Engine</div>
                 <div class="fintech-spinner"></div>
-                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Running Deep Financial Analysis...</div>
+                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Compiling the Institutional Diagnostic Scorecard...</div>
                 <div class="pulse-text" style="font-size: 13px; color: #94a3b8; line-height: 1.5;">
-                    Structuring health indicators, risk matrices, and dashboards.<br>
+                    ⚙️ Structuring health indicators, risk heatmaps, and KPI dashboards in real time.<br>
                     <span style="color: #fbbf24; font-weight: 600;">(Disclaimer: Massive files like 500+ pages or >5MB take approximately 5+ minutes to synthesize for precise, correct, and error-free output. Please do not refresh.)</span>
                 </div>
                 <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
             </div>
             """, unsafe_allow_html=True)
 
-            analysis_prompt = """
-You are an expert institutional equity research analyst. Automatically detect the type of corporate report uploaded (e.g., Bank/NBFC, Technology, Manufacturing, FMCG, Energy, etc.).
-Dynamically extract comprehensive metrics and structure your response strictly in valid JSON matching this schema with high depth and detailed descriptions:
-{
-  "company_overview": {
+            # -----------------------------------------------------------
+            # SPEED OPTIMIZATION: the full analysis is split into TWO
+            # smaller prompts that are sent to Gemini AT THE SAME TIME
+            # (in parallel, via a thread pool) instead of one giant
+            # sequential prompt. Both halves read the same PDF file
+            # reference, so no data is duplicated or re-uploaded — only
+            # the output generation runs concurrently, which is what
+            # cuts total wait time roughly in half.
+            # -----------------------------------------------------------
+
+            STYLE_RULE = """
+CRITICAL WRITING STYLE RULE (applies to every explanation, verdict, headline, point, and summary field below):
+- Write in simple, plain, everyday English — as if explaining it to a smart friend who has never studied finance.
+- Avoid dense jargon. If you must use a financial term (e.g., "EBITDA", "solvency"), briefly explain what it means in the same sentence.
+- Keep sentences short and direct. Prefer concrete numbers and real-world comparisons over abstract institutional language.
+- Still be accurate and specific to THIS company's actual reported figures — simple language does not mean vague or generic.
+"""
+
+            analysis_prompt_part_a = f"""
+You are an expert institutional equity research analyst who is also excellent at explaining finance to complete beginners. Automatically detect the type of corporate report uploaded (e.g., Bank/NBFC, Technology, Manufacturing, FMCG, Energy, etc.).
+{STYLE_RULE}
+Dynamically extract comprehensive metrics and structure your response strictly in valid JSON matching this schema (and nothing else — no extra top-level keys):
+{{
+  "company_overview": {{
     "company_name": "Full company name",
     "stock_ticker": "Ticker symbol if available",
     "industry": "Detected industry sector",
-    "business_type": "Comprehensive description describing core operations, product verticals, and revenue model",
+    "business_type": "Simple, plain-English description of what the company actually does and how it makes money",
     "reporting_period": "Reporting fiscal year",
     "report_type": "Annual Report or Financial Filing"
-  },
+  }},
   "terms_cheat_sheet": [
-    { "term": "Term name", "meaning": "Detailed sentence explanation" }
+    {{ "term": "Term name", "meaning": "One or two simple sentences explaining what this term means, in plain English" }}
   ],
   "key_metrics": [
-    {
+    {{
       "metric": "Line item name",
       "current_period": "Current value",
       "previous_period": "Previous value",
       "yoy_growth": "YoY growth percentage",
       "unit": "₹ Crore / % / USD",
       "basis": "Consolidated / Standalone",
-      "what_it_means": "Thorough operational and financial significance explanation"
-    }
+      "what_it_means": "Plain-English explanation of why this number matters and what it tells an ordinary investor, avoiding jargon"
+    }}
   ],
-  "investor_scorecard": {
-    "growth_momentum": { "badge": "Robust", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 85, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
-    "profitability_quality": { "badge": "Solid", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 80, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
-    "balance_sheet_safety": { "badge": "Secure", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 92, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
-    "strategic_execution": { "badge": "Active", "verdict": "Detailed summary explanation with comprehensive institutional depth", "health_pct": 88, "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] }
-  },
-  "in_depth_investigation": {
-    "profitability_and_margins": { "headline": "Thorough verdict sentence with comprehensive depth", "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
-    "borrowings_and_capital_cushion": { "headline": "Thorough verdict sentence with comprehensive depth", "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] },
-    "operating_efficiency_and_scale": { "headline": "Thorough verdict sentence with comprehensive depth", "points": ["Detailed point 1", "Detailed point 2", "Detailed point 3"] }
-  },
+  "investor_scorecard": {{
+    "growth_momentum": {{ "badge": "Robust", "verdict": "Simple, easy-to-understand summary of how the company is growing", "health_pct": 85, "points": ["Simple point 1", "Simple point 2", "Simple point 3"] }},
+    "profitability_quality": {{ "badge": "Solid", "verdict": "Simple, easy-to-understand summary of how profitable and efficient the company is", "health_pct": 80, "points": ["Simple point 1", "Simple point 2", "Simple point 3"] }},
+    "balance_sheet_safety": {{ "badge": "Secure", "verdict": "Simple, easy-to-understand summary of how financially safe the company is", "health_pct": 92, "points": ["Simple point 1", "Simple point 2", "Simple point 3"] }},
+    "strategic_execution": {{ "badge": "Active", "verdict": "Simple, easy-to-understand summary of how well management is executing its plans", "health_pct": 88, "points": ["Simple point 1", "Simple point 2", "Simple point 3"] }}
+  }}
+}}
+"""
+
+            analysis_prompt_part_b = f"""
+You are an expert institutional equity research analyst who is also excellent at explaining finance to complete beginners. This is the SECOND half of a two-part analysis of the same corporate report.
+{STYLE_RULE}
+Structure your response strictly in valid JSON matching this schema (and nothing else — no extra top-level keys):
+{{
+  "in_depth_investigation": {{
+    "profitability_and_margins": {{ "headline": "Simple one-line verdict in plain English", "points": ["Simple point 1", "Simple point 2", "Simple point 3"] }},
+    "borrowings_and_capital_cushion": {{ "headline": "Simple one-line verdict in plain English", "points": ["Simple point 1", "Simple point 2", "Simple point 3"] }},
+    "operating_efficiency_and_scale": {{ "headline": "Simple one-line verdict in plain English", "points": ["Simple point 1", "Simple point 2", "Simple point 3"] }}
+  }},
   "management_commentary": [
-    { "title": "Theme title", "summary": "Comprehensive in-depth explanation covering strategic objectives and financial execution." }
+    {{ "title": "Theme title", "summary": "Plain-English explanation of what management said and what it means for the business, avoiding corporate jargon" }}
   ],
   "risks": [
-    { "title": "Risk title", "category": "Market & Economy", "impact_level": "High", "what_is_the_risk": "Detailed explanation of the underlying threat", "why_it_matters": "Comprehensive financial impact analysis" }
+    {{ "title": "Risk title", "category": "Market & Economy", "impact_level": "High", "what_is_the_risk": "Simple explanation of the underlying threat, in plain English", "why_it_matters": "Simple explanation of how this could actually affect the company's money" }}
   ],
-  "analyst_takeaway": {
-    "improving": ["Detailed tailwind 1", "Detailed tailwind 2", "Detailed tailwind 3"],
-    "weakening": ["Detailed headwind 1", "Detailed headwind 2", "Detailed headwind 3"],
-    "growth_drivers": ["Detailed driver 1", "Detailed driver 2"],
-    "investor_watch": ["Detailed checkpoint 1", "Detailed checkpoint 2"],
+  "analyst_takeaway": {{
+    "improving": ["Simple tailwind 1", "Simple tailwind 2", "Simple tailwind 3"],
+    "weakening": ["Simple headwind 1", "Simple headwind 2", "Simple headwind 3"],
+    "growth_drivers": ["Simple driver 1", "Simple driver 2"],
+    "investor_watch": ["Simple checkpoint 1", "Simple checkpoint 2"],
     "sentiment_score": 75
-  }
-}
+  }}
+}}
 """
-            response = generate_with_fallback(
-                contents=[analysis_prompt, gemini_file],
-                json_mode=True,
-                tier="fast"
-            )
-            data = clean_json_response(response.text)
+
+            def _run_part(prompt_text):
+                resp = generate_with_fallback(
+                    contents=[prompt_text, gemini_file],
+                    json_mode=True,
+                    tier="fast"
+                )
+                return clean_json_response(resp.text)
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                future_a = executor.submit(_run_part, analysis_prompt_part_a)
+                future_b = executor.submit(_run_part, analysis_prompt_part_b)
+                data_part_a = future_a.result()
+                data_part_b = future_b.result()
+
+            # Merge both halves back into a single data structure —
+            # everything downstream (dashboards, tabs, Excel export)
+            # reads from this exact same shape, so nothing else changes.
+            data = {**data_part_a, **data_part_b}
             elapsed_time = round(time.time() - start_time, 1)
             st.session_state.processing_seconds = elapsed_time
 
@@ -1407,7 +1485,7 @@ if forecast_toggle == "No, keep standard view":
 elif forecast_toggle == "Yes, generate 3-5 year trend & forecasting analysis":
     
     if not st.session_state.get("forecast_loaded") or st.session_state.get("forecast_company") != company.get("company_name"):
-        with st.spinner("🌍 Tracing live internet market trends, past financial history, and predictive compounding models via Gemini Search..."):
+        with st.spinner("🌍 Scanning live market tape, macro signals, and compounding models via the Gemini Search grid..."):
             c_name = company.get("company_name", "the company")
             c_ticker = company.get("stock_ticker", "")
             
@@ -1635,10 +1713,10 @@ elif investor_mcq == "Yes, I hold shares in this company":
 
             pos_loader_placeholder.markdown("""
             <div class="center-loader-box">
-                <div class="telemetry-pill" style="margin-bottom: 12px;">Valuation Engine Active</div>
+                <div class="telemetry-pill" style="margin-bottom: 12px;">💹 Valuation Engine • Live</div>
                 <div class="fintech-spinner"></div>
-                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Executing Investment Valuation...</div>
-                <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">Cross-referencing entry price against net worth backing and compounding models.</div>
+                <div style="font-size: 18px; font-weight: 750; color: #fff; margin-bottom: 6px;">Marking Your Position to Market...</div>
+                <div class="pulse-text" style="font-size: 13px; color: #94a3b8;">📡 Pulling live exchange ticks and reconciling entry price against net worth backing & compounding models.</div>
                 <div class="loader-progress-track"><div class="loader-progress-fill"></div></div>
             </div>
             """, unsafe_allow_html=True)
@@ -1799,13 +1877,27 @@ elif export_choice == "Yes, generate institutional research export suite":
     if pd is not None and openpyxl is not None:
         from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
         from openpyxl.utils import get_column_letter
+        from openpyxl.chart import BarChart, Reference
         
         try:
             with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
                 wb = writer.book
-                
+
+                thin_border = Border(
+                    left=Side(style='thin', color="3B82F6"),
+                    right=Side(style='thin', color="3B82F6"),
+                    top=Side(style='thin', color="3B82F6"),
+                    bottom=Side(style='thin', color="3B82F6")
+                )
+                thin_grid = Border(
+                    left=Side(style='thin', color="DDDDDD"),
+                    right=Side(style='thin', color="DDDDDD"),
+                    top=Side(style='thin', color="DDDDDD"),
+                    bottom=Side(style='thin', color="DDDDDD")
+                )
+
                 # ==========================
-                # SHEET 1: Executive Summary 
+                # SHEET 1: Executive Summary (headline KPI cards)
                 # ==========================
                 ws_summary = wb.create_sheet("Executive Summary", 0)
                 ws_summary.sheet_view.showGridLines = False # Dashboard Look
@@ -1817,14 +1909,6 @@ elif export_choice == "Yes, generate institutional research export suite":
                 title_cell.font = Font(size=22, bold=True, color="FFFFFF")
                 title_cell.fill = PatternFill(fill_type="solid", start_color="0B101C")
                 title_cell.alignment = Alignment(horizontal="center", vertical="center")
-                
-                # Border Styles for Cards
-                thin_border = Border(
-                    left=Side(style='thin', color="3B82F6"), 
-                    right=Side(style='thin', color="3B82F6"), 
-                    top=Side(style='thin', color="3B82F6"), 
-                    bottom=Side(style='thin', color="3B82F6")
-                )
 
                 # Spacer Columns (Columns C, E, G)
                 ws_summary.column_dimensions['C'].width = 3
@@ -1871,7 +1955,84 @@ elif export_choice == "Yes, generate institutional research export suite":
                     c_yoy.border = thin_border
 
                 # ==========================
-                # SHEET 2: Financial Metrics
+                # SHEET 2: Investor Scorecard (4-pillar KPI cards, mirrors the Overview tab)
+                # ==========================
+                ws_score = wb.create_sheet("Investor Scorecard")
+                ws_score.sheet_view.showGridLines = False
+
+                ws_score.merge_cells('B2:G3')
+                sc_title = ws_score['B2']
+                sc_title.value = "EXECUTIVE STRATEGIC DIAGNOSTIC SCORECARD"
+                sc_title.font = Font(size=18, bold=True, color="FFFFFF")
+                sc_title.fill = PatternFill(fill_type="solid", start_color="0B101C")
+                sc_title.alignment = Alignment(horizontal="center", vertical="center")
+
+                pillar_defs = [
+                    ("growth_momentum", "Growth Momentum", "38BDF8"),
+                    ("profitability_quality", "Profitability & Quality", "34D399"),
+                    ("balance_sheet_safety", "Balance Sheet Resilience", "818CF8"),
+                    ("strategic_execution", "Strategic & Commercial Scale", "FBBF24"),
+                ]
+
+                ws_score.column_dimensions['A'].width = 3
+                ws_score.column_dimensions['B'].width = 26
+                ws_score.column_dimensions['C'].width = 14
+                ws_score.column_dimensions['D'].width = 14
+                ws_score.column_dimensions['E'].width = 60
+                ws_score.column_dimensions['F'].width = 60
+
+                row_ptr = 5
+                header_row = ["Pillar", "Badge", "Score %", "Verdict (Plain-English)", "Key Signals"]
+                for c_idx, h in enumerate(header_row, start=2):
+                    hc = ws_score.cell(row=row_ptr, column=c_idx, value=h)
+                    hc.font = Font(bold=True, color="FFFFFF")
+                    hc.fill = PatternFill(fill_type="solid", start_color="0F172A")
+                    hc.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+                    hc.border = thin_grid
+                row_ptr += 1
+
+                for p_key, p_title, bar_color in pillar_defs:
+                    p_obj = scorecard.get(p_key, {}) if scorecard else {}
+                    score = p_obj.get("health_pct", "N/A")
+                    badge = p_obj.get("badge", "N/A")
+                    verdict = p_obj.get("verdict", "")
+                    points = p_obj.get("points", p_obj.get("tags", []))
+                    signals_txt = " | ".join([f"✓ {pt}" for pt in points[:4]])
+
+                    ws_score.row_dimensions[row_ptr].height = 60
+
+                    name_cell = ws_score.cell(row=row_ptr, column=2, value=p_title)
+                    name_cell.font = Font(bold=True, color="FFFFFF")
+                    name_cell.fill = PatternFill(fill_type="solid", start_color="0B101C")
+                    name_cell.alignment = Alignment(vertical="center", wrap_text=True)
+                    name_cell.border = thin_border
+
+                    badge_cell = ws_score.cell(row=row_ptr, column=3, value=badge)
+                    badge_cell.font = Font(bold=True, color=bar_color)
+                    badge_cell.fill = PatternFill(fill_type="solid", start_color="0B101C")
+                    badge_cell.alignment = Alignment(horizontal="center", vertical="center")
+                    badge_cell.border = thin_border
+
+                    score_cell = ws_score.cell(row=row_ptr, column=4, value=f"{score}%" if score != "N/A" else "N/A")
+                    score_cell.font = Font(bold=True, size=13, color=bar_color)
+                    score_cell.fill = PatternFill(fill_type="solid", start_color="0B101C")
+                    score_cell.alignment = Alignment(horizontal="center", vertical="center")
+                    score_cell.border = thin_border
+
+                    verdict_cell = ws_score.cell(row=row_ptr, column=5, value=verdict)
+                    verdict_cell.font = Font(color="CBD5E1")
+                    verdict_cell.alignment = Alignment(wrap_text=True, vertical="top")
+                    verdict_cell.border = thin_grid
+
+                    signals_cell = ws_score.cell(row=row_ptr, column=6, value=signals_txt)
+                    signals_cell.font = Font(color="CBD5E1")
+                    signals_cell.alignment = Alignment(wrap_text=True, vertical="top")
+                    signals_cell.border = thin_grid
+
+                    row_ptr += 1
+
+                # ==========================
+                # SHEET 3: Financial Metrics
                 # ==========================
                 metrics_data = []
                 for m in metrics:
@@ -1887,9 +2048,49 @@ elif export_choice == "Yes, generate institutional research export suite":
                     })
                 df_metrics = pd.DataFrame(metrics_data)
                 df_metrics.to_excel(writer, sheet_name="Financial Metrics", index=False)
-                
+
                 # ==========================
-                # SHEET 3: Risk Matrix
+                # SHEET 4: Growth & Performance (numeric table + real bar chart, mirrors the chart tab)
+                # ==========================
+                growth_rows = []
+                for m in metrics:
+                    curr_val = parse_clean_float(m.get("current_period"))
+                    prev_val = parse_clean_float(m.get("previous_period"))
+                    if curr_val is not None and prev_val is not None:
+                        growth_rows.append({
+                            "Metric": m.get("metric", "").strip(),
+                            "Previous Period": prev_val,
+                            "Current Period": curr_val,
+                            "Unit": m.get("unit", "").strip(),
+                            "YoY Delta": m.get("yoy_growth", ""),
+                            "Category": auto_classify_metric(m.get("metric", "")),
+                            "What It Means": m.get("what_it_means", "")
+                        })
+                df_growth = pd.DataFrame(growth_rows)
+                if not df_growth.empty:
+                    df_growth.to_excel(writer, sheet_name="Growth & Performance", index=False)
+                    ws_growth = writer.sheets["Growth & Performance"]
+
+                    chart_row_count = min(len(growth_rows), 12)
+                    if chart_row_count > 0:
+                        bar_chart = BarChart()
+                        bar_chart.type = "col"
+                        bar_chart.title = "Previous vs Current Period (Top Metrics)"
+                        bar_chart.y_axis.title = "Value"
+                        bar_chart.x_axis.title = "Metric"
+                        bar_chart.style = 10
+                        bar_chart.height = 10
+                        bar_chart.width = 24
+
+                        data_ref = Reference(ws_growth, min_col=2, max_col=3, min_row=1, max_row=chart_row_count + 1)
+                        cats_ref = Reference(ws_growth, min_col=1, min_row=2, max_row=chart_row_count + 1)
+                        bar_chart.add_data(data_ref, titles_from_data=True)
+                        bar_chart.set_categories(cats_ref)
+                        bar_chart.shape = 4
+                        ws_growth.add_chart(bar_chart, f"I2")
+
+                # ==========================
+                # SHEET 5: Risk Matrix (color-coded by impact severity)
                 # ==========================
                 risks_data = []
                 for r in risks:
@@ -1904,14 +2105,71 @@ elif export_choice == "Yes, generate institutional research export suite":
                 df_risks.to_excel(writer, sheet_name="Risk Matrix", index=False)
 
                 # ==========================
+                # SHEET 6: Analyst Takeaways (sentiment gauge + tailwinds/headwinds cards)
+                # ==========================
+                ws_take = wb.create_sheet("Analyst Takeaways")
+                ws_take.sheet_view.showGridLines = False
+
+                ws_take.merge_cells('B2:E3')
+                tk_title = ws_take['B2']
+                tk_title.value = "INSTITUTIONAL SENTIMENT & ANALYST SIGNALS"
+                tk_title.font = Font(size=16, bold=True, color="FFFFFF")
+                tk_title.fill = PatternFill(fill_type="solid", start_color="0B101C")
+                tk_title.alignment = Alignment(horizontal="center", vertical="center")
+
+                bull_pct = int(takeaway.get("sentiment_score", 74)) if takeaway else 74
+                bear_pct = 100 - bull_pct
+
+                ws_take.column_dimensions['B'].width = 30
+                ws_take.column_dimensions['C'].width = 30
+                ws_take.column_dimensions['D'].width = 30
+                ws_take.column_dimensions['E'].width = 30
+
+                gauge_bull = ws_take.cell(row=5, column=2, value=f"🟢 Bull Catalysts: {bull_pct}%")
+                gauge_bull.font = Font(bold=True, color="34D399")
+                gauge_bull.fill = PatternFill(fill_type="solid", start_color="071F16")
+                gauge_bull.alignment = Alignment(horizontal="center", vertical="center")
+                gauge_bull.border = thin_border
+
+                gauge_bear = ws_take.cell(row=5, column=3, value=f"🔴 Headwinds: {bear_pct}%")
+                gauge_bear.font = Font(bold=True, color="F87171")
+                gauge_bear.fill = PatternFill(fill_type="solid", start_color="240D12")
+                gauge_bear.alignment = Alignment(horizontal="center", vertical="center")
+                gauge_bear.border = thin_border
+
+                ws_take.cell(row=7, column=2, value="🟢 Improving Tailwinds").font = Font(bold=True, color="34D399")
+                ws_take.cell(row=7, column=3, value="🔴 Weakening Headwinds").font = Font(bold=True, color="F87171")
+
+                improving_list = takeaway.get("improving", []) if takeaway else []
+                weakening_list = takeaway.get("weakening", []) if takeaway else []
+                max_len = max(len(improving_list), len(weakening_list), 1)
+
+                for i in range(max_len):
+                    r = 8 + i
+                    if i < len(improving_list):
+                        cell_i = ws_take.cell(row=r, column=2, value=f"✓ {improving_list[i]}")
+                        cell_i.font = Font(color="D1FAE5")
+                        cell_i.fill = PatternFill(fill_type="solid", start_color="062319")
+                        cell_i.alignment = Alignment(wrap_text=True, vertical="top")
+                        cell_i.border = thin_grid
+                    if i < len(weakening_list):
+                        cell_w = ws_take.cell(row=r, column=3, value=f"✗ {weakening_list[i]}")
+                        cell_w.font = Font(color="FEE2E2")
+                        cell_w.fill = PatternFill(fill_type="solid", start_color="260D13")
+                        cell_w.alignment = Alignment(wrap_text=True, vertical="top")
+                        cell_w.border = thin_grid
+                    ws_take.row_dimensions[r].height = 34
+
+                watch_start = 8 + max_len + 2
+                ws_take.cell(row=watch_start, column=2, value="🔍 Investor Watch Checkpoints").font = Font(bold=True, color="60A5FA")
+                for i, wpt in enumerate(takeaway.get("investor_watch", []) if takeaway else []):
+                    cell_wp = ws_take.cell(row=watch_start + 1 + i, column=2, value=f"• {wpt}")
+                    cell_wp.font = Font(color="CBD5E1")
+                    cell_wp.alignment = Alignment(wrap_text=True, vertical="top")
+
+                # ==========================
                 # Style Tables (Headers, Widths, Grid Borders, and Freeze Panes)
                 # ==========================
-                thin_grid = Border(
-                    left=Side(style='thin', color="DDDDDD"),
-                    right=Side(style='thin', color="DDDDDD"),
-                    top=Side(style='thin', color="DDDDDD"),
-                    bottom=Side(style='thin', color="DDDDDD")
-                )
 
                 # Style Financial Metrics
                 ws_metrics = writer.sheets["Financial Metrics"]
@@ -1930,12 +2188,42 @@ elif export_choice == "Yes, generate institutional research export suite":
                             cell.alignment = Alignment(wrap_text=True, vertical="top")
                             cell.border = thin_grid
 
-                # Style Risk Matrix
+                # Style Growth & Performance table
+                if "Growth & Performance" in writer.sheets:
+                    ws_growth = writer.sheets["Growth & Performance"]
+                    ws_growth.freeze_panes = 'A2'
+                    col_widths_gp = [32, 15, 15, 10, 12, 20, 50]
+                    for i, w in enumerate(col_widths_gp, 1):
+                        ws_growth.column_dimensions[get_column_letter(i)].width = w
+                    for row in ws_growth.iter_rows(min_row=1, max_row=len(growth_rows) + 1, min_col=1, max_col=7):
+                        for cell in row:
+                            if cell.row == 1:
+                                cell.font = Font(bold=True, color="FFFFFF")
+                                cell.fill = PatternFill(fill_type="solid", start_color="0F172A")
+                                cell.alignment = Alignment(horizontal="center", vertical="center")
+                            else:
+                                cell.alignment = Alignment(wrap_text=True, vertical="top")
+                                cell.border = thin_grid
+
+                # Style Risk Matrix with impact-severity color coding
                 ws_risks = writer.sheets["Risk Matrix"]
                 ws_risks.freeze_panes = 'A2'
                 col_widths_rm = [30, 20, 15, 40, 45]
                 for i, w in enumerate(col_widths_rm, 1):
                     ws_risks.column_dimensions[get_column_letter(i)].width = w
+
+                severity_fill = {
+                    "high": "FDE2E2",
+                    "moderate": "FEF3C7",
+                    "low": "DBEAFE",
+                    "operational": "DBEAFE",
+                }
+                severity_font = {
+                    "high": "B91C1C",
+                    "moderate": "92400E",
+                    "low": "1D4ED8",
+                    "operational": "1D4ED8",
+                }
 
                 for row in ws_risks.iter_rows(min_row=1, max_row=ws_risks.max_row, min_col=1, max_col=5):
                     for cell in row:
@@ -1946,6 +2234,12 @@ elif export_choice == "Yes, generate institutional research export suite":
                         else:
                             cell.alignment = Alignment(wrap_text=True, vertical="top")
                             cell.border = thin_grid
+                            if cell.column == 3:  # Impact Severity column
+                                sev_key = str(cell.value or "moderate").strip().lower()
+                                if sev_key not in severity_fill:
+                                    sev_key = "moderate"
+                                cell.fill = PatternFill(fill_type="solid", start_color=severity_fill[sev_key])
+                                cell.font = Font(bold=True, color=severity_font[sev_key])
 
                 # Remove default sheet
                 if "Sheet" in wb.sheetnames:
@@ -2049,7 +2343,7 @@ INVESTOR QUESTION: {active_q}
     <div class="chat-box-card" style="border-left: 3.5px solid #34d399; background: #071318;">
         <div class="chat-bot-badge">🤖 Financial Analyst AI</div>
         <div class="chat-text" style="color: #94a3b8;">
-            <div class="pulse-text"><em>Analyzing report disclosures and structuring insights...</em></div>
+            <div class="pulse-text"><em>📡 Querying the audited data feed and structuring your answer...</em></div>
             <div class="loader-progress-track" style="margin-top: 8px;"><div class="loader-progress-fill"></div></div>
         </div>
     </div>
